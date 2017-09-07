@@ -1,0 +1,26 @@
+.undecorate {
+    color: #000000 !important;
+    text-decoration: none !important;
+}
+
+.table tbody>tr>td{
+    vertical-align: middle;
+}
+
+.table .clickable-row {
+    cursor: pointer;
+}
+
+.btn-pad {
+    margin:0px 5px 0px 5px;
+}
+
+.button-td {
+    width:125px;
+}
+
+#bulk_pass_dropdown {
+    margin:0px 0px 0px 5px;
+    float:left;
+    width:49.55%;
+}

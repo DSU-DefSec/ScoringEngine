@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block teams %}active{% endblock %}
+
+{% block content %}
+<h1>Teams</h1>
+
+{% if invalid %}
+<div class="alert alert-danger alert-danger-dismissable" role="alert">
+<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+Invalid Team
+</div>
+{% endif %}
+
+<table class="table">
+<thead>
+<tr>
+<th>Name</th>
+<th>Subnet</th>
+<th></th>
+</tr>
+</thead>
+
+<tbody>
+{% for t in teams %}
+<tr>
+<td>{{ t.name }}</td>
+<td>{{ t.subnet }}</td>
+<td>
+    <button type="button" class="btn btn-primary">
+        <span class="glyphicon glyphicon-pencil"/>
+    </button>
+</td>
+</tr>
+{% endfor %}
+<tr>
+<td colspan="3">
+</td>
+</tr>
+</tbody>
+</table>
+
+{% endblock %}

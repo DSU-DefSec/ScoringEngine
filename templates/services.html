@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block services %}active{% endblock %}
+
+{% block content %}
+<h2>Services</h2>
+
+<table class="table">
+<thead>
+<tr>
+<th>ID</th>
+<th>Host</th>
+<th>Port</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+{% for s in services %}
+<tr>
+<td>{{ s.id }}</td>
+<td>{Team Subnet} + {{ s.host }}</td>
+<td>{{ s.port }}</td>
+<td class='button-td'>
+</td>
+</tr>
+{% endfor %}
+<tr>
+<td colspan="4">
+</td>
+</tr>
+</tbody>
+</table>
+
+{% endblock %}
