@@ -1,29 +1,37 @@
 #!/bin/python
 
-from .loader import Loader
+from dm import DataManager
 from flask import Flask
 from flask import render_template
 app = Flask(__name__)
-loader = Loader()
+dm = DataManager()
 
 @app.route('/')
-def index():
-    return render_template('index.html')
-
 @app.route('/status')
 def status():
-    return render_template('scoreboard.html')
+    dm.reload()
+    teams = dm.teams
+    checks = dm.checks
+    results = dm.latest_results()
+    return render_template('status.html', teams=teams, checks=checks, results=results)
+
+@app.route('/scores')
+def scores():
+    dm.reload()
+    teams = dm.teams
+    scores = {1:0, 2:0}
+    return render_template('scores.html', teams=teams, scores=scores)
 
 @app.route('/teams')
 def teams():
-    loader.reload()
-    teams = loader.teams
+    dm.reload()
+    teams = dm.teams
     return render_template('teams.html', teams=teams)
 
 @app.route('/services')
 def services():
-    loader.reload()
-    services = loader.services
+    dm.reload()
+    services = dm.services
     return render_template('services.html', services=services)
 
 @app.route('/checks')

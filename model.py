@@ -5,7 +5,7 @@ from threading import Thread
 
 class Team(object):
 
-    def __init__(self, id, name, subnet, credentials=None):
+    def __init__(self, name, subnet, id=None):
         self.id = id
         self.name = name
         self.subnet = subnet
@@ -22,7 +22,7 @@ class Credential(object):
 
 class Service(object):
 
-    def __init__(self, id, host, port, checks):
+    def __init__(self, host, port, checks=None, id=None):
         self.id = id
         self.host = host
         self.port = port
@@ -37,8 +37,9 @@ class Service(object):
 
 class Check(object):
 
-    def __init__(self, id, check_function, check_ios, poller, service_id):
+    def __init__(self, id, name, check_function, check_ios, poller, service_id):
         self.id = id
+        self.name = name
         self.check_function = check_function
         self.check_ios = check_ios
         self.poller = poller
@@ -115,3 +116,13 @@ class CheckIO(object):
         octets[3] = str(host)
         ip = '.'.join(octets)
         return ip
+
+
+class Result(object):
+    
+    def __init__(self, result_id, check_id, team_id, time, result):
+        self.result_id = result_id
+        self.check_id = check_id
+        self.team_id = team_id
+        self.time = time
+        self.result = result

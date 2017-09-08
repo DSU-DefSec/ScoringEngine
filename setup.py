@@ -39,6 +39,7 @@ with connection.cursor() as cursor:
     # Check Input Table
     cmd = ("CREATE TABLE service_check ( "
         "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
+        "name VARCHAR(255) NOT NULL UNIQUE, "
         "check_function TEXT NOT NULL, "
         "poller TEXT NOT NULL, "
         "service_id INT NOT NULL, "

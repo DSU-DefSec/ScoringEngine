@@ -1,19 +1,19 @@
-from loader import Loader
+from dm import DataManager
 from threading import Thread
 import time
 
 class ScoringEngine(object):
 
     def __init__(self):
-        self.loader = Loader()
+        self.dm = DataManager()
 
     def start(self):
         self.check()
 
     def check(self):
-        self.loader.reload()
-        for service in self.loader.services:
-            service.check(self.loader.teams)
+        self.dm.reload()
+        for service in self.dm.services:
+            service.check(self.dm.teams)
 
         
 if __name__ == '__main__':

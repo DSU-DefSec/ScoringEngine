@@ -24,3 +24,11 @@
     float:left;
     width:49.55%;
 }
+
+.pass {
+    background-color:LightGreen
+}
+
+.fail {
+    background-color:LightCoral
+}

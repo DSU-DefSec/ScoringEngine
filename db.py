@@ -19,5 +19,7 @@ def execute(cmd):
     with connection.cursor() as cursor:
         cursor.execute('USE scoring')
         cursor.execute(cmd)
+        lid = cursor.lastrowid
     connection.commit()
     connection.close()
+    return lid

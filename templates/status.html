@@ -1,3 +1,40 @@
+{% extends 'base.html' %}
 
+{% block status %}active{% endblock %}
 
+{% block head %}<meta http-equiv="refresh" content="5">{% endblock %}
 
+{% block content %}
+<h1>Service Status</h1>
+
+<table class="table">
+<thead>
+<tr>
+<th></th>
+{% for c in checks %}
+<th>{{ c.name }}</th>
+{% endfor %}
+</tr>
+</thead>
+
+<tbody>
+{% for t in teams %}
+<tr>
+    <td>{{ t.name }}</td>
+    {% for c in checks %}
+    {% if results[t.id][c.id].result is equalto 1 %}
+        <td class='pass'>
+            Pass
+        </td>
+    {% else %}
+        <td class='fail'>
+            Fail
+        </td>
+    {% endif %}
+    {% endfor %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+{% endblock %}
