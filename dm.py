@@ -87,11 +87,9 @@ class DataManager(object):
     def write_teams(self, teams):
         team_ids = {}
 
-        stmt = "INSERT INTO team (name, subnet) VALUES ('%s', '%s')"
+        cmd = "INSERT INTO team (name, subnet) VALUES (%s, %s)"
         for id, team in teams.iteritems():
-            cmd = stmt % team
-            print(cmd)
-            db_id = db.execute(cmd)
+            db_id = db.execute(cmd, team)
             team_ids[id] = db_id
         return team_ids
 
@@ -107,40 +105,34 @@ class DataManager(object):
     def write_services(self, services):
         service_ids = {}
 
-        stmt = 'INSERT INTO service (host, port) VALUES (%s, %s)'
+        cmd = 'INSERT INTO service (host, port) VALUES (%s, %s)'
         for id, service in services.iteritems():
-            cmd = stmt % service
-            print(cmd)
-            db_id = db.execute(cmd)
+            db_id = db.execute(cmd, service)
             service_ids[id] = db_id
         return service_ids
 
     def write_checks(self, checks, service_ids):
         check_ids = {}
 
-        stmt = ('INSERT INTO service_check (name, check_function, '
-                'poller, service_id) VALUES ("%s", "%s", "%s", %d)')
+        cmd = ('INSERT INTO service_check (name, check_function, '
+                'poller, service_id) VALUES (%s, %s, %s, %s)')
         for id, check in checks.iteritems():
             name, check_func, poller, psid = check
             sid = service_ids[psid]
-            cmd = stmt % (name, check_func, poller, sid)
-            print(cmd)
-            db_id = db.execute(cmd)
+            db_id = db.execute(cmd, (name, check_func, poller, sid))
             check_ids[id] = db_id
         return check_ids
 
     def write_check_ios(self, check_ios, poll_inputs, check_ids):
         check_io_ids = {}
 
-        stmt = ('INSERT INTO check_input (input, expected, check_id) '
-                'VALUES ("%s", "%s", %d)')
+        cmd = ('INSERT INTO check_input (input, expected, check_id) '
+                'VALUES (%s, %s, %s)')
         for id, check_io in check_ios.iteritems():
             piid, expected, pcid = check_io
             poll_input = poll_inputs[piid]
             cid = check_ids[pcid]
-            cmd = stmt % (poll_input, expected, cid)
-            print(cmd)
-            db_id = db.execute(cmd)
+            db_id = db.execute(cmd, (poll_input, expected, cid))
             check_io_ids[id] = db_id
         return check_io_ids
 
@@ -149,22 +141,18 @@ class DataManager(object):
 
         print("Team_ids: ", team_ids)
         print("CheckIO_ids: ", check_io_ids)
-        cred_stmt = ('INSERT INTO credential (username, password, '
-                     'team_id) VALUES ("%s", "%s", %d)')
-        ci_stmt = ('INSERT INTO cred_input (cred_id, check_input_id) '
-                   'VALUES (%d, %d)')
+        cred_cmd = ('INSERT INTO credential (username, password, '
+                     'team_id) VALUES (%s, %s, %s)')
+        ci_cmd = ('INSERT INTO cred_input (cred_id, check_input_id) '
+                   'VALUES (%s, %s)')
         for id, credential in credentials.iteritems():
             user, passwd, pcio_ids = credential
             for team_id in team_ids.values():
-                cmd = cred_stmt % (user, passwd, team_id)
-                db_id = db.execute(cmd)
-                print(cmd)
+                db_id = db.execute(cred_cmd, (user, passwd, team_id))
                 credential_ids[id] = db_id
                 for pcio_id in pcio_ids:
                     cio_id = check_io_ids[str(pcio_id)]
-                    cmd = ci_stmt % (db_id, cio_id)
-                    print(cmd)
-                    db.execute(cmd)
+                    db.execute(ci_cmd, (db_id, cio_id))
         return check_io_ids
 
     def latest_results(self):

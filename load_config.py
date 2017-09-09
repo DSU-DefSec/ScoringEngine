@@ -103,7 +103,7 @@ def parse_check_ios(contents, poll_inputs, checks):
         expected = ','.join(args[2:])
 
         validate.id_exists(input_id, poll_inputs)
-        validate.json(expected)
+        validate.jsondata(expected)
         validate.id_exists(check_id, checks)
 
         check_ios[id] = (input_id, expected, check_id)

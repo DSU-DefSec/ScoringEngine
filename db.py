@@ -14,11 +14,11 @@ def get(cmd):
     connection.close()
     return rows
 
-def execute(cmd):
+def execute(cmd, args=None):
     connection = connect()
     with connection.cursor() as cursor:
         cursor.execute('USE scoring')
-        cursor.execute(cmd)
+        cursor.execute(cmd, args)
         lid = cursor.lastrowid
     connection.commit()
     connection.close()
