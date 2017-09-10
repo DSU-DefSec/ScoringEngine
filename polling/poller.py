@@ -9,10 +9,9 @@ class PollInput(object):
         server (str, optional): IP address or FQDN of a service to poll
         port (int, optional): Port of the service to poll
     """
-    def __init__(self, server=None, port=None, team=None):
+    def __init__(self, server=None, port=None):
         self.server = server
         self.port = port
-        self.team = team
 
 
 class PollResult(object):
@@ -20,8 +19,8 @@ class PollResult(object):
 
     This should be sublcassed for every subclass of Poller.
     """
-    def __init__(self):
-        pass
+    def __init__(self, exceptions):
+        self.exceptions = exceptions
 
 class Poller(object):
     """

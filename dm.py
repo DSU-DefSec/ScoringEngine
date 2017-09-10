@@ -28,9 +28,9 @@ class DataManager(object):
             schecks = []
             for check in checks:
                 if check.service_id == service_id:
-                    schecks.append(schecks)
+                    schecks.append(check)
 
-            service = Service(host, port, checks, service_id)
+            service = Service(host, port, schecks, service_id)
             services.append(service)
         return services
     
@@ -44,8 +44,8 @@ class DataManager(object):
                 if check_io.check_id == check_id:
                     ios.append(check_io)
 
-            check_function = self.load_module(check_string)
-            poller_class = self.load_module(poller_string)
+            check_function = load_module(check_string)
+            poller_class = load_module(poller_string)
             poller = poller_class()
             check = Check(check_id, name, check_function, ios, poller, service_id)
             checks.append(check)

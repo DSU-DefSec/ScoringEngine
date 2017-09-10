@@ -1,14 +1,6 @@
 from dns import resolver
-from dns.exception import *
 from dns.resolver import *
 from poller import PollInput, PollResult, Poller
-
-ERROR_STRINGS = {
-    'NXDOMAIN': 'NXDOMAIN: %s %s',
-    'YXDOMAIN': 'Query name too long %s %s',
-    'NoAnswer': 'SRVFAIL: %s %s',
-    'NoNameservers': 'SRVFAIL: %s %s',
-}
 
 class DnsPollInput(PollInput):
     """Wrapper for the inputs to a DnsPoller.
@@ -18,8 +10,8 @@ class DnsPollInput(PollInput):
         query (str): Query string to send to server.
         server (str, optional): IP or FQDN of a DNS server to query.
     """
-    def __init__(self, record_type, query, server=None, port=None, team=None):
-        super(DnsPollInput, self).__init__(server, port, team)
+    def __init__(self, record_type, query, server=None, port=None):
+        super(DnsPollInput, self).__init__(server, port)
         self.record_type = record_type
         self.query = query
 
@@ -32,10 +24,9 @@ class DnsPollResult(PollResult):
         exceptions (Exception): Exceptions raised in polling, if any. None
             if there was no error.
     """
-    def __init__(self, answer, exceptions):
-        super(DnsPollResult, self).__init__()
+    def __init__(self, answer, exceptions=None):
+        super(DnsPollResult, self).__init__(exceptions)
         self.answer = answer
-        self.exceptions = exceptions
 
 class DnsPoller(Poller):
     """A Poller for DNS services.
@@ -53,7 +44,7 @@ class DnsPoller(Poller):
         try:
             answer = res.query(poll_input.query, 
                     poll_input.record_type)
-            result = DnsPollResult(answer, None)
+            result = DnsPollResult(answer)
             return result
         except Exception as e:
             result = DnsPollResult(None, e)

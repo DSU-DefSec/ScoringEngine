@@ -32,7 +32,6 @@ class Service(object):
         for check in self.checks:
             thread = Thread(target=check.check, args=(teams, self.host, self.port))
             thread.start()
-            print("Service Check Thread Started")
 
 
 class Check(object):
@@ -51,13 +50,10 @@ class Check(object):
         for poll_input in poll_inputs:
             thread = Thread(target=self.check_single, args=(poll_input,check_io.expected))
             thread.start()
-            print("Single Check Thread Started")
 
     def check_single(self, poll_input, expected):
         poll_result = self.poller.poll(poll_input)
-        print("Polling Finished")
         result = self.check_function(poll_result, expected)
-        print("Result Checked")
         team = poll_input.team
         self.store_result(team, result)
 
@@ -68,20 +64,19 @@ class Check(object):
         cmd = cmd % (self.id, team_id, result)
         print(cmd)
         db.execute(cmd)
-        print("Result Stored")
 
 
 class CheckIO(object):
     
-    def __init__(self, id, poll_input, expected, credentials_set, check_id):
+    def __init__(self, id, poll_input, expected, credentials, check_id):
         self.id = id
         self.poll_input = poll_input
         self.expected = expected
-        self.credentials_set = credentials_set
+        self.credentials = credentials
         self.check_id = check_id
 
     def get_poll_inputs(self, teams, host, port):
-        if len(self.credentials_set) == 0:
+        if len(self.credentials) == 0:
             return self.get_poll_inputs_no_creds(teams, host, port)
         else:
             return self.get_poll_inputs_creds(host, port)
@@ -95,11 +90,12 @@ class CheckIO(object):
 
     def get_poll_inputs_creds(self, host, port):
         poll_inputs = []
-        credentials = random.choice(self.credentials_set)
-        for credential in credentials:
-            team = credential.team
+        credential = random.choice(self.credentials)
+        creds = [cred for cred in self.credentials if cred.username == credential.username]
+        for c in creds:
+            team = c.team
             poll_input = self.make_poll_input(team, host, port)
-            poll_input.credentials = credential
+            poll_input.credentials = c
             poll_inputs.append(poll_input)
         return poll_inputs
 

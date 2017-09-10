@@ -47,11 +47,9 @@ def parse_teams(contents):
     teams = {}
 
     portion = get_portion(contents, '[Teams]')
-    for line in portion:
-        if line.startswith('#') or line.strip() == '': # Comment
-            continue
-        id, args = line.split(':')
-        name, subnet = args.split(',')
+    lines = parse_portion(portion)
+    for id, args in lines:
+        name, subnet = args
 
         validate.ip(subnet)
         teams[id] = (name, subnet)
@@ -61,11 +59,9 @@ def parse_services(contents):
     services = {}
 
     portion = get_portion(contents, '[Services]')
-    for line in portion:
-        if line.startswith('#') or line.strip() == '': # Comment
-            continue
-        id, args = line.split(':')
-        host, port = args.split(',')
+    lines = parse_portion(portion)
+    for id, args in lines:
+        host, port = args
 
         validate.integer(host)
         validate.integer(port)
@@ -77,11 +73,9 @@ def parse_checks(contents, services):
     checks = {}
 
     portion = get_portion(contents, '[Checks]')
-    for line in portion:
-        if line.startswith('#') or line.strip() == '': # Comment
-            continue
-        id, args = line.split(':')
-        name, check_function, poller, service_id = args.split(',')
+    lines = parse_portion(portion)
+    for id, args in lines:
+        name, check_function, poller, service_id = args
 
         validate.check_function(check_function)
         validate.poller(poller)
@@ -94,11 +88,8 @@ def parse_check_ios(contents, poll_inputs, checks):
     check_ios = {}
 
     portion = get_portion(contents, '[CheckIOs]')
-    for line in portion:
-        if line.startswith('#') or line.strip() == '': # Comment
-            continue
-        id, args = line.split(':')
-        args = args.split(',')
+    lines = parse_portion(portion)
+    for id, args in lines:
         input_id, check_id = args[0], args[1]
         expected = ','.join(args[2:])
 
@@ -112,11 +103,8 @@ def parse_check_ios(contents, poll_inputs, checks):
 def parse_poll_inputs(contents):
     poll_inputs = {}
     portion = get_portion(contents, '[PollInputs]')
-    for line in portion:
-        if line.startswith('#') or line.strip() == '': # Comment
-            continue
-        id, args = line.split(':')
-        args = args.split(',')
+    lines = parse_portion(portion)
+    for id, args in lines:
         input_class_str = args[0]
 
         validate.input_class(input_class_str)
@@ -132,11 +120,8 @@ def parse_credentials(contents, check_ios):
     credentials = {}
 
     portion = get_portion(contents, '[Credentials]')
-    for line in portion:
-        if line.startswith('#') or line.strip() == '': # Comment
-            continue
-        id, args = line.split(':')
-        args = args.split(',')
+    lines = parse_portion(portion)
+    for id, args in lines:
         user, passwd = args[0], args[1]
         check_io_ids = json.loads(','.join(args[2:]))
 
@@ -145,6 +130,17 @@ def parse_credentials(contents, check_ios):
         
         credentials[id] = (user, passwd, check_io_ids)
     return credentials
+
+def parse_portion(portion):
+    lines = []
+    for line in portion:
+        if line.startswith('#') or line.strip() == '': # Comment
+            continue
+        colon = line.index(':')
+        id = line[:colon]
+        args = line[colon+1:].split(',')
+        lines.append((id, args))
+    return lines
 
 def get_portion(contents, section):
     portion = []

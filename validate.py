@@ -35,7 +35,8 @@ def poller(poller_str):
         if 'Poller' not in parts[-1]:
             raise Exception()
         dm.load_module(poller_str)
-    except:
+    except Exception as e:
+        raise e
         raise Exception("Invalid poller: %s" % poller_str)
 
 def input_class(class_str):
@@ -46,7 +47,8 @@ def input_class(class_str):
         if 'PollInput' not in parts[-1]:
             raise Exception()
         dm.load_module(class_str)
-    except:
+    except Exception as e:
+        raise e
         raise Exception("Invalid PollInput: %s" % class_str)
 
 def id_exists(id, dic):

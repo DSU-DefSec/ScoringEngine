@@ -1,3 +1,4 @@
+#!/bin/python
 from dm import DataManager
 from threading import Thread
 import time
