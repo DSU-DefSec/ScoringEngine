@@ -1,8 +1,8 @@
 
 def any_match(poll_result, expected):
-    if poll_result.answer is not None:
-        output = poll_result.answer[0].to_text()
-        result = output in expected
-    else:
-        result = False
-    return result
+    if poll_result.exception != "None":
+        return False
+
+    print(poll_result.answer)
+    print(expected)
+    return poll_result.answer in expected

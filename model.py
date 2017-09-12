@@ -2,6 +2,7 @@ import random
 import copy
 import db
 from threading import Thread
+import pickle
 
 class Team(object):
 
@@ -45,25 +46,26 @@ class Check(object):
         self.service_id = service_id
 
     def check(self, teams, host, port):
+	print(self.check_ios)
         check_io = random.choice(self.check_ios)
         poll_inputs = check_io.get_poll_inputs(teams, host, port)
         for poll_input in poll_inputs:
-            thread = Thread(target=self.check_single, args=(poll_input,check_io.expected))
+            thread = Thread(target=self.check_single, args=(check_io.id, poll_input,check_io.expected))
             thread.start()
 
-    def check_single(self, poll_input, expected):
+    def check_single(self, check_io_id, poll_input, expected):
         poll_result = self.poller.poll(poll_input)
         result = self.check_function(poll_result, expected)
-        team = poll_input.team
-        self.store_result(team, result)
+        team_id = poll_input.team.id
+        self.store_result(check_io_id, team_id, poll_result, result)
 
-    def store_result(self, team, result):
-        team_id = team.id
-        cmd = ("INSERT INTO result (check_id, team_id, time, result) "
-               "VALUES (%d, %d, NOW(), %s)")
-        cmd = cmd % (self.id, team_id, result)
+    def store_result(self, check_io_id, team_id, poll_result, result):
+        cmd = ("INSERT INTO result (check_id, check_io_id, team_id, "
+	       "time, poll_result, result) "
+               "VALUES (%s, %s, %s, NOW(), %s, %s)")
         print(cmd)
-        db.execute(cmd)
+        poll_result = pickle.dumps(poll_result)
+        db.execute(cmd, (self.id, check_io_id, team_id, poll_result, result))
 
 
 class CheckIO(object):
@@ -116,9 +118,11 @@ class CheckIO(object):
 
 class Result(object):
     
-    def __init__(self, result_id, check_id, team_id, time, result):
+    def __init__(self, result_id, check, check_io, team, time, poll_result, result):
         self.result_id = result_id
-        self.check_id = check_id
-        self.team_id = team_id
+        self.check = check
+        self.check_io = check_io
+        self.team = team
         self.time = time
+        self.poll_result = poll_result
         self.result = result

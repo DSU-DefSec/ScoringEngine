@@ -23,11 +23,11 @@
     <td>{{ t.name }}</td>
     {% for c in checks %}
     {% if results[t.id][c.id].result is equalto 1 %}
-        <td class='pass'>
+        <td class='pass clickable' data-href='/result_log?tid={{ t.id }}&cid={{ c.id }}'>
             Pass
         </td>
     {% else %}
-        <td class='fail'>
+        <td class='fail clickable' data-href='/result_log?tid={{ t.id }}&cid={{ c.id }}'>
             Fail
         </td>
     {% endif %}

@@ -3,6 +3,7 @@
 from dm import DataManager
 from flask import Flask
 from flask import render_template
+from flask import request
 app = Flask(__name__)
 dm = DataManager()
 
@@ -45,6 +46,14 @@ def credentials():
 @app.route('/bulk_password')
 def bulk_password():
     pass
+
+@app.route('/result_log', methods=['GET'])
+def result_log():
+    dm.reload()
+    team_id = request.args.get('tid')
+    check_id = request.args.get('cid')
+    results = dm.get_results(team_id, check_id)
+    return render_template('result_log.html', results=results)
 
 @app.route('/login')
 def login():

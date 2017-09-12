@@ -1,6 +1,6 @@
 jQuery(document).ready(function($) {
-    $(".clickable-row td:not(.no-clickable)").click(function() {
-        window.document.location = $(this).parent().data("href");
+    $(".clickable").click(function() {
+        window.document.location = $(this).data("href");
     });
 
     $(".btn-reset").click(function(d) {

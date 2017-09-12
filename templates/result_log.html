@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Result Log</h1>
+
+<table class="table">
+<thead>
+<tr>
+<th>Timestamp</th>
+<th>Input</th>
+<th>Output</th>
+<th>Expected</th>
+<th>Result</th>
+<th>Exception</th>
+</tr>
+</thead>
+
+<tbody>
+{% for r in results %}
+<tr>
+    <td>{{ r.time }}</td>
+    <td>
+    <ul>
+    {% for key, value in r.check_io.poll_input.attrs().iteritems() %}
+        <li>{{ key }}:{{ value }}</li>
+    {% endfor %}
+    </ul>
+    </td>
+    <td>
+    <ul>
+    {% for key, value in r.poll_result.attrs().iteritems() %}
+        <li>{{ key }}:{{ value }}</li>
+    {% endfor %}
+    </ul>
+    </td>
+    <td>{{ r.check_io.expected }}</td>
+    {% if r.result is equalto 1 %}
+        <td class='pass'>
+            Pass
+        </td>
+    {% else %}
+        <td class='fail'>
+            Fail
+        </td>
+    {% endif %}
+    <td>{{ r.poll_result.exception }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+{% endblock %}

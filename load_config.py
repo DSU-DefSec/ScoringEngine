@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/env python
 import sys
 import json
 import cPickle
@@ -10,6 +10,8 @@ import validate
 def load_config(filename):
     f = open(filename, 'r')
     contents = [line.strip() for line in f.readlines()]
+    print("Parsing global settings...")
+    settings = parse_global(contents)
     print("Parsing teams...")
     teams = parse_teams(contents)
     print(teams)
@@ -32,6 +34,8 @@ def load_config(filename):
     dm = DataManager()
     print("Emptying existing database...")
     dm.reset_db()
+    print("Writing global settings to DB...")
+    dm.write_settings(settings)
     print("Writing teams to DB...")
     team_ids = dm.write_teams(teams)
     print("Writing services to DB...")
@@ -42,6 +46,15 @@ def load_config(filename):
     check_io_ids = dm.write_check_ios(check_ios, poll_inputs, check_ids)
     print("Writing credentials to DB...")
     credential_ids = dm.write_credentials(credentials, team_ids, check_io_ids)
+
+def parse_global(contents):
+    settings = {}
+
+    portion = get_portion(contents, '[Global]')
+    lines = parse_portion(portion)
+    for key, value in lines:
+        settings[key] = value
+    return settings
 
 def parse_teams(contents):
     teams = {}
@@ -106,11 +119,14 @@ def parse_poll_inputs(contents):
     lines = parse_portion(portion)
     for id, args in lines:
         input_class_str = args[0]
+	args = ','.join(args[1:])
 
         validate.input_class(input_class_str)
+	validate.jsondata(args)
 
         input_class = load_module(input_class_str)
-        input = input_class(*args[1:])
+	args = json.loads(args)
+        input = input_class(*args)
         
         poll_inputs[id] = cPickle.dumps(input)
     return poll_inputs

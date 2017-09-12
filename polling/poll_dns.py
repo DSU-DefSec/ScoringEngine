@@ -24,8 +24,8 @@ class DnsPollResult(PollResult):
         exceptions (Exception): Exceptions raised in polling, if any. None
             if there was no error.
     """
-    def __init__(self, answer, exceptions=None):
-        super(DnsPollResult, self).__init__(exceptions)
+    def __init__(self, answer, exception=None):
+        super(DnsPollResult, self).__init__(exception)
         self.answer = answer
 
 class DnsPoller(Poller):
@@ -42,9 +42,11 @@ class DnsPoller(Poller):
         res.port = poll_input.port
     
         try:
+            print(poll_input.query)
+            print(poll_input.record_type)
             answer = res.query(poll_input.query, 
-                    poll_input.record_type)
-            result = DnsPollResult(answer)
+                    poll_input.record_type).rrset[0]
+            result = DnsPollResult(str(answer))
             return result
         except Exception as e:
             result = DnsPollResult(None, e)

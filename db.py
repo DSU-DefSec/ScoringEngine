@@ -5,11 +5,11 @@ def connect():
             user='root', password='toor')
     return connection
 
-def get(cmd):
+def get(cmd, args=None):
     connection = connect()
     with connection.cursor() as cursor:
         cursor.execute('USE scoring')
-        cursor.execute(cmd)
+        cursor.execute(cmd, args)
         rows = cursor.fetchall()
     connection.close()
     return rows

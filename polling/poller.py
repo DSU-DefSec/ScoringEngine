@@ -1,4 +1,5 @@
 from threading import Thread, Lock
+import copy
 
 class PollInput(object):
     """Wrapper for the inputs to a Poller.
@@ -13,14 +14,32 @@ class PollInput(object):
         self.server = server
         self.port = port
 
+    def attrs(self):
+        attrs = copy.copy(self.__dict__)
+        del attrs['server']
+        del attrs['port']
+        return attrs
+
+
+    def __str__(self):
+        return str(self.attrs())
+
 
 class PollResult(object):
     """Wrapper for the results of polling a service.
 
     This should be sublcassed for every subclass of Poller.
     """
-    def __init__(self, exceptions):
-        self.exceptions = exceptions
+    def __init__(self, exception):
+        self.exception = str(exception)
+
+    def attrs(self):
+        attrs = copy.copy(self.__dict__)
+        del attrs['exception']
+        return attrs
+
+    def __str__(self):
+        return str(self.attrs())
 
 class Poller(object):
     """

@@ -59,5 +59,6 @@ def jsondata(json_data):
     try:
         json.loads(json_data)
     except Exception as e:
+	print(json_data)
         raise e
         raise Exception("Invalid JSON data: %s" % json_data)

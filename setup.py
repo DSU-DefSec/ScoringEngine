@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import pymysql
 
 #connection = db.connect()
@@ -19,12 +20,20 @@ with connection.cursor() as cursor:
     print(cmd)
     cursor.execute(cmd)
 
-   ## Create tables
-   # Team Table
+    ## Create tables
+    # Settings table
+    cmd = ("CREATE TABLE settings ( "
+           "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
+           "skey VARCHAR(255) NOT NULL, "
+           "value INT NOT NULL)")
+    print(cmd)
+    cursor.execute(cmd)
+
+    # Team Table
     cmd = ("CREATE TABLE team ( "
-        "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
-        "name VARCHAR(255) NOT NULL UNIQUE, "
-        "subnet VARCHAR(15) NOT NULL UNIQUE)")
+           "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
+           "name VARCHAR(255) NOT NULL UNIQUE, "
+           "subnet VARCHAR(15) NOT NULL UNIQUE)")
     print(cmd)
     cursor.execute(cmd)
 
@@ -49,7 +58,7 @@ with connection.cursor() as cursor:
     cursor.execute(cmd)
 
     # Check Input Table
-    cmd = ("CREATE TABLE check_input ( "
+    cmd = ("CREATE TABLE check_io ( "
         "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
         "input TEXT NOT NULL, "
         "expected TEXT NOT NULL, "
@@ -74,10 +83,10 @@ with connection.cursor() as cursor:
     cmd = ("CREATE TABLE cred_input ( "
         "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
         "cred_id INT NOT NULL, "
-        "check_input_id INT NOT NULL, "
+        "check_io_id INT NOT NULL, "
         "FOREIGN KEY (cred_id) REFERENCES credential(id) "
             "ON DELETE CASCADE, "
-        "FOREIGN KEY (check_input_id) REFERENCES check_input(id) "
+        "FOREIGN KEY (check_io_id) REFERENCES check_io(id) "
             "ON DELETE CASCADE)")
     print(cmd)
     cursor.execute(cmd)
@@ -86,10 +95,14 @@ with connection.cursor() as cursor:
     cmd = ("CREATE TABLE result ( "
         "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
         "check_id INT NOT NULL, "
+        "check_io_id INT NOT NULL, "
         "team_id INT NOT NULL, "
         "time TIMESTAMP NOT NULL, "
+        "poll_result TEXT NOT NULL, "
         "result BOOL NOT NULL, "
         "FOREIGN KEY (check_id) REFERENCES service_check(id) "
+            "ON DELETE CASCADE, "
+        "FOREIGN KEY (check_io_id) REFERENCES check_io(id) "
             "ON DELETE CASCADE, "
         "FOREIGN KEY (team_id) REFERENCES team(id) "
             "ON DELETE CASCADE)")
