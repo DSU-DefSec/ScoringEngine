@@ -21,14 +21,14 @@
     <td>{{ r.time }}</td>
     <td>
     <ul>
-    {% for key, value in r.check_io.poll_input.attrs().iteritems() %}
+    {% for key, value in r.check_io.poll_input.attrs().items() %}
         <li>{{ key }}:{{ value }}</li>
     {% endfor %}
     </ul>
     </td>
     <td>
     <ul>
-    {% for key, value in r.poll_result.attrs().iteritems() %}
+    {% for key, value in r.poll_result.attrs().items() %}
         <li>{{ key }}:{{ value }}</li>
     {% endfor %}
     </ul>

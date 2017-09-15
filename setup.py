@@ -60,7 +60,7 @@ with connection.cursor() as cursor:
     # Check Input Table
     cmd = ("CREATE TABLE check_io ( "
         "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
-        "input TEXT NOT NULL, "
+        "input BLOB NOT NULL, "
         "expected TEXT NOT NULL, "
         "check_id INT NOT NULL, "
         "FOREIGN KEY (check_id) REFERENCES service_check(id) "
@@ -98,7 +98,7 @@ with connection.cursor() as cursor:
         "check_io_id INT NOT NULL, "
         "team_id INT NOT NULL, "
         "time TIMESTAMP NOT NULL, "
-        "poll_result TEXT NOT NULL, "
+        "poll_result BLOB NOT NULL, "
         "result BOOL NOT NULL, "
         "FOREIGN KEY (check_id) REFERENCES service_check(id) "
             "ON DELETE CASCADE, "

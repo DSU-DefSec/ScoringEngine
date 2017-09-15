@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import json
-import cPickle
+import pickle
 from model import *
 from dm import DataManager
 from dm import load_module
@@ -119,16 +119,16 @@ def parse_poll_inputs(contents):
     lines = parse_portion(portion)
     for id, args in lines:
         input_class_str = args[0]
-	args = ','.join(args[1:])
+        args = ','.join(args[1:])
 
         validate.input_class(input_class_str)
-	validate.jsondata(args)
+        validate.jsondata(args)
 
         input_class = load_module(input_class_str)
-	args = json.loads(args)
+        args = json.loads(args)
         input = input_class(*args)
         
-        poll_inputs[id] = cPickle.dumps(input)
+        poll_inputs[id] = pickle.dumps(input)
     return poll_inputs
 
 
@@ -171,4 +171,7 @@ def get_portion(contents, section):
 
 
 if __name__ == '__main__':
-    load_config(sys.argv[1])
+    if len(sys.argv) < 2:
+        print("Usage: ./load_config config.cfg")
+    else:
+        load_config(sys.argv[1])

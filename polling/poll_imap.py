@@ -1,6 +1,6 @@
 from imaplib import IMAP4
 import socket
-from poller import PollInput, PollResult, Poller
+from polling.poller import PollInput, PollResult, Poller
 
 class ImapPollInput(PollInput):
 

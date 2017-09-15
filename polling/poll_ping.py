@@ -1,6 +1,6 @@
-import os
+import subprocess
 
-from poller import PollInput, PollResult, Poller
+from polling.poller import PollInput, PollResult, Poller
 
 class PingPollInput(PollInput):
 
@@ -16,7 +16,7 @@ class PingPollResult(PollResult):
 class PingPoller(Poller):
     def poll(self, poll_input):
         server = poll_input.server
-        output = os.system('ping -W2 -c 5 -q {} > /dev/null'.format(server))
+        output = subprocess.call('ping -W 2 -c 5 -q {} > /dev/null'.format(server), shell=True)
         
         result = PingPollResult(output)
         return result

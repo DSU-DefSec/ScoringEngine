@@ -46,7 +46,7 @@ class DataManager(object):
     
     def load_checks(self, check_ios):
         checks = []
-        cmd = "SELECT * FROM service_check" 
+        cmd = "SELECT * FROM service_check ORDER BY name ASC" 
         check_rows = db.get(cmd)
         for check_id, name, check_string, poller_string, service_id in check_rows:
             ios = []
@@ -66,7 +66,7 @@ class DataManager(object):
         check_ios = []
     
         check_io_rows = db.get("SELECT * FROM check_io")
-        for check_io_id, check_io, expected, check_id in check_io_rows:
+        for check_io_id, check_input, expected, check_id in check_io_rows:
             check_creds = []
             cmd = "SELECT * FROM cred_input WHERE check_io_id=%d" % check_io_id
             cred_input_rows = db.get(cmd)
@@ -75,8 +75,7 @@ class DataManager(object):
                     if cred.id == cred_id:
                         check_creds.append(cred)
                         break
-    
-            poll_input = pickle.loads(check_io.encode())
+            poll_input = pickle.loads(check_input)
             expected = json.loads(expected)
             check_io = CheckIO(check_io_id, poll_input, expected, check_creds, check_id)
             check_ios.append(check_io)
@@ -106,14 +105,14 @@ class DataManager(object):
     def write_settings(self, settings):
         cmd = ("INSERT INTO settings (skey, value) "
                "VALUES (%s, %s)")
-        for key, value in settings.iteritems():
-	    db.execute(cmd, (key, value))
+        for key, value in settings.items():
+            db.execute(cmd, (key, value))
 
     def write_teams(self, teams):
         team_ids = {}
 
         cmd = "INSERT INTO team (name, subnet) VALUES (%s, %s)"
-        for id, team in teams.iteritems():
+        for id, team in teams.items():
             db_id = db.execute(cmd, team)
             team_ids[id] = db_id
         return team_ids
@@ -122,7 +121,7 @@ class DataManager(object):
         service_ids = {}
 
         cmd = 'INSERT INTO service (host, port) VALUES (%s, %s)'
-        for id, service in services.iteritems():
+        for id, service in services.items():
             db_id = db.execute(cmd, service)
             service_ids[id] = db_id
         return service_ids
@@ -132,7 +131,7 @@ class DataManager(object):
 
         cmd = ('INSERT INTO service_check (name, check_function, '
                 'poller, service_id) VALUES (%s, %s, %s, %s)')
-        for id, check in checks.iteritems():
+        for id, check in checks.items():
             name, check_func, poller, psid = check
             sid = service_ids[psid]
             db_id = db.execute(cmd, (name, check_func, poller, sid))
@@ -144,7 +143,7 @@ class DataManager(object):
 
         cmd = ('INSERT INTO check_io (input, expected, check_id) '
                 'VALUES (%s, %s, %s)')
-        for id, check_io in check_ios.iteritems():
+        for id, check_io in check_ios.items():
             piid, expected, pcid = check_io
             poll_input = poll_inputs[piid]
             cid = check_ids[pcid]
@@ -161,7 +160,7 @@ class DataManager(object):
                      'team_id) VALUES (%s, %s, %s)')
         ci_cmd = ('INSERT INTO cred_input (cred_id, check_io_id) '
                    'VALUES (%s, %s)')
-        for id, credential in credentials.iteritems():
+        for id, credential in credentials.items():
             user, passwd, pcio_ids = credential
             for team_id in team_ids.values():
                 db_id = db.execute(cred_cmd, (user, passwd, team_id))
@@ -174,9 +173,9 @@ class DataManager(object):
     def load_results(self, rows):
         results = []
         for result_id, check_id, check_io_id, team_id, time, poll_result, result in rows:
-            check = filter(lambda c: c.id == check_id, self.checks)[0]
-            check_io = filter(lambda cio: cio.id == check_io_id, self.check_ios)[0]
-            team = filter(lambda t: t.id == team_id, self.teams)[0]
+            check = [c for c in self.checks if c.id == check_id][0]
+            check_io = [cio for cio in self.check_ios if cio.id == check_io_id][0]
+            team = [t for t in self.teams if t.id == team_id][0]
             poll_result = pickle.loads(poll_result)
             res = Result(result_id, check, check_io, team, time, poll_result, result)
             results.append(res)
@@ -197,9 +196,13 @@ class DataManager(object):
             for check in self.checks:
                 cmd = ("SELECT * FROM result WHERE team_id=%s AND check_id=%s "
                        "ORDER BY time DESC LIMIT 1")
-		rows = db.get(cmd, (team.id, check.id))
-                res = self.load_results(rows)[0]
-                results[team.id][check.id] = res
+                rows = db.get(cmd, (team.id, check.id))
+                try:
+                    res = self.load_results(rows)[0]
+                    results[team.id][check.id] = res
+                except:
+                    # Log this
+                    pass
         return results
 
 

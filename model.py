@@ -46,7 +46,6 @@ class Check(object):
         self.service_id = service_id
 
     def check(self, teams, host, port):
-	print(self.check_ios)
         check_io = random.choice(self.check_ios)
         poll_inputs = check_io.get_poll_inputs(teams, host, port)
         for poll_input in poll_inputs:
@@ -63,7 +62,7 @@ class Check(object):
         cmd = ("INSERT INTO result (check_id, check_io_id, team_id, "
 	       "time, poll_result, result) "
                "VALUES (%s, %s, %s, NOW(), %s, %s)")
-        print(cmd)
+        print(self.id, check_io_id, team_id, result)
         poll_result = pickle.dumps(poll_result)
         db.execute(cmd, (self.id, check_io_id, team_id, poll_result, result))
 

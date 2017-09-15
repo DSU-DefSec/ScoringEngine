@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from dm import DataManager
 from threading import Thread
 import time
@@ -13,7 +13,6 @@ class ScoringEngine(object):
         self.check()
 
     def check(self):
-        checks = 0
         while True:
             self.dm.reload()
             for service in self.dm.services:
@@ -21,9 +20,6 @@ class ScoringEngine(object):
             wait = self.dm.interval + random.randint(-self.dm.jitter,
                                                      self.dm.jitter)
             time.sleep(wait)
-            checks += 1
-            if checks == 5:
-                break
 
         
 if __name__ == '__main__':

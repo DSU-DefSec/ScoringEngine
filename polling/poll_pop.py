@@ -1,6 +1,6 @@
 import poplib
 
-from poller import PollInput, PollResult, Poller
+from polling.poller import PollInput, PollResult, Poller
 
 class PopPollInput(PollInput):
 
