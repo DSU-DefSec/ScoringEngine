@@ -1,2 +1,4 @@
 *.pyc
 *.sql
+__pycache__
+*/__cache__
