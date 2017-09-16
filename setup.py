@@ -98,6 +98,7 @@ with connection.cursor() as cursor:
         "check_io_id INT NOT NULL, "
         "team_id INT NOT NULL, "
         "time TIMESTAMP NOT NULL, "
+        "poll_input BLOB NOT NULL, "
         "poll_result BLOB NOT NULL, "
         "result BOOL NOT NULL, "
         "FOREIGN KEY (check_id) REFERENCES service_check(id) "

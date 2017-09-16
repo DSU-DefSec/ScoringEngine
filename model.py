@@ -56,15 +56,16 @@ class Check(object):
         poll_result = self.poller.poll(poll_input)
         result = self.check_function(poll_result, expected)
         team_id = poll_input.team.id
-        self.store_result(check_io_id, team_id, poll_result, result)
+        self.store_result(check_io_id, team_id, poll_input, poll_result, result)
 
-    def store_result(self, check_io_id, team_id, poll_result, result):
+    def store_result(self, check_io_id, team_id, poll_input, poll_result, result):
         cmd = ("INSERT INTO result (check_id, check_io_id, team_id, "
-	       "time, poll_result, result) "
-               "VALUES (%s, %s, %s, NOW(), %s, %s)")
+	       "time, poll_input, poll_result, result) "
+               "VALUES (%s, %s, %s, NOW(), %s, %s, %s)")
         print(self.id, check_io_id, team_id, result)
+        poll_input = pickle.dumps(poll_input)
         poll_result = pickle.dumps(poll_result)
-        db.execute(cmd, (self.id, check_io_id, team_id, poll_result, result))
+        db.execute(cmd, (self.id, check_io_id, team_id, poll_input, poll_result, result))
 
 
 class CheckIO(object):
@@ -117,11 +118,12 @@ class CheckIO(object):
 
 class Result(object):
     
-    def __init__(self, result_id, check, check_io, team, time, poll_result, result):
+    def __init__(self, result_id, check, check_io, team, time, poll_input, poll_result, result):
         self.result_id = result_id
         self.check = check
         self.check_io = check_io
         self.team = team
         self.time = time
+        self.poll_input = poll_input
         self.poll_result = poll_result
         self.result = result

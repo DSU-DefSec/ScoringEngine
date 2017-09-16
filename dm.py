@@ -172,12 +172,13 @@ class DataManager(object):
 
     def load_results(self, rows):
         results = []
-        for result_id, check_id, check_io_id, team_id, time, poll_result, result in rows:
+        for result_id, check_id, check_io_id, team_id, time, poll_input, poll_result, result in rows:
             check = [c for c in self.checks if c.id == check_id][0]
             check_io = [cio for cio in self.check_ios if cio.id == check_io_id][0]
             team = [t for t in self.teams if t.id == team_id][0]
+            poll_input = pickle.loads(poll_input)
             poll_result = pickle.loads(poll_result)
-            res = Result(result_id, check, check_io, team, time, poll_result, result)
+            res = Result(result_id, check, check_io, team, time, poll_input, poll_result, result)
             results.append(res)
         return results
 
