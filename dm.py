@@ -3,6 +3,7 @@ from model import *
 import importlib
 import pickle
 import json
+import copy
 
 class DataManager(object):
 
@@ -41,6 +42,8 @@ class DataManager(object):
                     schecks.append(check)
 
             service = Service(host, port, schecks, service_id)
+            for check in schecks:
+               check.service = service
             services.append(service)
         return services
     
@@ -58,6 +61,9 @@ class DataManager(object):
             poller_class = load_module(poller_string)
             poller = poller_class()
             check = Check(check_id, name, check_function, ios, poller, service_id)
+            for check_io in ios:
+                check_io.check = check
+
             checks.append(check)
         return checks
     
@@ -67,28 +73,24 @@ class DataManager(object):
     
         check_io_rows = db.get("SELECT * FROM check_io")
         for check_io_id, check_input, expected, check_id in check_io_rows:
+            cred_input_rows = db.get("SELECT * FROM cred_input WHERE check_io_id=%s", (check_io_id))
             check_creds = []
-            cmd = "SELECT * FROM cred_input WHERE check_io_id=%d" % check_io_id
-            cred_input_rows = db.get(cmd)
-            for cred_input_id, cred_id, check_io_id in cred_input_rows:
-                for cred in credentials:
-                    if cred.id == cred_id:
-                        check_creds.append(cred)
-                        break
+            for cred_input_id, cred_id, _check_io_id in cred_input_rows:
+                check_creds.append(next(filter(lambda c: c.id == cred_id, credentials)))
             poll_input = pickle.loads(check_input)
             expected = json.loads(expected)
             check_io = CheckIO(check_io_id, poll_input, expected, check_creds, check_id)
+            for cred in check_creds:
+                cred.check_io = check_io
+
             check_ios.append(check_io)
         return check_ios
     
     def load_credentials(self, teams):
         creds = []
         cred_rows = db.get("SELECT * FROM credential")
-        for cred_id, username, password, team_id in cred_rows:
-            for t in teams:
-                if t.id == team_id:
-                    team = t
-                    break
+        for cred_id, username, password, team_id, service_id in cred_rows:
+            team = next(filter(lambda t: t.id == team_id, teams))
             cred = Credential(cred_id, username, password, team)
             creds.append(cred)
         return creds
@@ -99,7 +101,6 @@ class DataManager(object):
         db.execute("DELETE FROM service_check")
         db.execute("DELETE FROM check_io")
         db.execute("DELETE FROM credential")
-        db.execute("DELETE FROM cred_input")
         db.execute("DELETE FROM result")
 
     def write_settings(self, settings):
@@ -157,17 +158,24 @@ class DataManager(object):
         print("Team_ids: ", team_ids)
         print("CheckIO_ids: ", check_io_ids)
         cred_cmd = ('INSERT INTO credential (username, password, '
-                     'team_id) VALUES (%s, %s, %s)')
-        ci_cmd = ('INSERT INTO cred_input (cred_id, check_io_id) '
-                   'VALUES (%s, %s)')
+                    'team_id, service_id) VALUES (%s, %s, %s, %s)')
+        cred_io_cmd = ('INSERT INTO cred_input (cred_id, check_io_id) '
+                    'VALUES (%s, %s)')
+        check_get = 'SELECT check_id FROM check_io WHERE id=%s'
+        service_get = 'SELECT service_id FROM service_check WHERE id=%s'
         for id, credential in credentials.items():
             user, passwd, pcio_ids = credential
-            for team_id in team_ids.values():
-                db_id = db.execute(cred_cmd, (user, passwd, team_id))
-                credential_ids[id] = db_id
-                for pcio_id in pcio_ids:
-                    cio_id = check_io_ids[str(pcio_id)]
-                    db.execute(ci_cmd, (db_id, cio_id))
+            cio_ids = [check_io_ids[str(pcio_id)] for pcio_id in pcio_ids]
+            service_ids = []
+            for cio_id in cio_ids:
+                check_id = db.get(check_get, (cio_id))[0]
+                service_id = db.get(service_get, (check_id))[0]
+                if service_id not in service_ids:
+                    service_ids.append(service_id)
+                    for team_id in team_ids.values():
+                        cred_id = db.execute(cred_cmd, (user, passwd, team_id, service_id))
+                        credential_ids[id] = cred_id
+                        db.execute(cred_io_cmd, (cred_id, cio_id))
         return check_io_ids
 
     def load_results(self, rows):

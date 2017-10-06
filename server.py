@@ -4,8 +4,19 @@ from dm import DataManager
 from flask import Flask
 from flask import render_template
 from flask import request
+from functools import wraps
+
 app = Flask(__name__)
 dm = DataManager()
+
+def local_only(f):
+    @wraps(f)
+    def wrapped(*args, **kwargs):
+        print(request.remote_addr)
+        if request.remote_addr != '127.0.0.1':
+            return "Access Denied"
+        return f(*args, **kwargs)
+    return wrapped
 
 @app.route('/')
 @app.route('/status')
@@ -23,6 +34,16 @@ def scores():
     scores = {1:0, 2:0}
     return render_template('scores.html', teams=teams, scores=scores)
 
+@app.route('/credentials', methods=['GET'])
+@local_only
+def credentials():
+    dm.reload()
+    team_id = request.args.get('tid')
+    team = next(filter(lambda t: t.id == int(team_id), dm.teams))
+    credentials = [cred for cred in dm.credentials if cred.team.id == int(team_id)]
+    credentials.sort(key= lambda c: (c.check_io.check.name, c.username))
+    return render_template('credentials.html', credentials=credentials, team=team)
+
 @app.route('/teams')
 def teams():
     dm.reload()
@@ -37,10 +58,6 @@ def services():
 
 @app.route('/checks')
 def checks():
-    pass
-
-@app.route('/credentials')
-def credentials():
     pass
 
 @app.route('/bulk_password')

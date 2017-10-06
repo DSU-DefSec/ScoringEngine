@@ -19,6 +19,7 @@ class Credential(object):
         self.username = username
         self.password = password
         self.team = team
+#        self.service_id = service_id
 
 
 class Service(object):
@@ -33,6 +34,12 @@ class Service(object):
         for check in self.checks:
             thread = Thread(target=check.check, args=(teams, self.host, self.port))
             thread.start()
+
+    def get_ip(self, subnet):
+        octets = subnet.split('.')
+        octets[3] = str(self.host)
+        ip = '.'.join(octets)
+        return ip
 
 
 class Check(object):
@@ -108,12 +115,6 @@ class CheckIO(object):
         poll_input.port = port
         poll_input.team = team
         return poll_input
-
-    def get_ip(self, subnet, host):
-        octets = subnet.split('.')
-        octets[3] = str(host)
-        ip = '.'.join(octets)
-        return ip
 
 
 class Result(object):

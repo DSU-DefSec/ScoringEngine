@@ -20,7 +20,7 @@
 <tbody>
 {% for t in teams %}
 <tr>
-    <td>{{ t.name }}</td>
+    <td class='clickable' data-href='/credentials?tid={{ t.id }}'>{{ t.name }}</td>
     {% for c in checks %}
         {% if c.id in results[t.id] %}
             {% if results[t.id][c.id].result is equalto 1 %}

@@ -74,12 +74,15 @@ with connection.cursor() as cursor:
         "username VARCHAR(255) NOT NULL, "
         "password VARCHAR(255) NOT NULL, "
         "team_id INT NOT NULL, " 
+        "service_id INT NOT NULL, "
         "FOREIGN KEY (team_id) REFERENCES team(id) "
+            "ON DELETE CASCADE, "
+        "FOREIGN KEY (service_id) REFERENCES service(id) "
             "ON DELETE CASCADE)")
     print(cmd)
     cursor.execute(cmd)
 
-    # Credential <-> CheckInput Relationship Table
+    # Credential <-> Check IO Relationship Table
     cmd = ("CREATE TABLE cred_input ( "
         "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
         "cred_id INT NOT NULL, "
