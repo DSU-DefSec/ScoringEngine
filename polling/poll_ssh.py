@@ -1,7 +1,7 @@
 from paramiko import client
 from paramiko.ssh_exception import *
 
-from poller import PollInput, PollResult, Poller
+from .poller import PollInput, PollResult, Poller
 
 class SshPollInput(PollInput):
 

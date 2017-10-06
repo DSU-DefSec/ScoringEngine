@@ -89,6 +89,8 @@ def parse_checks(contents, services):
     lines = parse_portion(portion)
     for id, args in lines:
         name, check_function, poller, service_id = args
+        check_function = 'checker.' + check_function
+        poller = 'polling.' + poller
 
         validate.check_function(check_function)
         validate.poller(poller)
@@ -118,7 +120,7 @@ def parse_poll_inputs(contents):
     portion = get_portion(contents, '[PollInputs]')
     lines = parse_portion(portion)
     for id, args in lines:
-        input_class_str = args[0]
+        input_class_str = 'polling.' + args[0]
         args = ','.join(args[1:])
 
         validate.input_class(input_class_str)

@@ -2,7 +2,7 @@ import requests
 from requests.exceptions import *
 import tempfile
 
-from poller import PollInput, PollResult, Poller
+from .poller import PollInput, PollResult, Poller
 
 class HttpPollInput(PollInput):
 
@@ -13,9 +13,9 @@ class HttpPollInput(PollInput):
 
 class HttpPollResult(PollResult):
 
-    def __init__(self, file, exceptions):
+    def __init__(self, file_contents, exceptions):
         super(HttpPollResult, self).__init__(exceptions)
-        self.file = file
+        self.file_contents = file_contents
 
 class HttpPoller(Poller):
     
@@ -25,13 +25,10 @@ class HttpPoller(Poller):
             server = poll_input.server
             port = poll_input.port
             path = poll_input.path
-            r = requests.get('{}://{}:{}/{}'.format(proto, server, port, path), timeout=2)
+            r = requests.get('{}://{}:{}/{}'.format(proto, server, port, path), timeout=2, verify=False)
             r.raise_for_status()
 
-            t = tempfile.TemporaryFile()
-            t.write(r.text)
-
-            result = HttpPollResult(t, None)
+            result = HttpPollResult(r.text, None)
             return result
         except Exception as e:
             result = HttpPollResult(None, e)

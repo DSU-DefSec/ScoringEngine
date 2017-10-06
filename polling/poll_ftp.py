@@ -1,6 +1,6 @@
 import ftplib
 import tempfile
-from poller import PollInput, PollResult, Poller
+from .poller import PollInput, PollResult, Poller
 
 class FtpPollInput(PollInput):
     """Wrapper for the inputs to a FtpPoller.
@@ -20,9 +20,9 @@ class FtpPollResult(PollResult):
         exceptions (Exception): Exceptions raised in polling, if any. None
             if there was no error.
     """
-    def __init__(self, file, exceptions):
+    def __init__(self, file_contents, exceptions):
         super(FtpPollResult, self).__init__(exceptions)
-        self.file = file
+        self.file_contents = file_contents
 
 class FtpPoller(Poller):
     """
@@ -32,13 +32,16 @@ class FtpPoller(Poller):
         password = poll_input.credentials.password
 
         ftp = ftplib.FTP()
-        t = tempfile.TemporaryFile()
+        t = tempfile.NamedTemporaryFile()
         try:
             ftp.connect(poll_input.server, poll_input.port, timeout=2)
-            ftp.login(user=username, password=password)
+            ftp.login(user=username, passwd=password)
             ftp.retrbinary('RETR {}'.format(poll_input.filepath), t.write)
             ftp.quit()
-            result = FtpPollResult(t, e)
+
+            t.seek(0)
+            result = FtpPollResult(t.read(), None)
+            return result
         except Exception as e:
             result = FtpPollResult(None, e)
             return result

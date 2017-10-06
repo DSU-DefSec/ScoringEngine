@@ -5,26 +5,23 @@ import difflib
 REF_PAGES_DIR = 'checkfiles'
 
 def hash_match(poll_result, expected):
-    if poll_result.file is None:
+    if poll_result.file_contents is None:
         return False
 
-    f = poll_result.file
     sha1 = hashlib.sha1()
-    f.seek(0)
-    sha1.update(f.read())
-    f.close()
+    sha1.update(poll_result.file_contents)
 
     return expected[0] == sha1.hexdigest()
 
 def diff_match(poll_result, expected):
-    if poll_result.file is None:
+    if poll_result.file_contents is None:
         return False
 
-    f = poll_result.file
+    f = poll_result.file_contents
     tolerance = expected['tolerance']
     expected_file = open('%s/%s' % (REF_PAGES_DIR, expected['file']), 'r')
 
-    page = f.readlines()
+    page = [line + '\n' for line in f.split('\n')]
     expected_page = expected_file.readlines()
     
     diff = difflib.unified_diff(page, expected_page)

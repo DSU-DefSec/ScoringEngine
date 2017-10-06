@@ -1,6 +1,6 @@
 import ldap
 
-from poller import PollInput, PollResult, Poller
+from .poller import PollInput, PollResult, Poller
 
 class LdapPollInput(PollInput):
 

@@ -1,6 +1,6 @@
 from dns import resolver
 from dns.resolver import *
-from poller import PollInput, PollResult, Poller
+from .poller import PollInput, PollResult, Poller
 
 class DnsPollInput(PollInput):
     """Wrapper for the inputs to a DnsPoller.

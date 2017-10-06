@@ -1,7 +1,7 @@
 import pymssql
 import socket
 
-from poller import PollInput, PollResult, Poller
+from .poller import PollInput, PollResult, Poller
 
 class MsSqlPollInput(PollInput):
 

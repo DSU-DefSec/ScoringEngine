@@ -1,6 +1,6 @@
 import subprocess
 
-from poller import PollInput, PollResult, Poller
+from .poller import PollInput, PollResult, Poller
 
 class RdpPollInput(PollInput):
 
@@ -20,7 +20,7 @@ class RdpPoller(Poller):
         username = poll_input.credentials.username
         password = poll_input.credentials.password
         
-        options = '/d:{} /u:{} /p:{} /v:{}:{} /auth-only'.format(
+        options = '--authonly -d {} -u {} -p {} {}:{}'.format(
                 poll_input.domain, username, password,
                 poll_input.server, poll_input.port)
         try:

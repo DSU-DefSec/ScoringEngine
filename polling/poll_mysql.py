@@ -1,6 +1,6 @@
 import pymysql
 
-from poller import PollInput, PollResult, Poller
+from .poller import PollInput, PollResult, Poller
 
 class MySqlPollInput(PollInput):
     
@@ -11,7 +11,7 @@ class MySqlPollInput(PollInput):
 
 class MySqlPollResult(PollResult):
 
-    def __init__(self, output, exceptions):
+    def __init__(self, output, exceptions=None):
         super(MySqlPollResult, self).__init__(exceptions)
         self.output = output
 

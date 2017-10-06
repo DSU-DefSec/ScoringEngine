@@ -6,7 +6,7 @@ from smb.SMBConnection import SMBConnection
 import tempfile
 import socket
 
-from poller import PollInput, PollResult, Poller
+from .poller import PollInput, PollResult, Poller
 
 class SmbPollInput(PollInput):
 
@@ -18,9 +18,9 @@ class SmbPollInput(PollInput):
 
 class SmbPollResult(PollResult):
 
-    def __init__(self, file, exceptions=None):
+    def __init__(self, file_contents, exceptions=None):
         super(SmbPollResult, self).__init__(exceptions)
-        self.file = file
+        self.file_contents = file_contents
 
 class SmbPoller(Poller):
 
@@ -40,7 +40,9 @@ class SmbPoller(Poller):
             t = tempfile.TemporaryFile()
             conn.retrieveFile(poll_input.sharename, poll_input.path, t)
 
-            result = SmbPollResult(t)
+            t.seek(0)
+            result = SmbPollResult(t.read())
+            return result
         except Exception as e:
             result = SmbPollResult(None, e)
             return result
