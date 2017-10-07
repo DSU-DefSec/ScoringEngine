@@ -4,6 +4,7 @@ import importlib
 import pickle
 import json
 import copy
+import re
 
 class DataManager(object):
 
@@ -20,9 +21,13 @@ class DataManager(object):
         max_score = db.get(cmd, ("maxscore"))[0][2]
         interval = db.get(cmd, ("interval"))[0][2]
         jitter = db.get(cmd, ("jitter"))[0][2]
+        sla_limit = db.get(cmd, ("sla_penalty"))[0][2]
+        sla_penalty = db.get(cmd, ("sla_penalty"))[0][2]
         self.max_score = int(max_score)
         self.interval = int(interval)
         self.jitter = int(jitter)
+        self.sla_limit = int(sla_limit)
+        self.sla_penalty = int(sla_penalty)
     
     def load_teams(self):
         teams = []
@@ -153,7 +158,6 @@ class DataManager(object):
         return check_io_ids
 
     def write_credentials(self, credentials, team_ids, check_io_ids):
-        credential_ids = {}
 
         print("Team_ids: ", team_ids)
         print("CheckIO_ids: ", check_io_ids)
@@ -164,18 +168,24 @@ class DataManager(object):
         check_get = 'SELECT check_id FROM check_io WHERE id=%s'
         service_get = 'SELECT service_id FROM service_check WHERE id=%s'
         for id, credential in credentials.items():
+            cred_input = {}
+            cred_service = {}
             user, passwd, pcio_ids = credential
             cio_ids = [check_io_ids[str(pcio_id)] for pcio_id in pcio_ids]
             service_ids = []
-            for cio_id in cio_ids:
-                check_id = db.get(check_get, (cio_id))[0]
-                service_id = db.get(service_get, (check_id))[0]
-                if service_id not in service_ids:
-                    service_ids.append(service_id)
-                    for team_id in team_ids.values():
+            for team_id in team_ids.values():
+                for cio_id in cio_ids:
+                    check_id = db.get(check_get, (cio_id))[0]
+                    service_id = db.get(service_get, (check_id))[0]
+                    if service_id in cred_service:
+                        cred_input[cred_service[service_id]].append(cio_id)
+                    else:
                         cred_id = db.execute(cred_cmd, (user, passwd, team_id, service_id))
-                        credential_ids[id] = cred_id
-                        db.execute(cred_io_cmd, (cred_id, cio_id))
+                        cred_service[service_id] = cred_id
+                        cred_input[cred_id] = [cio_id]
+            for cred_id, cio_ids in cred_input.items():
+                for cio_id in cio_ids:
+                    db.execute(cred_io_cmd, (cred_id, cio_id))
         return check_io_ids
 
     def load_results(self, rows):
@@ -213,6 +223,61 @@ class DataManager(object):
                     # Log this
                     pass
         return results
+
+    def valid_team(self, team_id):
+        return team_id in [t.id for t in self.teams]
+
+    def valid_service(self, service_id):
+        return service_id in [s.id for s in self.services]
+
+    def valid_pwchange(self, pwchange):
+        match = '^(.*[^\s]+:[^\s]+.*(\r\n)*)+$'
+        return re.match(match, pwchange) is not None
+
+    def change_passwords(self, team_id, service_id, pwchange):
+        pwchange = [line.split(':') for line in pwchange.split('\r\n')]
+        cmd = ('UPDATE credential SET password=%s WHERE team_id=%s '
+               'AND service_id=%s AND username=%s')
+        for line in pwchange:
+            if len(line) >= 2:
+                username = re.sub('\s+', '', line[0])
+                password = re.sub('\s+', '', ':'.join(line[1:]))
+                db.execute(cmd, (password, team_id, service_id, username))
+
+    def calc_score(self, team_id):
+        cmd = ('SELECT check_id, time, result FROM result '
+               'WHERE team_id=%s ORDER BY time ASC')
+        result_rows = db.get(cmd, (team_id))
+        results = {}
+        for check_id, time, result in result_rows:
+            if check_id not in results:
+                results[check_id] = []
+            results[check_id].append({'time':time, 'result':int(result)})
+
+        good_checks = 0
+        total_checks = 0
+        for key, result_list in results.items():
+            total_checks += len(result_list)
+            good_checks += sum([1 for r in result_list if r['result'] == 1])
+        raw_score = self.max_score * (good_checks/total_checks)
+ 
+        slas = 0
+        for key, result_list in results.items():
+            slas += self.sla_violations(result_list)
+        score = raw_score - slas * self.sla_penalty
+        return {'raw_score':raw_score, 'slas':slas, 'score':score}
+
+    def sla_violations(self, results):
+        slas = 0
+        run = 0
+        for result in results:
+            if result['result'] == 1:
+                run = 0
+            else:
+                run += 1
+                if run > self.sla_limit:
+                    slas += 1
+        return slas
 
 
 def load_module(module_str):

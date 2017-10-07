@@ -11,7 +11,9 @@
 <thead>
 <tr>
 <th>Team</th>
-<th>Score</th>
+<th>Raw Score</th>
+<th>SLA Violations</th>
+<th>Total Score</th>
 </tr>
 </thead>
 
@@ -19,7 +21,9 @@
 {% for t in teams %}
 <tr>
     <td>{{ t.name }}</td>
-    <td>{{ scores[t.id] }}</td>
+    <td>{{ scores[t.id]['raw_score'] }}</td>
+    <td>{{ scores[t.id]['slas'] }}</td>
+    <td>{{ scores[t.id]['score'] }}</td>
 </tr>
 {% endfor %}
 </tbody>

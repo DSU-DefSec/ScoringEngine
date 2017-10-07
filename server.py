@@ -12,7 +12,6 @@ dm = DataManager()
 def local_only(f):
     @wraps(f)
     def wrapped(*args, **kwargs):
-        print(request.remote_addr)
         if request.remote_addr != '127.0.0.1':
             return "Access Denied"
         return f(*args, **kwargs)
@@ -28,10 +27,13 @@ def status():
     return render_template('status.html', teams=teams, checks=checks, results=results)
 
 @app.route('/scores')
+@local_only
 def scores():
     dm.reload()
     teams = dm.teams
-    scores = {1:0, 2:0}
+    scores = {}
+    for team in teams:
+        scores[team.id] = dm.calc_score(team.id)
     return render_template('scores.html', teams=teams, scores=scores)
 
 @app.route('/credentials', methods=['GET'])
@@ -45,24 +47,44 @@ def credentials():
     return render_template('credentials.html', credentials=credentials, team=team)
 
 @app.route('/teams')
+@local_only
 def teams():
     dm.reload()
     teams = dm.teams
     return render_template('teams.html', teams=teams)
 
 @app.route('/services')
+@local_only
 def services():
     dm.reload()
     services = dm.services
     return render_template('services.html', services=services)
 
 @app.route('/checks')
+@local_only
 def checks():
     pass
 
-@app.route('/bulk_password')
-def bulk_password():
-    pass
+@app.route('/bulk', methods=['GET', 'POST'])
+@local_only
+def bulk():
+    dm.reload()
+    teams = dm.teams
+    services = dm.services
+    error = []
+    if request.method == 'POST':
+        team_id = int(request.form.get('team'))
+        service_id = int(request.form.get('service'))
+        pwchange = request.form.get('pwchange')
+        if not dm.valid_team(team_id):
+            error.append('Invalid Team')
+        if not dm.valid_service(service_id):
+            error.append('Invalid Service')
+        if not dm.valid_pwchange(pwchange):
+            error.append('Invalid Password Change Format')
+        dm.change_passwords(team_id, service_id, pwchange)
+    return render_template('bulk.html', error=','.join(error), teams=teams, services=services)
+        
 
 @app.route('/result_log', methods=['GET'])
 def result_log():

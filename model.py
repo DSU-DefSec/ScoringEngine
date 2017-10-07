@@ -110,7 +110,7 @@ class CheckIO(object):
 
     def make_poll_input(self, team, host, port):
         poll_input = copy.copy(self.poll_input)
-        server = self.get_ip(team.subnet, host)
+        server = self.check.service.get_ip(team.subnet)
         poll_input.server = server
         poll_input.port = port
         poll_input.team = team
