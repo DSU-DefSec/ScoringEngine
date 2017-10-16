@@ -37,13 +37,11 @@ class DnsPoller(Poller):
     def poll(self, poll_input):
         res = resolver.Resolver()
         res.nameservers = [poll_input.server]
-        res.lifetime = 2.0
-        res.timeout = 2.0
+        res.lifetime = poll_input.timeout
+        res.timeout = poll_input.timeout
         res.port = poll_input.port
     
         try:
-            print(poll_input.query)
-            print(poll_input.record_type)
             answer = res.query(poll_input.query, 
                     poll_input.record_type).rrset[0]
             result = DnsPollResult(str(answer))

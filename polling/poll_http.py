@@ -25,7 +25,7 @@ class HttpPoller(Poller):
             server = poll_input.server
             port = poll_input.port
             path = poll_input.path
-            r = requests.get('{}://{}:{}/{}'.format(proto, server, port, path), timeout=2, verify=False)
+            r = requests.get('{}://{}:{}/{}'.format(proto, server, port, path), timeout=poll_input.timeout, verify=False)
             r.raise_for_status()
 
             result = HttpPollResult(r.text, None)

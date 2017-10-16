@@ -20,13 +20,17 @@ class RdpPoller(Poller):
         username = poll_input.credentials.username
         password = poll_input.credentials.password
         
-        options = '--authonly -d {} -u {} -p {} {}:{}'.format(
+        options = '--ignore-certificate --authonly -d {} -u {} -p {} {}:{}'.format(
                 poll_input.domain, username, password,
                 poll_input.server, poll_input.port)
         try:
-            output = subprocess.check_call('xfreerdp {} 2 >&1 > /dev/null'.format(options), shell=True)
+            output = subprocess.check_output('timeout {} xfreerdp {}'.format(poll_input.timeout, options), shell=True, stderr=subprocess.STDOUT)
             result = RdpPollResult(True)
             return result
         except Exception as e:
+            if ('connected to' in str(e.output) and 'Authentication failure' not in str(e.output)) or (e.returncode == 131 and 'negotiation' in str(e.output)):
+                result = RdpPollResult(True)
+                return result
+            print("{{{{%s}}}}" % e.output)
             result = RdpPollResult(False, e)
             return result

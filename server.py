@@ -5,6 +5,7 @@ from flask import Flask
 from flask import render_template
 from flask import request
 from functools import wraps
+import plot
 
 app = Flask(__name__)
 dm = DataManager()
@@ -24,6 +25,7 @@ def status():
     teams = dm.teams
     checks = dm.checks
     results = dm.latest_results()
+    teams.sort(key=lambda t: t.name)
     return render_template('status.html', teams=teams, checks=checks, results=results)
 
 @app.route('/scores')
@@ -37,7 +39,7 @@ def scores():
     return render_template('scores.html', teams=teams, scores=scores)
 
 @app.route('/credentials', methods=['GET'])
-@local_only
+#@local_only
 def credentials():
     dm.reload()
     team_id = request.args.get('tid')
@@ -70,7 +72,9 @@ def checks():
 def bulk():
     dm.reload()
     teams = dm.teams
+    teams.sort(key=lambda t: t.name)
     services = dm.services
+    services.sort(key=lambda s: (s.host, s.port))
     error = []
     if request.method == 'POST':
         team_id = int(request.form.get('team'))
@@ -87,17 +91,21 @@ def bulk():
         
 
 @app.route('/result_log', methods=['GET'])
+#@local_only
 def result_log():
     dm.reload()
     team_id = request.args.get('tid')
     check_id = request.args.get('cid')
     results = dm.get_results(team_id, check_id)
-    return render_template('result_log.html', results=results)
+    fname = plot.plot_results(results)
+    return render_template('result_log.html', results=results, fname=fname)
 
 @app.route('/login')
+@local_only
 def login():
     pass
 
 @app.route('/logout')
+@local_only
 def logout():
     pass

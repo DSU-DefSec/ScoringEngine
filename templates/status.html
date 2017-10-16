@@ -11,17 +11,17 @@
 <thead>
 <tr>
 <th></th>
-{% for c in checks %}
-<th>{{ c.name }}</th>
+{% for t in teams %}
+<th class='clickable' data-href='/credentials?tid={{ t.id }}'>{{ t.name }}</th>
 {% endfor %}
 </tr>
 </thead>
 
 <tbody>
-{% for t in teams %}
+{% for c in checks %}
 <tr>
-    <td class='clickable' data-href='/credentials?tid={{ t.id }}'>{{ t.name }}</td>
-    {% for c in checks %}
+    <td>{{ c.name }}</td>
+    {% for t in teams %}
         {% if c.id in results[t.id] %}
             {% if results[t.id][c.id].result is equalto 1 %}
                 <td class='pass clickable' data-href='/result_log?tid={{ t.id }}&cid={{ c.id }}'>

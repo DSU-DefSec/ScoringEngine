@@ -23,11 +23,15 @@ class DataManager(object):
         jitter = db.get(cmd, ("jitter"))[0][2]
         sla_limit = db.get(cmd, ("sla_penalty"))[0][2]
         sla_penalty = db.get(cmd, ("sla_penalty"))[0][2]
+        comp_length = db.get(cmd, ("comp_length"))[0][2]
+        timeout = db.get(cmd, ("timeout"))[0][2]
         self.max_score = int(max_score)
         self.interval = int(interval)
         self.jitter = int(jitter)
         self.sla_limit = int(sla_limit)
         self.sla_penalty = int(sla_penalty)
+        self.comp_length = int(comp_length)
+        self.timeout = int(timeout)
     
     def load_teams(self):
         teams = []
@@ -83,6 +87,7 @@ class DataManager(object):
             for cred_input_id, cred_id, _check_io_id in cred_input_rows:
                 check_creds.append(next(filter(lambda c: c.id == cred_id, credentials)))
             poll_input = pickle.loads(check_input)
+            poll_input.timeout = self.timeout
             expected = json.loads(expected)
             check_io = CheckIO(check_io_id, poll_input, expected, check_creds, check_id)
             for cred in check_creds:
@@ -101,6 +106,7 @@ class DataManager(object):
         return creds
 
     def reset_db(self):
+        db.execute("DELETE FROM settings")
         db.execute("DELETE FROM team")
         db.execute("DELETE FROM service")
         db.execute("DELETE FROM service_check")
@@ -168,12 +174,12 @@ class DataManager(object):
         check_get = 'SELECT check_id FROM check_io WHERE id=%s'
         service_get = 'SELECT service_id FROM service_check WHERE id=%s'
         for id, credential in credentials.items():
-            cred_input = {}
-            cred_service = {}
             user, passwd, pcio_ids = credential
             cio_ids = [check_io_ids[str(pcio_id)] for pcio_id in pcio_ids]
             service_ids = []
             for team_id in team_ids.values():
+                cred_input = {}
+                cred_service = {}
                 for cio_id in cio_ids:
                     check_id = db.get(check_get, (cio_id))[0]
                     service_id = db.get(service_get, (check_id))[0]
@@ -183,9 +189,9 @@ class DataManager(object):
                         cred_id = db.execute(cred_cmd, (user, passwd, team_id, service_id))
                         cred_service[service_id] = cred_id
                         cred_input[cred_id] = [cio_id]
-            for cred_id, cio_ids in cred_input.items():
-                for cio_id in cio_ids:
-                    db.execute(cred_io_cmd, (cred_id, cio_id))
+                for cred_id, io_ids in cred_input.items():
+                    for io_id in io_ids:
+                        db.execute(cred_io_cmd, (cred_id, io_id))
         return check_io_ids
 
     def load_results(self, rows):
@@ -264,7 +270,7 @@ class DataManager(object):
         slas = 0
         for key, result_list in results.items():
             slas += self.sla_violations(result_list)
-        score = raw_score - slas * self.sla_penalty
+        score = raw_score #- slas * self.sla_penalty
         return {'raw_score':raw_score, 'slas':slas, 'score':score}
 
     def sla_violations(self, results):

@@ -21,6 +21,9 @@ class Credential(object):
         self.team = team
 #        self.service_id = service_id
 
+    def __str__(self):
+        return "%s:%s:%s" % (self.team.name, self.username, self.password)
+
 
 class Service(object):
 
@@ -60,7 +63,12 @@ class Check(object):
             thread.start()
 
     def check_single(self, check_io_id, poll_input, expected):
-        poll_result = self.poller.poll(poll_input)
+        tries = 0
+        while tries < 5:
+            tries += 1
+            poll_result = self.poller.poll(poll_input)
+            if poll_result.exception is None:
+                break
         result = self.check_function(poll_result, expected)
         team_id = poll_input.team.id
         self.store_result(check_io_id, team_id, poll_input, poll_result, result)
@@ -88,7 +96,7 @@ class CheckIO(object):
         if len(self.credentials) == 0:
             return self.get_poll_inputs_no_creds(teams, host, port)
         else:
-            return self.get_poll_inputs_creds(host, port)
+            return self.get_poll_inputs_creds(teams, host, port)
 
     def get_poll_inputs_no_creds(self, teams, host, port):
         poll_inputs = []
@@ -97,11 +105,13 @@ class CheckIO(object):
             poll_inputs.append(poll_input)
         return poll_inputs
 
-    def get_poll_inputs_creds(self, host, port):
+    def get_poll_inputs_creds(self, teams, host, port):
         poll_inputs = []
         credential = random.choice(self.credentials)
         creds = [cred for cred in self.credentials if cred.username == credential.username]
         for c in creds:
+            if c.team not in teams:
+                continue
             team = c.team
             poll_input = self.make_poll_input(team, host, port)
             poll_input.credentials = c

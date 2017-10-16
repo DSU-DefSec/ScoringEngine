@@ -1,5 +1,6 @@
 from paramiko import client
 from paramiko.ssh_exception import *
+import socket
 
 from .poller import PollInput, PollResult, Poller
 
@@ -25,10 +26,14 @@ class SshPoller(Poller):
             cli = client.SSHClient()
             cli.load_host_keys('/dev/null')
             cli.set_missing_host_key_policy(client.AutoAddPolicy())
-            cli.connect(poll_input.server, poll_input.port, username, password)
+            cli.connect(poll_input.server, poll_input.port, username, password, timeout=poll_input.timeout)
+            cli.close()
     
             result = SshPollResult(True)
             return result
-        except Exception as e:
+        except (Exception, socket.error) as e:
+            result = SshPollResult(False, e)
+            return result
+        except SSHException as e:
             result = SshPollResult(False, e)
             return result

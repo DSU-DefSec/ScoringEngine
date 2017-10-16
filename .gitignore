@@ -2,3 +2,5 @@
 *.sql
 __pycache__
 */__cache__
+checkfiles/*
+static/imgs/*

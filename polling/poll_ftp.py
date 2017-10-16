@@ -34,7 +34,7 @@ class FtpPoller(Poller):
         ftp = ftplib.FTP()
         t = tempfile.NamedTemporaryFile()
         try:
-            ftp.connect(poll_input.server, poll_input.port, timeout=2)
+            ftp.connect(poll_input.server, poll_input.port, timeout=poll_input.timeout)
             ftp.login(user=username, passwd=password)
             ftp.retrbinary('RETR {}'.format(poll_input.filepath), t.write)
             ftp.quit()

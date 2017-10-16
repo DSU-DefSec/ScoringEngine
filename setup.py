@@ -1,8 +1,7 @@
-#!/usr/bin/env python
-import pymysql
+#!/usr/bin/env python3
+import db
 
-#connection = db.connect()
-connection = pymysql.connect(host='localhost', user='root', password='toor')
+connection = db.connect()
 
 with connection.cursor() as cursor:
     # Delete old db

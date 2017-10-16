@@ -3,6 +3,8 @@
 {% block content %}
 <h1>Result Log</h1>
 
+<img src={{ url_for('static', filename='imgs/'+fname) }}/>
+
 <table class="table">
 <thead>
 <tr>
@@ -29,7 +31,11 @@
     <td>
     <ul>
     {% for key, value in r.poll_result.attrs().items() %}
-        <li>{{ key }}:{{ value }}</li>
+        {% if value|string|length > 25 %}
+            <li>{{ key }}:{{ (value|string)[:25] }}...</li>
+        {% else %}
+            <li>{{ key }}:{{ value }}</li>
+        {% endif %} 
     {% endfor %}
     </ul>
     </td>
