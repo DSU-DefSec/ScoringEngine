@@ -9,6 +9,18 @@ import itertools
 
 class DataManager(object):
 
+    def reset_db(self):
+        """
+        Delete all data from the database.
+        """
+        db.execute("DELETE FROM settings")
+        db.execute("DELETE FROM team")
+        db.execute("DELETE FROM service")
+        db.execute("DELETE FROM service_check")
+        db.execute("DELETE FROM check_io")
+        db.execute("DELETE FROM credential")
+        db.execute("DELETE FROM result")
+
     def reload(self):
         self.settings = self.load_settings()
         self.teams = self.load_teams()
@@ -21,6 +33,9 @@ class DataManager(object):
         self.services = self.load_services(checks)
 
     def load_settings(self):
+        """
+        Load global settings from the database.
+        """
         settings = {}
 
         cmd = "SELECT skey,value FROM settings"
@@ -39,6 +54,12 @@ class DataManager(object):
         return settings
     
     def load_teams(self):
+        """
+        Load teams from the database.
+
+        Returns:
+            List(Team): A list of Teams
+        """
         teams = []
         rows = db.get("SELECT * FROM team")
         for team_id, name, subnet, netmask in rows:
@@ -47,6 +68,15 @@ class DataManager(object):
         return teams
     
     def load_credentials(self, teams):
+        """
+        Load credentials from the database.
+        
+        Arguments:
+            teams (List(Team)): List of teams to associate credentials with
+
+        Returns:
+            List(Credential): List of credentials
+        """
         creds = []
         cred_rows = db.get("SELECT * FROM credential")
         for cred_id, username, password, team_id, service_id in cred_rows:
@@ -56,6 +86,17 @@ class DataManager(object):
         return creds
     
     def load_check_ios(self, credentials):
+        """
+        Load check input-output pairs from the database.
+
+        Arguments:
+            credentials (List(Credential)): List of credentials to associate
+            input-output pairs with
+
+        Returns:
+            Dict(int->List(CheckIO)): Mapping of check IDs to a list of
+                check input-output pairs
+        """
         check_ios = {}
     
         check_io_rows = db.get("SELECT * FROM check_io")
@@ -82,6 +123,17 @@ class DataManager(object):
         return check_ios
 
     def load_checks(self, check_ios):
+        """
+        Load checks from the database.
+
+        Arguments:
+            check_ios (Dict(int->List(CheckIO))): Mapping of check IDs to a
+                list of check input-output pairs to associate checks with 
+
+        Returns:
+            List(Check,int): A list of checks and the ID of their associated
+                services
+        """
         checks = []
         cmd = "SELECT * FROM service_check" 
         check_rows = db.get(cmd)
@@ -102,6 +154,16 @@ class DataManager(object):
         return checks
     
     def load_services(self, checks):
+        """
+        Load services from the database.
+
+        Arguments:
+            checks (List(Check,int)): List of pairs of service IDs and the
+                check to associate a service with
+
+        Returns:
+            List(Service): A list of services
+        """
         services = []
         service_rows = db.get("SELECT * FROM service")
         for service_id, host, port in service_rows:
@@ -116,22 +178,30 @@ class DataManager(object):
             services.append(service)
         return services
     
-    def reset_db(self):
-        db.execute("DELETE FROM settings")
-        db.execute("DELETE FROM team")
-        db.execute("DELETE FROM service")
-        db.execute("DELETE FROM service_check")
-        db.execute("DELETE FROM check_io")
-        db.execute("DELETE FROM credential")
-        db.execute("DELETE FROM result")
-
     def write_settings(self, settings):
+        """
+        Write global settings to the database.
+
+        Arguments:
+            settings (Dict(str->str)): A mapping of setting keys and values
+        """
         cmd = ("INSERT INTO settings (skey, value) "
                "VALUES (%s, %s)")
         for key, value in settings.items():
             db.execute(cmd, (key, value))
 
     def write_teams(self, teams):
+        """
+        Write the given teams to the database.
+
+        Arguments:
+            teams (Dict(int->Team args)): A mapping of team config IDs to team
+                initialization arguments
+
+        Returns:
+            Dict(int->int): A mapping of team config IDs to 
+                team database IDs
+        """
         team_ids = {}
 
         cmd = "INSERT INTO team (name, subnet, netmask) VALUES (%s, %s, %s)"
@@ -141,6 +211,17 @@ class DataManager(object):
         return team_ids
 
     def write_services(self, services):
+        """
+        Write the given services to the database.
+
+        Arguments:
+            services (Dict(int->Service args)): A mapping of service config IDs to
+                service initialization arguments
+
+        Returns:
+            Dict(int->int): A mapping of service config IDs to 
+                service database IDs
+        """
         service_ids = {}
 
         cmd = 'INSERT INTO service (host, port) VALUES (%s, %s)'
@@ -150,6 +231,19 @@ class DataManager(object):
         return service_ids
 
     def write_checks(self, checks, service_ids):
+        """
+        Write the given checks to the database.
+
+        Arguments:
+            checks (Dict(int->Check args)): A mapping of check config IDs to check 
+                initialization arguments
+            service_ids (Dict(int->int)): A mapping of service config IDs to 
+                service database IDs
+
+        Returns:
+            Dict(int->int): A mapping of check config IDs to 
+                check database IDs
+        """
         check_ids = {}
 
         cmd = ('INSERT INTO service_check (name, check_function, '
@@ -162,6 +256,22 @@ class DataManager(object):
         return check_ids
 
     def write_check_ios(self, check_ios, poll_inputs, check_ids):
+        """
+        Write the given input-output pairs to the database.
+
+        Arguments:
+            check_ios (Dict(int->CheckIO args)): A mapping of check input-output
+                pair config IDs to check input-output pair initializaiton
+                arguments
+            poll_inputs (Dict(int->Serialized PollInput)): A mapping of poll
+                input config IDs to serialized poll inputs
+            check_ids (Dict(int->int)): A mapping of check config IDs to 
+                check database IDs
+
+        Returns:
+            Dict(int->int): A mapping of check input-output pair config IDs
+                to check input-output pair database IDs
+        """
         check_io_ids = {}
 
         cmd = ('INSERT INTO check_io (input, expected, check_id) '
@@ -175,7 +285,16 @@ class DataManager(object):
         return check_io_ids
 
     def write_credentials(self, credentials, team_ids, check_io_ids):
+        """
+        Write the given input-output pairs to the database.
 
+        Arguments:
+            credentials (Dict(int->Credential args)): A mapping of credential
+                config IDs to credential initialization arguments
+            team_ids (Dict(int->int)): A mapping of team config IDs to team database IDs
+            check_io_ids (Dict(int->int)): A mapping of check input-output pair
+                config IDs to check input-output pair database IDs
+        """
         print("Team_ids: ", team_ids)
         print("CheckIO_ids: ", check_io_ids)
         cred_cmd = ('INSERT INTO credential (username, password, '
@@ -203,7 +322,6 @@ class DataManager(object):
                 for cred_id, io_ids in cred_input.items():
                     for io_id in io_ids:
                         db.execute(cred_io_cmd, (cred_id, io_id))
-        return check_io_ids
 
     def load_results(self, rows):
         results = []
