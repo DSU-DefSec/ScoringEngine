@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/python3
 
 from dm import DataManager
 from flask import Flask

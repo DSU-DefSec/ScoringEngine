@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 import db
 
 connection = db.connect()
@@ -32,7 +32,8 @@ with connection.cursor() as cursor:
     cmd = ("CREATE TABLE team ( "
            "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
            "name VARCHAR(255) NOT NULL UNIQUE, "
-           "subnet VARCHAR(15) NOT NULL UNIQUE)")
+           "subnet VARCHAR(15) NOT NULL UNIQUE, "
+           "netmask VARCHAR(15) NOT NULL)")
     print(cmd)
     cursor.execute(cmd)
 

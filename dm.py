@@ -12,9 +12,11 @@ class DataManager(object):
         self.load_settings()
         self.teams = self.load_teams()
         self.credentials = self.load_credentials(self.teams)
-        self.check_ios = self.load_check_ios(self.credentials)
-        self.checks = self.load_checks(self.check_ios)
-        self.services = self.load_services(self.checks)
+        check_ios = self.load_check_ios(self.credentials)
+        self.check_ios = list(check_ios.values())
+        checks = self.load_checks(check_ios)
+        self.checks = [check[0] for check in checks]
+        self.services = self.load_services(checks)
 
     def load_settings(self):
         cmd = "SELECT * FROM settings WHERE skey=%s LIMIT 1"
@@ -36,8 +38,8 @@ class DataManager(object):
     def load_teams(self):
         teams = []
         rows = db.get("SELECT * FROM team")
-        for team_id, name, subnet in rows:
-            team = Team(name, subnet, team_id)
+        for team_id, name, subnet, netmask in rows:
+            team = Team(team_id, name, subnet, netmask)
             teams.append(team)
         return teams
     
@@ -47,10 +49,10 @@ class DataManager(object):
         for service_id, host, port in service_rows:
             schecks = []
             for check in checks:
-                if check.service_id == service_id:
-                    schecks.append(check)
+                if check[1] == service_id:
+                    schecks.append(check[0])
 
-            service = Service(host, port, schecks, service_id)
+            service = Service(service_id, host, port, schecks)
             for check in schecks:
                check.service = service
             services.append(service)
@@ -58,42 +60,50 @@ class DataManager(object):
     
     def load_checks(self, check_ios):
         checks = []
-        cmd = "SELECT * FROM service_check ORDER BY name ASC" 
+        cmd = "SELECT * FROM service_check" 
         check_rows = db.get(cmd)
-        for check_id, name, check_string, poller_string, service_id in check_rows:
+        for check_id, name, check_string, \
+            poller_string, service_id in check_rows:
             ios = []
-            for check_io in check_ios:
-                if check_io.check_id == check_id:
+            for io_check_id, check_io in check_ios.items():
+                if io_check_id == check_id:
                     ios.append(check_io)
 
             check_function = load_module(check_string)
             poller_class = load_module(poller_string)
             poller = poller_class()
-            check = Check(check_id, name, check_function, ios, poller, service_id)
+            check = Check(check_id, name, check_function,
+                          ios, poller)
+
             for check_io in ios:
                 check_io.check = check
 
-            checks.append(check)
+            checks.append((check, service_id))
         return checks
     
     
     def load_check_ios(self, credentials):
-        check_ios = []
+        check_ios = {}
     
         check_io_rows = db.get("SELECT * FROM check_io")
         for check_io_id, check_input, expected, check_id in check_io_rows:
-            cred_input_rows = db.get("SELECT * FROM cred_input WHERE check_io_id=%s", (check_io_id))
+            cmd = "SELECT * FROM cred_input WHERE check_io_id=%s"
+            cred_input_rows = db.get(cmd, (check_io_id))
             check_creds = []
             for cred_input_id, cred_id, _check_io_id in cred_input_rows:
-                check_creds.append(next(filter(lambda c: c.id == cred_id, credentials)))
+                cred = next(filter(lambda c: c.id == cred_id, credentials))
+                check_creds.append(cred)
+
             poll_input = pickle.loads(check_input)
             poll_input.timeout = self.timeout
             expected = json.loads(expected)
-            check_io = CheckIO(check_io_id, poll_input, expected, check_creds, check_id)
+            check_io = CheckIO(check_io_id, poll_input, 
+                               expected, check_creds)
+
             for cred in check_creds:
                 cred.check_io = check_io
 
-            check_ios.append(check_io)
+            check_ios[check_io_id] = check_io
         return check_ios
     
     def load_credentials(self, teams):
@@ -123,7 +133,7 @@ class DataManager(object):
     def write_teams(self, teams):
         team_ids = {}
 
-        cmd = "INSERT INTO team (name, subnet) VALUES (%s, %s)"
+        cmd = "INSERT INTO team (name, subnet, netmask) VALUES (%s, %s, %s)"
         for id, team in teams.items():
             db_id = db.execute(cmd, team)
             team_ids[id] = db_id

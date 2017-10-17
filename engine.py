@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 from dm import DataManager
 from threading import Thread
 import time, datetime
@@ -18,6 +18,7 @@ class ScoringEngine(object):
         while True:
             print("New Round of Checks")
             self.dm.reload()
+            return
             self.dm.teams.sort(key=lambda t: t.name)
             current = time.monotonic()
             print(datetime.timedelta(seconds=current - start))

@@ -62,10 +62,12 @@ def parse_teams(contents):
     portion = get_portion(contents, '[Teams]')
     lines = parse_portion(portion)
     for id, args in lines:
-        name, subnet = args
+        name, subnet, netmask = args
 
         validate.ip(subnet)
-        teams[id] = (name, subnet)
+        validate.ip(netmask)
+
+        teams[id] = (name, subnet, netmask)
     return teams
 
 def parse_services(contents):
