@@ -18,19 +18,18 @@ class ScoringEngine(object):
         while True:
             print("New Round of Checks")
             self.dm.reload()
-            return
             self.dm.teams.sort(key=lambda t: t.name)
             current = time.monotonic()
             print(datetime.timedelta(seconds=current - start))
-            if (current - start) > self.dm.comp_length:
+            if (current - start) > self.dm.settings["comp_length"]:
                 break
  
             for service in self.dm.services:
                 service.check(self.dm.teams)
-            wait = self.dm.interval
+            wait = self.dm.settings["interval"]
             print("Interval: " + str(wait))
-            jitter = random.randint(-self.dm.jitter,
-                                    self.dm.jitter)
+            jitter = random.randint(-self.dm.settings["jitter"],
+                                    self.dm.settings["jitter"])
             print("Jitter: " + str(jitter))
             wait += jitter
             print("Wait: " + str(wait))

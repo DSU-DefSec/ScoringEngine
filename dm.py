@@ -5,35 +5,38 @@ import pickle
 import json
 import copy
 import re
+import itertools
 
 class DataManager(object):
 
     def reload(self):
-        self.load_settings()
+        self.settings = self.load_settings()
         self.teams = self.load_teams()
         self.credentials = self.load_credentials(self.teams)
         check_ios = self.load_check_ios(self.credentials)
         self.check_ios = list(check_ios.values())
+        self.check_ios = itertools.chain.from_iterable(self.check_ios)
         checks = self.load_checks(check_ios)
         self.checks = [check[0] for check in checks]
         self.services = self.load_services(checks)
 
     def load_settings(self):
-        cmd = "SELECT * FROM settings WHERE skey=%s LIMIT 1"
-        max_score = db.get(cmd, ("maxscore"))[0][2]
-        interval = db.get(cmd, ("interval"))[0][2]
-        jitter = db.get(cmd, ("jitter"))[0][2]
-        sla_limit = db.get(cmd, ("sla_penalty"))[0][2]
-        sla_penalty = db.get(cmd, ("sla_penalty"))[0][2]
-        comp_length = db.get(cmd, ("comp_length"))[0][2]
-        timeout = db.get(cmd, ("timeout"))[0][2]
-        self.max_score = int(max_score)
-        self.interval = int(interval)
-        self.jitter = int(jitter)
-        self.sla_limit = int(sla_limit)
-        self.sla_penalty = int(sla_penalty)
-        self.comp_length = int(comp_length)
-        self.timeout = int(timeout)
+        settings = {}
+
+        cmd = "SELECT skey,value FROM settings"
+        settings_rows = db.get(cmd)
+        for key, value in settings_rows:
+            settings[key] = value
+
+        settings["maxscore"] = int(settings["maxscore"])
+        settings["interval"] = int(settings["interval"])
+        settings["jitter"] = int(settings["jitter"])
+        settings["sla_limit"] = int(settings["sla_limit"])
+        settings["sla_penalty"] = int(settings["sla_penalty"])
+        settings["comp_length"] = int(settings["comp_length"])
+        settings["timeout"] = int(settings["timeout"])
+
+        return settings
     
     def load_teams(self):
         teams = []
@@ -64,11 +67,8 @@ class DataManager(object):
         check_rows = db.get(cmd)
         for check_id, name, check_string, \
             poller_string, service_id in check_rows:
-            ios = []
-            for io_check_id, check_io in check_ios.items():
-                if io_check_id == check_id:
-                    ios.append(check_io)
 
+            ios = check_ios[check_id]
             check_function = load_module(check_string)
             poller_class = load_module(poller_string)
             poller = poller_class()
@@ -95,7 +95,7 @@ class DataManager(object):
                 check_creds.append(cred)
 
             poll_input = pickle.loads(check_input)
-            poll_input.timeout = self.timeout
+            poll_input.timeout = self.settings["timeout"]
             expected = json.loads(expected)
             check_io = CheckIO(check_io_id, poll_input, 
                                expected, check_creds)
@@ -103,7 +103,9 @@ class DataManager(object):
             for cred in check_creds:
                 cred.check_io = check_io
 
-            check_ios[check_io_id] = check_io
+            if check_id not in check_ios:
+                check_ios[check_id] = []
+            check_ios[check_id].append(check_io)
         return check_ios
     
     def load_credentials(self, teams):
