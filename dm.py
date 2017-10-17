@@ -46,41 +46,14 @@ class DataManager(object):
             teams.append(team)
         return teams
     
-    def load_services(self, checks):
-        services = []
-        service_rows = db.get("SELECT * FROM service")
-        for service_id, host, port in service_rows:
-            schecks = []
-            for check in checks:
-                if check[1] == service_id:
-                    schecks.append(check[0])
-
-            service = Service(service_id, host, port, schecks)
-            for check in schecks:
-               check.service = service
-            services.append(service)
-        return services
-    
-    def load_checks(self, check_ios):
-        checks = []
-        cmd = "SELECT * FROM service_check" 
-        check_rows = db.get(cmd)
-        for check_id, name, check_string, \
-            poller_string, service_id in check_rows:
-
-            ios = check_ios[check_id]
-            check_function = load_module(check_string)
-            poller_class = load_module(poller_string)
-            poller = poller_class()
-            check = Check(check_id, name, check_function,
-                          ios, poller)
-
-            for check_io in ios:
-                check_io.check = check
-
-            checks.append((check, service_id))
-        return checks
-    
+    def load_credentials(self, teams):
+        creds = []
+        cred_rows = db.get("SELECT * FROM credential")
+        for cred_id, username, password, team_id, service_id in cred_rows:
+            team = next(filter(lambda t: t.id == team_id, teams))
+            cred = Credential(cred_id, username, password, team)
+            creds.append(cred)
+        return creds
     
     def load_check_ios(self, credentials):
         check_ios = {}
@@ -107,16 +80,42 @@ class DataManager(object):
                 check_ios[check_id] = []
             check_ios[check_id].append(check_io)
         return check_ios
-    
-    def load_credentials(self, teams):
-        creds = []
-        cred_rows = db.get("SELECT * FROM credential")
-        for cred_id, username, password, team_id, service_id in cred_rows:
-            team = next(filter(lambda t: t.id == team_id, teams))
-            cred = Credential(cred_id, username, password, team)
-            creds.append(cred)
-        return creds
 
+    def load_checks(self, check_ios):
+        checks = []
+        cmd = "SELECT * FROM service_check" 
+        check_rows = db.get(cmd)
+        for check_id, name, check_string, \
+            poller_string, service_id in check_rows:
+
+            ios = check_ios[check_id]
+            check_function = load_module(check_string)
+            poller_class = load_module(poller_string)
+            poller = poller_class()
+            check = Check(check_id, name, check_function,
+                          ios, poller)
+
+            for check_io in ios:
+                check_io.check = check
+
+            checks.append((check, service_id))
+        return checks
+    
+    def load_services(self, checks):
+        services = []
+        service_rows = db.get("SELECT * FROM service")
+        for service_id, host, port in service_rows:
+            schecks = []
+            for check in checks:
+                if check[1] == service_id:
+                    schecks.append(check[0])
+
+            service = Service(service_id, host, port, schecks)
+            for check in schecks:
+               check.service = service
+            services.append(service)
+        return services
+    
     def reset_db(self):
         db.execute("DELETE FROM settings")
         db.execute("DELETE FROM team")
@@ -258,7 +257,7 @@ class DataManager(object):
                'AND service_id=%s AND username=%s')
         for line in pwchange:
             if len(line) >= 2:
-                username = re.sub('\s+', '', line[0])
+                username = re.sub('\s+', '', line[0]).lower()
                 password = re.sub('\s+', '', ':'.join(line[1:]))
                 db.execute(cmd, (password, team_id, service_id, username))
 
@@ -282,7 +281,7 @@ class DataManager(object):
         slas = 0
         for key, result_list in results.items():
             slas += self.sla_violations(result_list)
-        score = raw_score #- slas * self.sla_penalty
+        score = raw_score - slas * self.sla_penalty
         return {'raw_score':raw_score, 'slas':slas, 'score':score}
 
     def sla_violations(self, results):
@@ -296,7 +295,6 @@ class DataManager(object):
                 if run > self.sla_limit:
                     slas += 1
         return slas
-
 
 def load_module(module_str):
     parts = module_str.split('.')
