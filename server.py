@@ -23,7 +23,6 @@ def local_only(f):
 @app.route('/')
 @app.route('/status')
 def status():
-    dm.reload()
     teams = dm.teams
     checks = dm.checks
     results = dm.latest_results()
@@ -33,7 +32,6 @@ def status():
 @app.route('/scores')
 @local_only
 def scores():
-    dm.reload()
     teams = dm.teams
     scores = {}
     sla_limit = dm.settings['sla_limit']
@@ -47,36 +45,16 @@ def scores():
 @app.route('/credentials', methods=['GET'])
 #@local_only
 def credentials():
-    dm.reload()
+    dm.reload_credentials()
     team_id = request.args.get('tid')
     team = next(filter(lambda t: t.id == int(team_id), dm.teams))
     credentials = [cred for cred in dm.credentials if cred.team.id == int(team_id)]
     credentials.sort(key= lambda c: (c.check_io.check.name, c.username))
     return render_template('credentials.html', credentials=credentials, team=team)
 
-@app.route('/teams')
-@local_only
-def teams():
-    dm.reload()
-    teams = dm.teams
-    return render_template('teams.html', teams=teams)
-
-@app.route('/services')
-@local_only
-def services():
-    dm.reload()
-    services = dm.services
-    return render_template('services.html', services=services)
-
-@app.route('/checks')
-@local_only
-def checks():
-    pass
-
 @app.route('/bulk', methods=['GET', 'POST'])
 @local_only
 def bulk():
-    dm.reload()
     teams = dm.teams
     teams.sort(key=lambda t: t.name)
     services = dm.services
@@ -94,18 +72,18 @@ def bulk():
             error.append('Invalid Password Change Format')
         dm.change_passwords(team_id, service_id, pwchange)
     return render_template('bulk.html', error=','.join(error), teams=teams, services=services)
-        
 
 @app.route('/result_log', methods=['GET'])
 #@local_only
 def result_log():
-    dm.reload()
+    dm.reload_credentials()
     team_id = request.args.get('tid')
     check_id = request.args.get('cid')
     results = dm.get_results(team_id, check_id)
     fname = plot.plot_results(results)
     return render_template('result_log.html', results=results, fname=fname)
 
+# TODO Implement
 @app.route('/login')
 @local_only
 def login():
@@ -114,4 +92,19 @@ def login():
 @app.route('/logout')
 @local_only
 def logout():
+    pass
+
+@app.route('/teams')
+@local_only
+def teams():
+    pass
+
+@app.route('/services')
+@local_only
+def services():
+    pass
+
+@app.route('/checks')
+@local_only
+def checks():
     pass

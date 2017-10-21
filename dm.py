@@ -9,6 +9,17 @@ import itertools
 
 class DataManager(object):
 
+    def __init__(self):
+        self.settings = self.load_settings()
+        self.teams = self.load_teams()
+        self.credentials = self.load_credentials(self.teams)
+        check_ios = self.load_check_ios(self.credentials)
+        self.check_ios = list(check_ios.values())
+        self.check_ios = itertools.chain.from_iterable(self.check_ios)
+        checks = self.load_checks(check_ios)
+        self.checks = [check[0] for check in checks]
+        self.services = self.load_services(checks)
+
     def reset_db(self):
         """
         Delete all data from the database.
@@ -177,6 +188,19 @@ class DataManager(object):
                check.service = service
             services.append(service)
         return services
+
+    def reload_credentials(self):
+        """
+        Reload the credentials from the database, modifying the Credential
+        objects already in use.
+        """
+        creds_list = self.load_credentials(self.teams)
+        creds_map = {}
+        for c in creds:
+            creds_map[c.id] = c
+        for c in self.credentials:
+            c.password = creds_map[c.id].password
+        
     
     def write_settings(self, settings):
         """

@@ -17,7 +17,7 @@ class ScoringEngine(object):
         start = time.monotonic()
         while True:
             print("New Round of Checks")
-            self.dm.reload()
+            self.dm.reload_credentials()
             self.dm.teams.sort(key=lambda t: t.name)
             current = time.monotonic()
             print(datetime.timedelta(seconds=current - start))
