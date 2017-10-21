@@ -77,9 +77,10 @@ def bulk():
 #@local_only
 def result_log():
     dm.reload_credentials()
+    dm.load_results()
     team_id = request.args.get('tid')
     check_id = request.args.get('cid')
-    results = dm.get_results(team_id, check_id)
+    results = dm.results[team_id][check_id]
     fname = plot.plot_results(results)
     return render_template('result_log.html', results=results, fname=fname)
 

@@ -19,6 +19,7 @@ class DataManager(object):
         checks = self.load_checks(check_ios)
         self.checks = [check[0] for check in checks]
         self.services = self.load_services(checks)
+        self.results = None
 
     def reset_db(self):
         """
@@ -31,17 +32,6 @@ class DataManager(object):
         db.execute("DELETE FROM check_io")
         db.execute("DELETE FROM credential")
         db.execute("DELETE FROM result")
-
-    def reload(self):
-        self.settings = self.load_settings()
-        self.teams = self.load_teams()
-        self.credentials = self.load_credentials(self.teams)
-        check_ios = self.load_check_ios(self.credentials)
-        self.check_ios = list(check_ios.values())
-        self.check_ios = itertools.chain.from_iterable(self.check_ios)
-        checks = self.load_checks(check_ios)
-        self.checks = [check[0] for check in checks]
-        self.services = self.load_services(checks)
 
     def load_settings(self):
         """
@@ -347,8 +337,21 @@ class DataManager(object):
                     for io_id in io_ids:
                         db.execute(cred_io_cmd, (cred_id, io_id))
 
-    def load_results(self, rows):
-        results = []
+    def load_results(self):
+        """
+        Update self.results with any results not yet loaded from the database.
+        """
+        cmd = ("SELECT * FROM result WHERE id > %s ORDER BY time ASC")
+        if self.results is None:
+            last_id = 0
+        else:
+            last_ids = []
+            for team_results in self.results.values():
+                for check_results in team_results.values():
+                    last_ids.append(check_results[-1].id)
+            last_id = max(last_ids)
+        rows = db.get(cmd, (last_id))
+
         for result_id, check_id, check_io_id, team_id, time, poll_input, poll_result, result in rows:
             check = [c for c in self.checks if c.id == check_id][0]
             check_io = [cio for cio in self.check_ios if cio.id == check_io_id][0]
@@ -356,27 +359,22 @@ class DataManager(object):
             poll_input = pickle.loads(poll_input)
             poll_result = pickle.loads(poll_result)
             res = Result(result_id, check, check_io, team, time, poll_input, poll_result, result)
-            results.append(res)
-        return results
 
-    def get_results(self, team_id, check_id):
-        results = []
-        cmd = ("SELECT * FROM result WHERE team_id=%s AND check_id=%s "
-               "ORDER BY time DESC")
-        rows = db.get(cmd, (team_id, check_id))
-        results = self.load_results(rows)
-        return results
+            if team_id not in self.results:
+                self.results[team_id] = {}
+            if check_id not in self.results[team_id]:
+                self.results[team_id][check_id] = []
+
+            self.results[team_id][check_id].append(res)
 
     def latest_results(self):
+        self.load_results()
         results = {}
         for team in self.teams:
             results[team.id] = {}
             for check in self.checks:
-                cmd = ("SELECT * FROM result WHERE team_id=%s AND check_id=%s "
-                       "ORDER BY time DESC LIMIT 1")
-                rows = db.get(cmd, (team.id, check.id))
                 try:
-                    res = self.load_results(rows)[0]
+                    res = self.results[team.id][check.id][-1]
                     results[team.id][check.id] = res
                 except:
                     # Log this
