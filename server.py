@@ -6,6 +6,7 @@ from flask import render_template
 from flask import request
 from functools import wraps
 import plot
+import score
 
 app = Flask(__name__)
 dm = DataManager()
@@ -34,8 +35,12 @@ def scores():
     dm.reload()
     teams = dm.teams
     scores = {}
+    sla_limit = dm.settings['sla_limit']
+    sla_penalty = dm.settings['sla_penalty']
+    max_score = dm.settings['max_score']
     for team in teams:
-        scores[team.id] = dm.calc_score(team.id)
+        scores[team.id] = score.calc_score(team.id, sla_limit,
+                                           sla_penalty, max_score)
     return render_template('scores.html', teams=teams, scores=scores)
 
 @app.route('/credentials', methods=['GET'])

@@ -379,41 +379,6 @@ class DataManager(object):
                 password = re.sub('\s+', '', ':'.join(line[1:]))
                 db.execute(cmd, (password, team_id, service_id, username))
 
-    def calc_score(self, team_id):
-        cmd = ('SELECT check_id, time, result FROM result '
-               'WHERE team_id=%s ORDER BY time ASC')
-        result_rows = db.get(cmd, (team_id))
-        results = {}
-        for check_id, time, result in result_rows:
-            if check_id not in results:
-                results[check_id] = []
-            results[check_id].append({'time':time, 'result':int(result)})
-
-        good_checks = 0
-        total_checks = 0
-        for key, result_list in results.items():
-            total_checks += len(result_list)
-            good_checks += sum([1 for r in result_list if r['result'] == 1])
-        raw_score = self.max_score * (good_checks/total_checks)
- 
-        slas = 0
-        for key, result_list in results.items():
-            slas += self.sla_violations(result_list)
-        score = raw_score - slas * self.sla_penalty
-        return {'raw_score':raw_score, 'slas':slas, 'score':score}
-
-    def sla_violations(self, results):
-        slas = 0
-        run = 0
-        for result in results:
-            if result['result'] == 1:
-                run = 0
-            else:
-                run += 1
-                if run > self.sla_limit:
-                    slas += 1
-        return slas
-
 def load_module(module_str):
     parts = module_str.split('.')
     par_module_str = '.'.join(parts[:len(parts)-1])
