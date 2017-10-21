@@ -7,6 +7,7 @@ from flask import request
 from functools import wraps
 import plot
 import score
+import validate
 
 app = Flask(__name__)
 dm = DataManager()
@@ -85,11 +86,11 @@ def bulk():
         team_id = int(request.form.get('team'))
         service_id = int(request.form.get('service'))
         pwchange = request.form.get('pwchange')
-        if not dm.valid_team(team_id):
+        if not validate.valid_team(team_id, dm.teams):
             error.append('Invalid Team')
-        if not dm.valid_service(service_id):
+        if not validate.valid_service(service_id, dm.services):
             error.append('Invalid Service')
-        if not dm.valid_pwchange(pwchange):
+        if not validate.valid_pwchange(pwchange):
             error.append('Invalid Password Change Format')
         dm.change_passwords(team_id, service_id, pwchange)
     return render_template('bulk.html', error=','.join(error), teams=teams, services=services)

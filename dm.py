@@ -359,16 +359,6 @@ class DataManager(object):
                     pass
         return results
 
-    def valid_team(self, team_id):
-        return team_id in [t.id for t in self.teams]
-
-    def valid_service(self, service_id):
-        return service_id in [s.id for s in self.services]
-
-    def valid_pwchange(self, pwchange):
-        match = '^(.*[^\s]+:[^\s]+.*(\r\n)*)+$'
-        return re.match(match, pwchange) is not None
-
     def change_passwords(self, team_id, service_id, pwchange):
         pwchange = [line.split(':') for line in pwchange.split('\r\n')]
         cmd = ('UPDATE credential SET password=%s WHERE team_id=%s '

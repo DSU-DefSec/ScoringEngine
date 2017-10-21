@@ -62,3 +62,13 @@ def jsondata(json_data):
         print(json_data)
         raise e
         raise Exception("Invalid JSON data: %s" % json_data)
+
+def valid_team(team_id, teams):
+    return team_id in [t.id for t in teams]
+
+def valid_service(service_id, services):
+    return service_id in [s.id for s in services]
+
+def valid_pwchange(pwchange):
+    match = '^(.*[^\s]+:[^\s]+.*(\r\n)*)+$'
+    return re.match(match, pwchange) is not None
