@@ -38,7 +38,7 @@ Ex:
 
 ### Loading the Config
 
-Load the config: `./load_config.py **config.cfg**`
+Load the config: `./load_config.py [CONFIG_FILE]`
 
 ## Using the Engine
 
@@ -46,7 +46,7 @@ The scoring engine can be run on a single system, or it can be split between sys
 
 Single system: `./engine.py`
 
-Multiple systems: `./engine.py **team_num**`
+Multiple systems: `./engine.py [TEAM_NUM]`
 
 ## Running the webserver
 
