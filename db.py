@@ -1,8 +1,12 @@
 import pymysql
 
+host='localhost'
+user='root'
+password='toor'
+
 def connect():
-    connection = pymysql.connect(host='localhost', 
-            user='root', password='toor')
+    connection = pymysql.connect(host=host, 
+            user=user, password=password)
     return connection
 
 def get(cmd, args=None):
