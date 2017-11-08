@@ -9,13 +9,13 @@ import itertools
 
 class DataManager(object):
 
-    def __init__(self):
+    def load_db(self):
         self.settings = self.load_settings()
         self.teams = self.load_teams()
         self.credentials = self.load_credentials(self.teams)
         check_ios = self.load_check_ios(self.credentials)
         self.check_ios = list(check_ios.values())
-        self.check_ios = itertools.chain.from_iterable(self.check_ios)
+        self.check_ios = [ci for sublist in self.check_ios for ci in sublist]
         checks = self.load_checks(check_ios)
         self.checks = [check[0] for check in checks]
         self.services = self.load_services(checks)
@@ -186,7 +186,7 @@ class DataManager(object):
         """
         creds_list = self.load_credentials(self.teams)
         creds_map = {}
-        for c in creds:
+        for c in creds_list:
             creds_map[c.id] = c
         for c in self.credentials:
             c.password = creds_map[c.id].password
@@ -344,6 +344,7 @@ class DataManager(object):
         cmd = ("SELECT * FROM result WHERE id > %s ORDER BY time ASC")
         if self.results is None:
             last_id = 0
+            self.results = {}
         else:
             last_ids = []
             for team_results in self.results.values():
@@ -354,7 +355,7 @@ class DataManager(object):
 
         for result_id, check_id, check_io_id, team_id, time, poll_input, poll_result, result in rows:
             check = [c for c in self.checks if c.id == check_id][0]
-            check_io = [cio for cio in self.check_ios if cio.id == check_io_id][0]
+            check_io = [cio for cio in self.check_ios if cio.id == check_io_id]
             team = [t for t in self.teams if t.id == team_id][0]
             poll_input = pickle.loads(poll_input)
             poll_result = pickle.loads(poll_result)

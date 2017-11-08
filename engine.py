@@ -9,6 +9,7 @@ class ScoringEngine(object):
 
     def __init__(self, team_num=None):
         self.dm = DataManager()
+        self.dm.load_db()
         self.dm.teams.sort(key=lambda t: t.name)
         self.team_num = team_num
 
@@ -30,7 +31,7 @@ class ScoringEngine(object):
                 if self.team_num is None:
                     service.check(self.dm.teams)
                 else:
-                    service.check([self.dm.teams[team_num]])
+                    service.check([self.dm.teams[self.team_num]])
 
             wait = self.dm.settings["interval"]
             print("Interval: " + str(wait))
@@ -44,11 +45,11 @@ class ScoringEngine(object):
 
         
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 2:
         print("Usage: ./engine [team_number]")
-    if len(sys.argv) == 0:
-        engine = ScoringEngine()
     if len(sys.argv) == 1:
-        team_num = int(sys.argv[1])
+        engine = ScoringEngine()
+    if len(sys.argv) == 2:
+        team_num = int(sys.argv[1]) - 1
         engine = ScoringEngine(team_num)
     engine.start()

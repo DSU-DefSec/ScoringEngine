@@ -1,6 +1,7 @@
 #!/bin/python
 import dm
 import json
+import re
 
 def ip(ip_addr):
     try:

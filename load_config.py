@@ -176,6 +176,6 @@ def get_portion(contents, section):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print("Usage: ./load_config config.cfg")
+        print("Usage: ./load_config CONFIG_FILE")
     else:
         load_config(sys.argv[1])

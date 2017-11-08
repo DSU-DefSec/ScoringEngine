@@ -9,7 +9,7 @@ def hash_match(poll_result, expected):
         return False
 
     sha1 = hashlib.sha1()
-    sha1.update(str(poll_result.file_contents).encode('utf-8'))
+    sha1.update(poll_result.file_contents)
     hex_hash = sha1.hexdigest()
 
     return expected[0] == hex_hash

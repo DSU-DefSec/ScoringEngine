@@ -32,7 +32,7 @@ with connection.cursor() as cursor:
     cmd = ("CREATE TABLE team ( "
            "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
            "name VARCHAR(255) NOT NULL UNIQUE, "
-           "subnet VARCHAR(15) NOT NULL UNIQUE, "
+           "subnet VARCHAR(15) NOT NULL, "
            "netmask VARCHAR(15) NOT NULL)")
     print(cmd)
     cursor.execute(cmd)

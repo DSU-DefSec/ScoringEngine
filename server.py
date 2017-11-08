@@ -11,6 +11,7 @@ import validate
 
 app = Flask(__name__)
 dm = DataManager()
+dm.load_db()
 
 def local_only(f):
     @wraps(f)
@@ -78,9 +79,9 @@ def bulk():
 def result_log():
     dm.reload_credentials()
     dm.load_results()
-    team_id = request.args.get('tid')
-    check_id = request.args.get('cid')
-    results = dm.results[team_id][check_id]
+    team_id = int(request.args.get('tid'))
+    check_id = int(request.args.get('cid'))
+    results = sorted(dm.results[team_id][check_id], key= lambda r: r.time, reverse=True)
     fname = plot.plot_results(results)
     return render_template('result_log.html', results=results, fname=fname)
 

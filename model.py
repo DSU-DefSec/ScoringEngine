@@ -16,7 +16,7 @@ class Team(object):
     """
 
     def __init__(self, id, name, subnet, netmask):
-        self.id = id
+        self.id = int(id)
         self.name = name
         self.subnet = subnet
         self.netmask = netmask
@@ -38,7 +38,7 @@ class Credential(object):
     """
 
     def __init__(self, id, username, password, team):
-        self.id = id
+        self.id = int(id)
         self.username = username
         self.password = password
         self.team = team
@@ -59,7 +59,7 @@ class Service(object):
     """
 
     def __init__(self, id, host, port, checks):
-        self.id = id
+        self.id = int(id)
         self.host = host
         self.port = port
         self.checks = checks
@@ -111,7 +111,7 @@ class Check(object):
     """
 
     def __init__(self, id, name, check_function, check_ios, poller):
-        self.id = id
+        self.id = int(id)
         self.name = name
         self.check_function = check_function
         self.check_ios = check_ios
@@ -194,7 +194,7 @@ class CheckIO(object):
     """
     
     def __init__(self, id, poll_input, expected, credentials):
-        self.id = id
+        self.id = int(id)
         self.poll_input = poll_input
         self.expected = expected
         self.credentials = credentials
@@ -245,9 +245,10 @@ class CheckIO(object):
                  if cred.username == credential.username]
         for c in creds:
             team = c.team
-            poll_input = self.make_poll_input(team, host, port)
-            poll_input.credentials = c
-            poll_inputs.append(poll_input)
+            if team in teams:
+                poll_input = self.make_poll_input(team, host, port)
+                poll_input.credentials = c
+                poll_inputs.append(poll_input)
         return poll_inputs
 
     def make_poll_input(self, team, host, port):
@@ -285,7 +286,7 @@ class Result(object):
     
     def __init__(self, id, check, check_io, team, 
                  time, poll_input, poll_result, result):
-        self.id = id
+        self.id = int(id)
         self.check = check
         self.check_io = check_io
         self.team = team
