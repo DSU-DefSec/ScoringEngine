@@ -14,7 +14,6 @@ class Team(object):
         subnet (IP): Subnet of the team
         netmask (IP): Netmask of the subnet
     """
-
     def __init__(self, id, name, subnet, netmask):
         self.id = int(id)
         self.name = name
