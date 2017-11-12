@@ -1,18 +1,18 @@
 from .poller import PollInput, PollResult, Poller
+import datetime
 
 class LogPollInput(PollInput):
     """Wrapper for the inputs to a LogPoller.
     
     Attributes:
         log_file (str): Log file to search.
-        start_time (str): Start of the time range to search.
-        end_time (str): End of the time range to search.
+        time_period (int): The amount of time (in seconds) before the
+            time of check to include in the log search.
     """
-    def __init__(self, log_file, start_time, end_time, server=None, port=None):
+    def __init__(self, log_file, time_period, server=None, port=None):
         super(LogPollInput, self).__init__(server, port)
         self.log_file = log_file
-        self.start_time = start_time
-        self.end_time = start_time
+        self.time_period = time_period
 
 class LogPollResult(PollResult):
     """Wrapper for the results of polling a log file.
@@ -41,8 +41,12 @@ class LogPoller(Poller):
             contents = log.readlines()
             period_contents = []
             for line in contents:
-                time = line.split('|')[0]
-                if poll_input.start_time < time < poll_input.end_time:
+                logtime = line.split('|')[0]
+                logtime = datetime.strptime(logtime, '%y-%m-%d %H:%M:%S')
+                now = datetime.datetime.now()
+                tdelta = (now - logtime).total_seconds()
+
+                if tdelta < poll_input.time_period:
                     period_contents.append(line.strip())
             result = LogPollResult(contents)
             return result
