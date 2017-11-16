@@ -12,7 +12,7 @@ class LogPollInput(PollInput):
     def __init__(self, log_file, time_period, server=None, port=None):
         super(LogPollInput, self).__init__(server, port)
         self.log_file = log_file
-        self.time_period = time_period
+        self.time_period = int(time_period)
 
 class LogPollResult(PollResult):
     """Wrapper for the results of polling a log file.
@@ -38,17 +38,20 @@ class LogPoller(Poller):
     def poll(self, poll_input):
         try:
             log = open(poll_input.log_file, 'r')
-            contents = log.readlines()
+            contents = log.read().split('\n')
+            log.close()
             period_contents = []
             for line in contents:
-                logtime = line.split('|')[0]
-                logtime = datetime.strptime(logtime, '%y-%m-%d %H:%M:%S')
-                now = datetime.datetime.now()
-                tdelta = (now - logtime).total_seconds()
-
-                if tdelta < poll_input.time_period:
-                    period_contents.append(line.strip())
-            result = LogPollResult(contents)
+                if line != '':
+                    logdata = line.split('|')
+                    logtime = datetime.datetime.strptime(logdata[0], '%y-%m-%d %H:%M:%S')
+                    now = datetime.datetime.now()
+                    tdelta = (now - logtime).total_seconds()
+    
+                    if tdelta < poll_input.time_period:
+                        logvalue = ''.join(logdata[1:])
+                        period_contents.append(logvalue)
+            result = LogPollResult(period_contents)
             return result
         except Exception as e:
             result = LogPollResult(None, e)

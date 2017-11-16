@@ -1,10 +1,9 @@
 
 def line_in_log(poll_result, expected):
-    if poll_result.exception is not None:
+    if poll_result.exception is None:
         return False
 
-    for line in poll_result.contents:
-        log = ''.join(line.split('|')[1:])
+    for log in poll_result.contents:
         if log == expected[0]:
             return True
     return False
