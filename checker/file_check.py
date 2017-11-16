@@ -4,6 +4,12 @@ import hashlib
 import difflib
 REF_PAGES_DIR = 'checkfiles'
 
+def direct_match(poll_result, expected):
+    if poll_result.file_contents is None:
+        return False
+    return expected[0] == poll_result.file_contents
+
+
 def hash_match(poll_result, expected):
     if poll_result.file_contents is None:
         return False
