@@ -45,7 +45,7 @@ with connection.cursor() as cursor:
     print(cmd)
     cursor.execute(cmd)
 
-    # Check Input Table
+    # Check Table
     cmd = ("CREATE TABLE service_check ( "
         "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
         "name VARCHAR(255) NOT NULL UNIQUE, "
@@ -57,13 +57,22 @@ with connection.cursor() as cursor:
     print(cmd)
     cursor.execute(cmd)
 
+    cmd = ("CREATE TABLE domain ( "
+        "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
+        "name VARCHAR(256) NOT NULL UNIQUE)")
+    print(cmd)
+    cursor.execute(cmd)
+
     # Check Input Table
     cmd = ("CREATE TABLE check_io ( "
         "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
         "input BLOB NOT NULL, "
         "expected TEXT NOT NULL, "
         "check_id INT NOT NULL, "
+        "domain_id INT, "
         "FOREIGN KEY (check_id) REFERENCES service_check(id) "
+            "ON DELETE CASCADE, "
+        "FOREIGN KEY (domain_id) REFERENCES domain(id) "
             "ON DELETE CASCADE)")
     print(cmd)
     cursor.execute(cmd)
@@ -75,9 +84,12 @@ with connection.cursor() as cursor:
         "password VARCHAR(255) NOT NULL, "
         "team_id INT NOT NULL, " 
         "service_id INT NOT NULL, "
+        "domain_id INT, "
         "FOREIGN KEY (team_id) REFERENCES team(id) "
             "ON DELETE CASCADE, "
         "FOREIGN KEY (service_id) REFERENCES service(id) "
+            "ON DELETE CASCADE, "
+        "FOREIGN KEY (domain_id) REFERENCES domain(id) "
             "ON DELETE CASCADE)")
     print(cmd)
     cursor.execute(cmd)
