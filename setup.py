@@ -57,6 +57,7 @@ with connection.cursor() as cursor:
     print(cmd)
     cursor.execute(cmd)
 
+    # Domain Table
     cmd = ("CREATE TABLE domain ( "
         "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
         "name VARCHAR(256) NOT NULL UNIQUE)")
@@ -69,10 +70,7 @@ with connection.cursor() as cursor:
         "input BLOB NOT NULL, "
         "expected TEXT NOT NULL, "
         "check_id INT NOT NULL, "
-        "domain_id INT, "
         "FOREIGN KEY (check_id) REFERENCES service_check(id) "
-            "ON DELETE CASCADE, "
-        "FOREIGN KEY (domain_id) REFERENCES domain(id) "
             "ON DELETE CASCADE)")
     print(cmd)
     cursor.execute(cmd)
