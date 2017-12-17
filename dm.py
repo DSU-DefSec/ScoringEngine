@@ -3,23 +3,25 @@ from model import *
 import importlib
 import pickle
 import json
-import copy
 import re
-import itertools
+
+def load_module(module_str):
+    """
+    Get the module specified by the given string.
+
+    Arguments:
+        module_str (str): String representing the module's import path
+
+    Returns:
+        Module: The module represented by the string
+    """
+    parts = module_str.split('.')
+    par_module_str = '.'.join(parts[:len(parts)-1])
+    module = importlib.import_module(par_module_str)
+    module_obj = getattr(module, parts[-1])
+    return module_obj
 
 class DataManager(object):
-
-    def load_db(self):
-        self.settings = self.load_settings()
-        self.teams = self.load_teams()
-        self.credentials = self.load_credentials(self.teams)
-        check_ios = self.load_check_ios(self.credentials)
-        self.check_ios = list(check_ios.values())
-        self.check_ios = [ci for sublist in self.check_ios for ci in sublist]
-        checks = self.load_checks(check_ios)
-        self.checks = [check[0] for check in checks]
-        self.services = self.load_services(checks)
-        self.results = None
 
     def reset_db(self):
         """
@@ -33,23 +35,44 @@ class DataManager(object):
         db.execute("DELETE FROM credential")
         db.execute("DELETE FROM result")
 
+    def load_db(self):
+        """
+        Load all data from the database.
+        """
+        self.settings = self.load_settings()
+        self.teams = self.load_teams()
+        self.credentials = self.load_credentials(self.teams)
+
+        # Load check IOs
+        check_ios = self.load_check_ios(self.credentials)
+        self.check_ios = list(check_ios.values())
+        self.check_ios = [ci for sublist in self.check_ios for ci in sublist]
+
+        # Load checks
+        checks = self.load_checks(check_ios)
+        self.checks = [check[0] for check in checks]
+
+        self.services = self.load_services(checks)
+        self.results = None
+
     def load_settings(self):
         """
         Load global settings from the database.
+
+        Returns:
+            Dict(str->Any): Settings dictionary
         """
         settings = {}
 
+        # Load settings from db
         cmd = "SELECT skey,value FROM settings"
         settings_rows = db.get(cmd)
         for key, value in settings_rows:
             settings[key] = value
 
-        settings["maxscore"] = int(settings["maxscore"])
+        # Cast to correct data types
         settings["interval"] = int(settings["interval"])
         settings["jitter"] = int(settings["jitter"])
-        settings["sla_limit"] = int(settings["sla_limit"])
-        settings["sla_penalty"] = int(settings["sla_penalty"])
-        settings["comp_length"] = int(settings["comp_length"])
         settings["timeout"] = int(settings["timeout"])
 
         return settings
@@ -99,9 +122,11 @@ class DataManager(object):
                 check input-output pairs
         """
         check_ios = {}
-    
+   
+        # Gather all of the check IOs
         check_io_rows = db.get("SELECT * FROM check_io")
         for check_io_id, check_input, expected, check_id in check_io_rows:
+            # Gather all of the credentials which belong to this check IO
             cmd = "SELECT * FROM cred_input WHERE check_io_id=%s"
             cred_input_rows = db.get(cmd, (check_io_id))
             check_creds = []
@@ -109,12 +134,14 @@ class DataManager(object):
                 cred = next(filter(lambda c: c.id == cred_id, credentials))
                 check_creds.append(cred)
 
+            # Build check IO
             poll_input = pickle.loads(check_input)
             poll_input.timeout = self.settings["timeout"]
             expected = json.loads(expected)
             check_io = CheckIO(check_io_id, poll_input, 
                                expected, check_creds)
 
+            # Update link from credential to this check IO
             for cred in check_creds:
                 cred.check_io = check_io
 
@@ -141,6 +168,7 @@ class DataManager(object):
         for check_id, name, check_string, \
             poller_string, service_id in check_rows:
 
+            # Build check
             ios = check_ios[check_id]
             check_function = load_module(check_string)
             poller_class = load_module(poller_string)
@@ -148,6 +176,7 @@ class DataManager(object):
             check = Check(check_id, name, check_function,
                           ios, poller)
 
+            # Update link from check IOs to this check
             for check_io in ios:
                 check_io.check = check
 
@@ -174,6 +203,7 @@ class DataManager(object):
                     schecks.append(check[0])
 
             service = Service(service_id, host, port, schecks)
+            # Update link from checks to this service
             for check in schecks:
                check.service = service
             services.append(service)
@@ -190,8 +220,83 @@ class DataManager(object):
             creds_map[c.id] = c
         for c in self.credentials:
             c.password = creds_map[c.id].password
-        
     
+    def load_results(self):
+        """
+        Update self.results with any results not yet loaded from the database.
+        """
+        cmd = ("SELECT * FROM result WHERE id > %s ORDER BY time ASC")
+
+        if self.results is None:
+            last_id = 0
+            self.results = {}
+        else:
+            # If results exist, we can just load the latest ones and keep the old ones
+            # Here we find the id of the last result we already have
+            last_ids = []
+            for team_results in self.results.values():
+                for check_results in team_results.values():
+                    last_ids.append(check_results[-1].id)
+            last_id = max(last_ids)
+
+        rows = db.get(cmd, (last_id))
+
+        # Gather the results
+        for result_id, check_id, check_io_id, team_id, time, poll_input, poll_result, result in rows:
+            # Construct the result from the database info
+            check = [c for c in self.checks if c.id == check_id][0]
+            check_io = [cio for cio in self.check_ios if cio.id == check_io_id]
+            team = [t for t in self.teams if t.id == team_id][0]
+            poll_input = pickle.loads(poll_input)
+            poll_result = pickle.loads(poll_result)
+            res = Result(result_id, check, check_io, team, time, poll_input, poll_result, result)
+
+            # Prepare to add the result to the dict
+            if team_id not in self.results:
+                self.results[team_id] = {}
+            if check_id not in self.results[team_id]:
+                self.results[team_id][check_id] = []
+
+            self.results[team_id][check_id].append(res)
+
+    def latest_results(self):
+        """
+        Gather the latest results for each team/check combo.
+
+        Returns:
+            results (Dict(int->Dict(int->(Result)))): A mapping of each team and check to its latest result
+        """
+        self.load_results()
+        results = {}
+        for team in self.teams:
+            results[team.id] = {}
+            for check in self.checks:
+                try:
+                    res = self.results[team.id][check.id][-1]
+                    results[team.id][check.id] = res
+                except:
+                    print("[ERROR] Results retrieval failed")
+        return results
+
+    def change_passwords(self, team_id, service_id, pwchange):
+        """
+        Change the passwords for the given credentials.
+
+        Arguments:
+            team_id (int): The ID of the team the credential belongs to
+            service_id (int): The ID of the service the credential belongs to
+            pwchange (str): A series of user:pass combos separated by CRLFs
+        """
+        pwchange = [line.split(':') for line in pwchange.split('\r\n')]
+        cmd = ('UPDATE credential SET password=%s WHERE team_id=%s '
+               'AND service_id=%s AND username=%s')
+        for line in pwchange:
+            if len(line) >= 2:
+                username = re.sub('\s+', '', line[0]).lower()
+                password = re.sub('\s+', '', ':'.join(line[1:]))
+                db.execute(cmd, (password, team_id, service_id, username))
+   
+    ## Config Saving Methods 
     def write_settings(self, settings):
         """
         Write global settings to the database.
@@ -265,6 +370,7 @@ class DataManager(object):
         for id, check in checks.items():
             name, check_func, poller, psid = check
             sid = service_ids[psid]
+
             db_id = db.execute(cmd, (name, check_func, poller, sid))
             check_ids[id] = db_id
         return check_ids
@@ -294,6 +400,7 @@ class DataManager(object):
             piid, expected, pcid = check_io
             poll_input = poll_inputs[piid]
             cid = check_ids[pcid]
+
             db_id = db.execute(cmd, (poll_input, expected, cid))
             check_io_ids[id] = db_id
         return check_io_ids
@@ -309,92 +416,37 @@ class DataManager(object):
             check_io_ids (Dict(int->int)): A mapping of check input-output pair
                 config IDs to check input-output pair database IDs
         """
-        print("Team_ids: ", team_ids)
-        print("CheckIO_ids: ", check_io_ids)
+        # SQL queries
         cred_cmd = ('INSERT INTO credential (username, password, '
                     'team_id, service_id) VALUES (%s, %s, %s, %s)')
         cred_io_cmd = ('INSERT INTO cred_input (cred_id, check_io_id) '
                     'VALUES (%s, %s)')
         check_get = 'SELECT check_id FROM check_io WHERE id=%s'
         service_get = 'SELECT service_id FROM service_check WHERE id=%s'
+
         for id, credential in credentials.items():
             user, passwd, pcio_ids = credential
+            # Gather all of the check IOs this credential belongs to
             cio_ids = [check_io_ids[str(pcio_id)] for pcio_id in pcio_ids]
-            service_ids = []
             for team_id in team_ids.values():
-                cred_input = {}
-                cred_service = {}
+                cred_input = {}   # cred_id -> List(checkio_id)
+                cred_service = {} # service_id -> cred_id
+
                 for cio_id in cio_ids:
+                    # Get the check and service this check IO belongs to
                     check_id = db.get(check_get, (cio_id))[0]
                     service_id = db.get(service_get, (check_id))[0]
+
                     if service_id in cred_service:
+                        # The credential has already been inserted into the table
                         cred_input[cred_service[service_id]].append(cio_id)
                     else:
+                        # Insert the credential into the credential table
                         cred_id = db.execute(cred_cmd, (user, passwd, team_id, service_id))
                         cred_service[service_id] = cred_id
                         cred_input[cred_id] = [cio_id]
+
+                # Insert relations into the cred-input table
                 for cred_id, io_ids in cred_input.items():
                     for io_id in io_ids:
                         db.execute(cred_io_cmd, (cred_id, io_id))
-
-    def load_results(self):
-        """
-        Update self.results with any results not yet loaded from the database.
-        """
-        cmd = ("SELECT * FROM result WHERE id > %s ORDER BY time ASC")
-        if self.results is None:
-            last_id = 0
-            self.results = {}
-        else:
-            last_ids = []
-            for team_results in self.results.values():
-                for check_results in team_results.values():
-                    last_ids.append(check_results[-1].id)
-            last_id = max(last_ids)
-        rows = db.get(cmd, (last_id))
-
-        for result_id, check_id, check_io_id, team_id, time, poll_input, poll_result, result in rows:
-            check = [c for c in self.checks if c.id == check_id][0]
-            check_io = [cio for cio in self.check_ios if cio.id == check_io_id]
-            team = [t for t in self.teams if t.id == team_id][0]
-            poll_input = pickle.loads(poll_input)
-            poll_result = pickle.loads(poll_result)
-            res = Result(result_id, check, check_io, team, time, poll_input, poll_result, result)
-
-            if team_id not in self.results:
-                self.results[team_id] = {}
-            if check_id not in self.results[team_id]:
-                self.results[team_id][check_id] = []
-
-            self.results[team_id][check_id].append(res)
-
-    def latest_results(self):
-        self.load_results()
-        results = {}
-        for team in self.teams:
-            results[team.id] = {}
-            for check in self.checks:
-                try:
-                    res = self.results[team.id][check.id][-1]
-                    results[team.id][check.id] = res
-                except:
-                    # Log this
-                    pass
-        return results
-
-    def change_passwords(self, team_id, service_id, pwchange):
-        pwchange = [line.split(':') for line in pwchange.split('\r\n')]
-        cmd = ('UPDATE credential SET password=%s WHERE team_id=%s '
-               'AND service_id=%s AND username=%s')
-        for line in pwchange:
-            if len(line) >= 2:
-                username = re.sub('\s+', '', line[0]).lower()
-                password = re.sub('\s+', '', ':'.join(line[1:]))
-                db.execute(cmd, (password, team_id, service_id, username))
-
-def load_module(module_str):
-    parts = module_str.split('.')
-    par_module_str = '.'.join(parts[:len(parts)-1])
-    module = importlib.import_module(par_module_str)
-    module_obj = getattr(module, parts[-1])
-    return module_obj

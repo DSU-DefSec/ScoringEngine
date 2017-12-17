@@ -22,11 +22,6 @@ class ScoringEngine(object):
             print("New Round of Checks")
             self.dm.reload_credentials()
 
-            current = time.monotonic()
-            print(datetime.timedelta(seconds=current - start))
-            if (current - start) > self.dm.settings["comp_length"]:
-                break
- 
             for service in self.dm.services:
                 if self.team_num is None:
                     service.check(self.dm.teams)
