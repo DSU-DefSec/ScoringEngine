@@ -60,7 +60,7 @@ with connection.cursor() as cursor:
     # Domain Table
     cmd = ("CREATE TABLE domain ( "
         "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
-        "name VARCHAR(256) NOT NULL UNIQUE)")
+        "fqdn VARCHAR(256) NOT NULL UNIQUE)")
     print(cmd)
     cursor.execute(cmd)
 
