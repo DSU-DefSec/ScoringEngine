@@ -356,16 +356,24 @@ class DataManager(object):
         """
         print("Team_ids: ", team_ids)
         print("CheckIO_ids: ", check_io_ids)
-        cred_cmd = ('INSERT INTO credential (username, password, '
-                    'team_id, service_id, domain_id) '
-                    'VALUES (%s, %s, %s, %s, %s)')
+        cred_cmd_domain = ('INSERT INTO credential (username, password, '
+                           'team_id, service_id, domain_id) '
+                           'VALUES (%s, %s, %s, %s, %s)')
+        cred_cmd_no_domain = ('INSERT INTO credential (username, password, '
+                              'team_id, service_id) '
+                              'VALUES (%s, %s, %s, %s)')
         cred_io_cmd = ('INSERT INTO cred_input (cred_id, check_io_id) '
                     'VALUES (%s, %s)')
         check_get = 'SELECT check_id FROM check_io WHERE id=%s'
         service_get = 'SELECT service_id FROM service_check WHERE id=%s'
         for id, credential in credentials.items():
-            pdomain_id, user, passwd, pcio_ids = credential
-            domain_id = domain_ids[pdomain_id]
+            user, passwd, pdomain_id, pcio_ids = credential
+
+            cred_cmd = cred_cmd_no_domain
+            if pdomain_id is not None:
+                domain_id = domain_ids[pdomain_id]
+                cred_cmd = cred_cmd_domain
+
             cio_ids = [check_io_ids[str(pcio_id)] for pcio_id in pcio_ids]
             service_ids = []
             for team_id in team_ids.values():
@@ -377,7 +385,11 @@ class DataManager(object):
                     if service_id in cred_service:
                         cred_input[cred_service[service_id]].append(cio_id)
                     else:
-                        cred_id = db.execute(cred_cmd, (user, passwd, team_id, service_id, domain_id))
+                        if pdomain_id is None:
+                            args = (user, passwd, team_id, service_id)
+                        else:
+                            args = (user, passwd, team_id, service_id, domain_id)
+                        cred_id = db.execute(cred_cmd, args)
                         cred_service[service_id] = cred_id
                         cred_input[cred_id] = [cio_id]
                 for cred_id, io_ids in cred_input.items():

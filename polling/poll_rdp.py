@@ -4,9 +4,8 @@ from .poller import PollInput, PollResult, Poller
 
 class RdpPollInput(PollInput):
 
-    def __init__(self, domain, server=None, port=None):
+    def __init__(self, server=None, port=None):
         super(RdpPollInput, self).__init__(server, port)
-        self.domain = domain
 
 class RdpPollResult(PollResult):
 
@@ -19,9 +18,10 @@ class RdpPoller(Poller):
     def poll(self, poll_input):
         username = poll_input.credentials.username
         password = poll_input.credentials.password
+        domain = poll_input.credentials.domain.domain
         
         options = '--ignore-certificate --authonly -d {} -u {} -p {} {}:{}'.format(
-                poll_input.domain, username, password,
+                domain, username, password,
                 poll_input.server, poll_input.port)
         try:
             output = subprocess.check_output('timeout {} xfreerdp {}'.format(poll_input.timeout, options), shell=True, stderr=subprocess.STDOUT)

@@ -10,9 +10,8 @@ from .poller import PollInput, PollResult, Poller
 
 class SmbPollInput(PollInput):
 
-    def __init__(self, domain, hostname, sharename, path, server=None, port=None):
+    def __init__(self, hostname, sharename, path, server=None, port=None):
         super(SmbPollInput, self).__init__(server, port)
-        self.domain = domain
         self.hostname = hostname
         self.sharename = sharename
         self.path = path
@@ -30,13 +29,14 @@ class SmbPoller(Poller):
 
         username = poll_input.credentials.username
         password = poll_input.credentials.password
+        domain = poll_input.credentials.domain.domain
     
         try:
 #            n = NetBIOS()
 #            hostname = n.queryIPForName(poll_input.server,timeout=10)[0]
 #            n.close()
     
-            conn = SMBConnection(username, password, '', poll_input.hostname, poll_input.domain)
+            conn = SMBConnection(username, password, '', poll_input.hostname, domain)
             conn.connect(poll_input.server, poll_input.port,timeout=poll_input.timeout)
             t = tempfile.TemporaryFile()
             conn.retrieveFile(poll_input.sharename, poll_input.path, t)
