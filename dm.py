@@ -12,7 +12,8 @@ class DataManager(object):
     def load_db(self):
         self.settings = self.load_settings()
         self.teams = self.load_teams()
-        self.credentials = self.load_credentials(self.teams)
+        self.domains = self.load_domains()
+        self.credentials = self.load_credentials(self.teams, self.domains)
         check_ios = self.load_check_ios(self.credentials)
         self.check_ios = list(check_ios.values())
         self.check_ios = [ci for sublist in self.check_ios for ci in sublist]
@@ -27,6 +28,7 @@ class DataManager(object):
         """
         db.execute("DELETE FROM settings")
         db.execute("DELETE FROM team")
+        db.execute("DELETE FROM domain")
         db.execute("DELETE FROM service")
         db.execute("DELETE FROM service_check")
         db.execute("DELETE FROM check_io")
@@ -67,22 +69,43 @@ class DataManager(object):
             team = Team(team_id, name, subnet, netmask)
             teams.append(team)
         return teams
+
+    def load_domains(self):
+        """
+        Load domains from the database.
+
+        Returns:
+            List(Domain): List of domains
+        """
+        domains = []
+        domain_rows = db.get("SELECT * FROM domain")
+        for domain_id, fqdn in domain_rows:
+            domain = Domain(domain_id, fqdn)
+            domains.append(domain)
+        return domains
     
-    def load_credentials(self, teams):
+    def load_credentials(self, teams, domains):
         """
         Load credentials from the database.
         
         Arguments:
             teams (List(Team)): List of teams to associate credentials with
+            domains (List(Domain)): List of domains to associate credentials with
 
         Returns:
             List(Credential): List of credentials
         """
         creds = []
         cred_rows = db.get("SELECT * FROM credential")
-        for cred_id, username, password, team_id, service_id in cred_rows:
+        for cred_id, username, password, team_id, service_id, domain_id in cred_rows:
             team = next(filter(lambda t: t.id == team_id, teams))
-            cred = Credential(cred_id, username, password, team)
+            domain_lst = filter(lambda d: d.id == domain_id, domains)
+            if len(domain_lst) == 0:
+                domain = None
+            else:
+                domain = domain_lst[0]
+
+            cred = Credential(cred_id, username, password, team, domain)
             creds.append(cred)
         return creds
     
@@ -224,6 +247,26 @@ class DataManager(object):
             team_ids[id] = db_id
         return team_ids
 
+    def write_domains(self, domains):
+        """
+        Write the given domains to the database.
+
+        Arguments:
+            domains (Dict(int->Domain args)): A mapping of domain config IDs to
+                domain initialization arguments
+
+        Returns:
+            Dict(int->int): A mapping of domain config IDs to
+                domain database IDs
+        """
+        domain_ids = {}
+
+        cmd = "INSERT INTO domain (fqdn) VALUES (%s)"
+        for id, domain in domains.items():
+            db_id = db.execute(cmd, domain)
+            domain_ids[id] = db_id
+        return domain_ids
+
     def write_services(self, services):
         """
         Write the given services to the database.
@@ -298,7 +341,7 @@ class DataManager(object):
             check_io_ids[id] = db_id
         return check_io_ids
 
-    def write_credentials(self, credentials, team_ids, check_io_ids):
+    def write_credentials(self, credentials, team_ids, domain_ids, check_io_ids):
         """
         Write the given input-output pairs to the database.
 
@@ -306,19 +349,23 @@ class DataManager(object):
             credentials (Dict(int->Credential args)): A mapping of credential
                 config IDs to credential initialization arguments
             team_ids (Dict(int->int)): A mapping of team config IDs to team database IDs
+            domain_ids (Dict(int->int)): A mapping of domain config IDs to
+                domain database IDs
             check_io_ids (Dict(int->int)): A mapping of check input-output pair
                 config IDs to check input-output pair database IDs
         """
         print("Team_ids: ", team_ids)
         print("CheckIO_ids: ", check_io_ids)
         cred_cmd = ('INSERT INTO credential (username, password, '
-                    'team_id, service_id) VALUES (%s, %s, %s, %s)')
+                    'team_id, service_id, domain_id) '
+                    'VALUES (%s, %s, %s, %s, %s)')
         cred_io_cmd = ('INSERT INTO cred_input (cred_id, check_io_id) '
                     'VALUES (%s, %s)')
         check_get = 'SELECT check_id FROM check_io WHERE id=%s'
         service_get = 'SELECT service_id FROM service_check WHERE id=%s'
         for id, credential in credentials.items():
-            user, passwd, pcio_ids = credential
+            pdomain_id, user, passwd, pcio_ids = credential
+            domain_id = domain_ids[pdomain_id]
             cio_ids = [check_io_ids[str(pcio_id)] for pcio_id in pcio_ids]
             service_ids = []
             for team_id in team_ids.values():
@@ -330,7 +377,7 @@ class DataManager(object):
                     if service_id in cred_service:
                         cred_input[cred_service[service_id]].append(cio_id)
                     else:
-                        cred_id = db.execute(cred_cmd, (user, passwd, team_id, service_id))
+                        cred_id = db.execute(cred_cmd, (user, passwd, team_id, service_id, domain_id))
                         cred_service[service_id] = cred_id
                         cred_input[cred_id] = [cio_id]
                 for cred_id, io_ids in cred_input.items():
@@ -382,15 +429,15 @@ class DataManager(object):
                     pass
         return results
 
-    def change_passwords(self, team_id, service_id, pwchange):
+    def change_passwords(self, team_id, service_id, domain_id, pwchange):
         pwchange = [line.split(':') for line in pwchange.split('\r\n')]
         cmd = ('UPDATE credential SET password=%s WHERE team_id=%s '
-               'AND service_id=%s AND username=%s')
+               'AND service_id=%s AND domain_id=%s AND username=%s')
         for line in pwchange:
             if len(line) >= 2:
                 username = re.sub('\s+', '', line[0]).lower()
                 password = re.sub('\s+', '', ':'.join(line[1:]))
-                db.execute(cmd, (password, team_id, service_id, username))
+                db.execute(cmd, (password, team_id, service_id, domain_id, username))
 
 def load_module(module_str):
     parts = module_str.split('.')
