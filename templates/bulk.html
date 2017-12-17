@@ -24,6 +24,23 @@
 </div>
 
 <div class="form-group">
+    <label for="type">Credential Type</label>
+    <select class="form-control" name="type" id="type" onchange="credtype_change()">
+        <option value="Local">Local</option>
+        <option value="Domain">Domain</option>
+    </select>
+</div>
+
+<div class="form-group" id="domain-form" hidden="">
+    <label for="domain">Domain</label>
+    <select class="form-control" name="domain" id="domain" disabled="">
+    {% for d in domains %}
+        <option value={{ d.id }}>{{ d.fqdn }}</option>
+    {% endfor %}
+    </select>
+</div>
+
+<div class="form-group" id="service-form">
     <label for="service">Service</label>
     <select class="form-control" name="service" id="service">
     {% for s in services %}
@@ -39,5 +56,24 @@
 
 <input type="submit" class="btn btn-primary" value="Submit"/>
 </form>
+
+<script type="text/javascript">
+    function credtype_change() {
+        var toHide = document.getElementById('service-form');
+        var toShow = document.getElementById('domain-form');
+
+        var type = document.getElementById('type').value;
+        if (type == 'Local') {
+            var tmp = toHide;
+            toHide = toShow;
+            toShow = tmp;
+        }
+        toHide.hidden = true;
+        toShow.hidden = false;
+
+        toHide.getElementsByTagName('select')[0].disabled = true;
+        toShow.getElementsByTagName('select')[0].disabled = false;
+    }
+</script>
 
 {% endblock %}

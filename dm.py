@@ -99,7 +99,7 @@ class DataManager(object):
         cred_rows = db.get("SELECT * FROM credential")
         for cred_id, username, password, team_id, service_id, domain_id in cred_rows:
             team = next(filter(lambda t: t.id == team_id, teams))
-            domain_lst = filter(lambda d: d.id == domain_id, domains)
+            domain_lst = list(filter(lambda d: d.id == domain_id, domains))
             if len(domain_lst) == 0:
                 domain = None
             else:
@@ -207,7 +207,7 @@ class DataManager(object):
         Reload the credentials from the database, modifying the Credential
         objects already in use.
         """
-        creds_list = self.load_credentials(self.teams)
+        creds_list = self.load_credentials(self.teams, self.domains)
         creds_map = {}
         for c in creds_list:
             creds_map[c.id] = c
@@ -441,15 +441,25 @@ class DataManager(object):
                     pass
         return results
 
-    def change_passwords(self, team_id, service_id, domain_id, pwchange):
+    def change_passwords(self, team_id, domain_id, service_id, pwchange):
         pwchange = [line.split(':') for line in pwchange.split('\r\n')]
-        cmd = ('UPDATE credential SET password=%s WHERE team_id=%s '
-               'AND service_id=%s AND domain_id=%s AND username=%s')
+        if service_id is not None:
+            cmd = ('UPDATE credential SET password=%s WHERE team_id=%s '
+                   'AND service_id=%s AND username=%s')
+        elif domain_id is not None:
+            cmd = ('UPDATE credential SET password=%s WHERE team_id=%s '
+                   'AND domain_id=%s AND username=%s')
         for line in pwchange:
+            print(team_id, service_id, domain_id, pwchange)
             if len(line) >= 2:
                 username = re.sub('\s+', '', line[0]).lower()
                 password = re.sub('\s+', '', ':'.join(line[1:]))
-                db.execute(cmd, (password, team_id, service_id, domain_id, username))
+                if service_id is not None:
+                    args = (password, team_id, service_id, username)
+                elif domain_id is not None:
+                    args = (password, team_id, domain_id, username)
+                print(args)
+                db.execute(cmd, args)
 
 def load_module(module_str):
     parts = module_str.split('.')

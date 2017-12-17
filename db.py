@@ -1,6 +1,6 @@
 import pymysql
 
-host='localhost'
+host='127.0.0.1'
 user='root'
 password='toor'
 
@@ -19,6 +19,7 @@ def get(cmd, args=None):
     return rows
 
 def execute(cmd, args=None):
+    print(cmd)
     connection = connect()
     with connection.cursor() as cursor:
         cursor.execute('USE scoring')
