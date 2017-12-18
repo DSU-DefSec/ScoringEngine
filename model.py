@@ -55,7 +55,7 @@ class Credential(object):
         check_io (CheckIO): The input-output pair this credential is for
     """
 
-    def __init__(self, id, username, password, team, domain=None):
+    def __init__(self, id, username, password, team, domain):
         self.id = int(id)
         self.username = username
         self.password = password

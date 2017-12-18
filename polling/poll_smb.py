@@ -29,14 +29,17 @@ class SmbPoller(Poller):
 
         username = poll_input.credentials.username
         password = poll_input.credentials.password
-        domain = poll_input.credentials.domain.domain
+        domain = poll_input.credentials.domain
     
         try:
 #            n = NetBIOS()
 #            hostname = n.queryIPForName(poll_input.server,timeout=10)[0]
 #            n.close()
-    
-            conn = SMBConnection(username, password, '', poll_input.hostname, domain)
+            if domain is None:
+                conn = SMBConnection(username, password, '', poll_input.hostname)
+            else:
+                conn = SMBConnection(username, password, '', poll_input.hostname, domain.domain)
+
             conn.connect(poll_input.server, poll_input.port,timeout=poll_input.timeout)
             t = tempfile.TemporaryFile()
             conn.retrieveFile(poll_input.sharename, poll_input.path, t)

@@ -18,11 +18,19 @@ class RdpPoller(Poller):
     def poll(self, poll_input):
         username = poll_input.credentials.username
         password = poll_input.credentials.password
-        domain = poll_input.credentials.domain.domain
+        domain = poll_input.credentials.domain
         
-        options = '--ignore-certificate --authonly -d {} -u {} -p {} {}:{}'.format(
-                domain, username, password,
-                poll_input.server, poll_input.port)
+        if domain is None:
+            opt_str = '--ignore-certificate --authonly -u {} -p {} {}:{}'
+            options = opt_str.format(
+                    username, password,
+                    poll_input.server, poll_input.port)
+        else:
+            opt_str = '--ignore-certificate --authonly -d {} -u {} -p {} {}:{}'
+            options = opt_str.format(
+                    domain.domain, username, password,
+                    poll_input.server, poll_input.port)
+
         try:
             output = subprocess.check_output('timeout {} xfreerdp {}'.format(poll_input.timeout, options), shell=True, stderr=subprocess.STDOUT)
             result = RdpPollResult(True)
