@@ -31,11 +31,7 @@
     <td>
     <ul>
     {% for key, value in r.poll_result.attrs().items() %}
-        {% if value|string|length > 25 %}
-            <li>{{ key }}:{{ (value|string)[:25] }}...</li>
-        {% else %}
             <li>{{ key }}:{{ value }}</li>
-        {% endif %} 
     {% endfor %}
     </ul>
     </td>

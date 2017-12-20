@@ -1,5 +1,5 @@
 # CCDC Scoring Engine
-This is the [CCDC](nationalccdc.org) Scoring Engine used for DSU Defensive Security Club Mock Competitions.
+This is the [CCDC](http://nationalccdc.org) Scoring Engine used for DSU Defensive Security Club Mock Competitions.
 
 ## Architecture
 
