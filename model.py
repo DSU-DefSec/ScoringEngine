@@ -24,6 +24,24 @@ class Team(object):
         return self.name
 
 
+class Domain(object):
+    """
+    An Active Directory domain.
+
+    Attributes:
+        id (int): ID of the domain in the database
+        domain (str): First part of the FQDN
+        fqdn (str): The fully qualified domain name of the domain
+    """
+    def __init__(self, id, fqdn):
+        self.id = int(id)
+        self.domain = fqdn.split('.')[0]
+        self.fqdn = fqdn
+
+    def __str__(self):
+        return self.fqdn
+
+
 class Credential(object):
     """
     A Credential used to log in to a service.
@@ -33,17 +51,19 @@ class Credential(object):
         username (str): The username used to log in
         password (str): The password used to log in
         team (Team): The team this credential applies to
+        domain (Domain): The domain this credential applies to
         check_io (CheckIO): The input-output pair this credential is for
     """
 
-    def __init__(self, id, username, password, team):
+    def __init__(self, id, username, password, team, domain):
         self.id = int(id)
         self.username = username
         self.password = password
         self.team = team
+        self.domain = domain
 
     def __str__(self):
-        return "%s:%s:%s" % (self.team.name, self.username, self.password)
+        return "%s\\%s:%s:%s" % (self.domain, self.team.name, self.username, self.password)
 
 
 class Service(object):

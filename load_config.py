@@ -15,6 +15,9 @@ def load_config(filename):
     print("Parsing teams...")
     teams = parse_teams(contents)
     print(teams)
+    print("Parsing domains...")
+    domains = parse_domains(contents)
+    print(domains)
     print("Parsing services...")
     services = parse_services(contents)
     print(services)
@@ -28,7 +31,7 @@ def load_config(filename):
     check_ios = parse_check_ios(contents, poll_inputs, checks)
     print(check_ios)
     print("Parsing credentials...")
-    credentials = parse_credentials(contents, check_ios)
+    credentials = parse_credentials(contents, domains, check_ios)
     print(credentials)
 
     dm = DataManager()
@@ -38,6 +41,8 @@ def load_config(filename):
     dm.write_settings(settings)
     print("Writing teams to DB...")
     team_ids = dm.write_teams(teams)
+    print("Writing domains to DB...")
+    domain_ids = dm.write_domains(domains)
     print("Writing services to DB...")
     service_ids = dm.write_services(services)
     print("Writing checks to DB...")
@@ -45,7 +50,7 @@ def load_config(filename):
     print("Writing checkIOs to DB...")
     check_io_ids = dm.write_check_ios(check_ios, poll_inputs, check_ids)
     print("Writing credentials to DB...")
-    credential_ids = dm.write_credentials(credentials, team_ids, check_io_ids)
+    credential_ids = dm.write_credentials(credentials, team_ids, domain_ids, check_io_ids)
 
 def parse_global(contents):
     settings = {}
@@ -69,6 +74,15 @@ def parse_teams(contents):
 
         teams[id] = (name, subnet, netmask)
     return teams
+
+def parse_domains(contents):
+    domains = {}
+    
+    portion = get_portion(contents, '[Domains]')
+    lines = parse_portion(portion)
+    for id, fqdn in lines:
+        domains[id] = (fqdn)
+    return domains
 
 def parse_services(contents):
     services = {}
@@ -136,19 +150,26 @@ def parse_poll_inputs(contents):
     return poll_inputs
 
 
-def parse_credentials(contents, check_ios):
+def parse_credentials(contents, domains, check_ios):
     credentials = {}
 
     portion = get_portion(contents, '[Credentials]')
     lines = parse_portion(portion)
     for id, args in lines:
+        domain_id = None
+        if '[' not in args[2]:
+            domain_id = args[0]
+            args = args[1:]
+
         user, passwd = args[0], args[1]
         check_io_ids = json.loads(','.join(args[2:]))
 
+        if domain_id is not None:
+            validate.id_exists(domain_id, domains)
         for check_io_id in check_io_ids:
             validate.id_exists(check_io_id, check_ios)
         
-        credentials[id] = (user, passwd, check_io_ids)
+        credentials[id] = (user, passwd, domain_id, check_io_ids)
     return credentials
 
 def parse_portion(portion):

@@ -60,19 +60,31 @@ def bulk():
     teams.sort(key=lambda t: t.name)
     services = dm.services
     services.sort(key=lambda s: (s.host, s.port))
+    domains = dm.domains
+    domains.sort(key=lambda d: d.fqdn)
     error = []
     if request.method == 'POST':
         team_id = int(request.form.get('team'))
-        service_id = int(request.form.get('service'))
+
+        domain_id = request.form.get('domain')
+        domain_id = int(domain_id) if domain_id is not None else None
+
+        service_id = request.form.get('service')
+        service_id = int(service_id) if service_id is not None else None
+
         pwchange = request.form.get('pwchange')
-        if not validate.valid_team(team_id, dm.teams):
+
+        if not validate.valid_id(team_id, dm.teams):
             error.append('Invalid Team')
-        if not validate.valid_service(service_id, dm.services):
+        if domain_id is not None and not validate.valid_id(domain_id, dm.domains):
+            error.append('Invalid Domain')
+        if service_id is not None and not validate.valid_id(service_id, dm.services):
             error.append('Invalid Service')
         if not validate.valid_pwchange(pwchange):
             error.append('Invalid Password Change Format')
-        dm.change_passwords(team_id, service_id, pwchange)
-    return render_template('bulk.html', error=','.join(error), teams=teams, services=services)
+
+        dm.change_passwords(team_id, domain_id, service_id, pwchange)
+    return render_template('bulk.html', error=','.join(error), teams=teams, domains=domains, services=services)
 
 @app.route('/result_log', methods=['GET'])
 #@local_only
