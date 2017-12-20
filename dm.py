@@ -354,8 +354,6 @@ class DataManager(object):
             check_io_ids (Dict(int->int)): A mapping of check input-output pair
                 config IDs to check input-output pair database IDs
         """
-        print("Team_ids: ", team_ids)
-        print("CheckIO_ids: ", check_io_ids)
         cred_cmd_domain = ('INSERT INTO credential (username, password, '
                            'team_id, service_id, domain_id) '
                            'VALUES (%s, %s, %s, %s, %s)')
@@ -450,7 +448,6 @@ class DataManager(object):
             cmd = ('UPDATE credential SET password=%s WHERE team_id=%s '
                    'AND domain_id=%s AND username=%s')
         for line in pwchange:
-            print(team_id, service_id, domain_id, pwchange)
             if len(line) >= 2:
                 username = re.sub('\s+', '', line[0]).lower()
                 password = re.sub('\s+', '', ':'.join(line[1:]))
@@ -458,7 +455,6 @@ class DataManager(object):
                     args = (password, team_id, service_id, username)
                 elif domain_id is not None:
                     args = (password, team_id, domain_id, username)
-                print(args)
                 db.execute(cmd, args)
 
 def load_module(module_str):

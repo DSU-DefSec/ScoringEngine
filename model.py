@@ -63,7 +63,7 @@ class Credential(object):
         self.domain = domain
 
     def __str__(self):
-        return "%s\\%s:%s:%s" % (self.domain.fqdn, self.team.name, self.username, self.password)
+        return "%s\\%s:%s:%s" % (self.domain, self.team.name, self.username, self.password)
 
 
 class Service(object):

@@ -19,7 +19,6 @@ def get(cmd, args=None):
     return rows
 
 def execute(cmd, args=None):
-    print(cmd)
     connection = connect()
     with connection.cursor() as cursor:
         cursor.execute('USE scoring')

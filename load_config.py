@@ -163,7 +163,6 @@ def parse_credentials(contents, domains, check_ios):
 
         user, passwd = args[0], args[1]
         check_io_ids = json.loads(','.join(args[2:]))
-        print(domain_id)
 
         if domain_id is not None:
             validate.id_exists(domain_id, domains)
