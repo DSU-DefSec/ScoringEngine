@@ -83,6 +83,9 @@ def bulk():
         if not validate.valid_pwchange(pwchange):
             error.append('Invalid Password Change Format')
 
+        if len(error) == 0:
+            error.append('Success')
+
         dm.change_passwords(team_id, domain_id, service_id, pwchange)
     return render_template('bulk.html', error=','.join(error), teams=teams, domains=domains, services=services)
 
