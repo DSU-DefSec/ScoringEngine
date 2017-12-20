@@ -501,9 +501,8 @@ class DataManager(object):
                             args = (user, passwd, team_id, service_id)
                         else:
                             args = (user, passwd, team_id, service_id, domain_id)
-                        cred_id = db.execute(cred_cmd, args)
                         # Insert the credential into the credential table
-                        cred_id = db.execute(cred_cmd, (user, passwd, team_id, service_id))
+                        cred_id = db.execute(cred_cmd, args)
                         cred_service[service_id] = cred_id
                         cred_input[cred_id] = [cio_id]
 
