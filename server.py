@@ -87,39 +87,23 @@ def credentials():
 @app.route('/bulk', methods=['GET', 'POST'])
 @login_required
 def bulk():
-    user = flask_login.current_user
-    teams = dm.teams
-    teams.sort(key=lambda t: t.name)
-    services = dm.services
-    services.sort(key=lambda s: (s.host, s.port))
-    domains = dm.domains
-    domains.sort(key=lambda d: d.fqdn)
-    error = []
+    form = PasswordChangeForm(dm)
+    success = False
     if request.method == 'POST':
-        team_id = int(request.form.get('team'))
+        if form.validate_on_submit():
+            user = flask_login.current_user
 
-        domain_id = request.form.get('domain')
-        domain_id = int(domain_id) if domain_id is not None else None
+            if user.is_admin:
+                team_id = form.team.data
+            else:
+                team_id = user.team.id
+            domain_id = form.domain.data
+            service_id = form.service.data
+            pwchange = form.pwchange.data
 
-        service_id = request.form.get('service')
-        service_id = int(service_id) if service_id is not None else None
-
-        pwchange = request.form.get('pwchange')
-
-        if not validate.valid_id(team_id, dm.teams):
-            error.append('Invalid Team')
-        if domain_id is not None and not validate.valid_id(domain_id, dm.domains):
-            error.append('Invalid Domain')
-        if service_id is not None and not validate.valid_id(service_id, dm.services):
-            error.append('Invalid Service')
-        if not validate.valid_pwchange(pwchange):
-            error.append('Invalid Password Change Format')
-
-        if len(error) == 0:
-            error.append('Success')
-
-        dm.change_passwords(team_id, domain_id, service_id, pwchange)
-    return render_template('bulk.html', error=','.join(error), teams=teams, domains=domains, services=services)
+            dm.change_passwords(team_id, domain_id, service_id, pwchange)
+            success = True
+    return render_template('bulk.html', form=form, success=success)
 
 @app.route('/result_log', methods=['GET'])
 @login_required

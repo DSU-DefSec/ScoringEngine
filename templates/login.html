@@ -8,7 +8,7 @@
             <strong>{{ error }}</strong>
         </div>
     {% endif %}
-    <form method="POST" action="/login">
+    <form method="POST" action="{{ url_for('login') }}">
         {{ form.csrf_token }}
         <div class="form-group">
             {{ form.username.label }}

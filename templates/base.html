@@ -22,11 +22,6 @@
 <div>
 <ul class="nav navbar-nav">
 <li class="{% block status %}{% endblock %}"><a href="{{ url_for('status') }}">Status</a></li>
-<!-- 
-<li class="{% block teams %}{% endblock %}"><a href="{{ url_for('teams') }}">Teams</a></li>
-<li class="{% block services %}{% endblock %}"><a href="{{ url_for('services') }}">Services</a></li>
-<li class="{% block credentials %}{% endblock %}"><a href="{{ url_for('credentials') }}">Default Credentials</a></li>
--->
 {% if current_user.is_authenticated %}
 <li class="{% block bulk %}{% endblock %}"><a href="{{ url_for('bulk') }}">Bulk Password Change</a></li>
 {% endif %}

@@ -3,58 +3,40 @@
 {% block content %}
 <h1>Bulk Password Change</h1>
 
-{% if error == "Success" %}
+{% if success %}
 <div class="alert alert-success">
-    <strong>{{ error }}</strong>
-</div>
-{% elif error != "" %}
-<div class="alert alert-danger">
-    <strong>{{ error }}</strong>
+    <strong>Success!</strong>
 </div>
 {% endif %}
+{% for key,value in form.errors.items() %}
+    <p>{{ key }}:{{ value }}
+{% endfor %}
 
 <form method="post" action="{{ url_for('bulk') }}">
-<div class="form-group">
-    <label for="team">Team</label>
-    <select class="form-control" name="team" id="team">
-    {% for t in teams %}
-        <option value={{ t.id }}>{{ t.name }}: {{ t.subnet }}</option>
-    {% endfor %}
-    </select>
-</div>
-
-<div class="form-group">
-    <label for="type">Credential Type</label>
-    <select class="form-control" name="type" id="type" onchange="credtype_change()">
-        <option value="Local">Local</option>
-        <option value="Domain">Domain</option>
-    </select>
-</div>
-
-<div class="form-group" id="domain-form" hidden="">
-    <label for="domain">Domain</label>
-    <select class="form-control" name="domain" id="domain" disabled="">
-    {% for d in domains %}
-        <option value={{ d.id }}>{{ d.fqdn }}</option>
-    {% endfor %}
-    </select>
-</div>
-
-<div class="form-group" id="service-form">
-    <label for="service">Service</label>
-    <select class="form-control" name="service" id="service">
-    {% for s in services %}
-        <option value={{ s.id }}>Host: {{ s.host }}, Port: {{ s.port }}</option>
-    {% endfor %}
-    </select>
-</div>
-
-<div class="form-group">
-    <label for="pwchange">Password Changes</label>
-    <textarea class="form-control" rows="15" placeholder="user:password" name="pwchange" id="pwchange"></textarea>
-</div>
-
-<input type="submit" class="btn btn-primary" value="Submit"/>
+    {{ form.csrf_token }}
+    {% if current_user.is_admin %}
+    <div class="form-group">
+        {{ form.team.label }}
+        {{ form.team(class_="form-control") }}
+    </div>
+    {% endif %}
+    <div class="form-group">
+        {{ form.ctype.label }}
+        {{ form.ctype(class_="form-control", onchange="credtype_change()") }}
+    </div>
+    <div class="form-group" id="domain-form">
+        {{ form.domain.label }}
+        {{ form.domain(class_="form-control") }}
+    </div>
+    <div class="form-group" id="service-form" hidden="">
+        {{ form.service.label }}
+        {{ form.service(class_="form-control", disabled="") }}
+    </div>
+    <div class="form-group">
+        {{ form.pwchange.label }}
+        {{ form.pwchange(rows=15, placeholder="user:password", class_="form-control") }}
+    </div>
+    <input type="submit" class="btn btn-primary" value="Submit"/>
 </form>
 
 <script type="text/javascript">
@@ -62,7 +44,7 @@
         var toHide = document.getElementById('service-form');
         var toShow = document.getElementById('domain-form');
 
-        var type = document.getElementById('type').value;
+        var type = document.getElementById('ctype').value;
         if (type == 'Local') {
             var tmp = toHide;
             toHide = toShow;
@@ -74,6 +56,7 @@
         toHide.getElementsByTagName('select')[0].disabled = true;
         toShow.getElementsByTagName('select')[0].disabled = false;
     }
+    credtype_change();
 </script>
 
 {% endblock %}
