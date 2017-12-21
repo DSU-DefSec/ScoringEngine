@@ -266,7 +266,10 @@ class DataManager(object):
             for team_results in self.results.values():
                 for check_results in team_results.values():
                     last_ids.append(check_results[-1].id)
-            last_id = max(last_ids)
+            last_id = -1
+            if len(last_ids) != 0:
+                print(last_ids)
+                last_id = max(last_ids)
 
         rows = db.get(cmd, (last_id))
 
@@ -304,7 +307,7 @@ class DataManager(object):
                     res = self.results[team.id][check.id][-1]
                     results[team.id][check.id] = res
                 except:
-                    print("[ERROR] Results retrieval failed")
+                    pass
         return results
 
     def change_passwords(self, team_id, service_id, pwchange):
@@ -317,13 +320,21 @@ class DataManager(object):
             pwchange (str): A series of user:pass combos separated by CRLFs
         """
         pwchange = [line.split(':') for line in pwchange.split('\r\n')]
-        cmd = ('UPDATE credential SET password=%s WHERE team_id=%s '
-               'AND service_id=%s AND username=%s')
+        if service_id is not None:
+            cmd = ('UPDATE credential SET password=%s WHERE team_id=%s '
+                   'AND service_id=%s AND username=%s')
+        elif domain_id is not None:
+            cmd = ('UPDATE credential SET password=%s WHERE team_id=%s '
+                   'AND domain_id=%s AND username=%s')
         for line in pwchange:
             if len(line) >= 2:
                 username = re.sub('\s+', '', line[0]).lower()
                 password = re.sub('\s+', '', ':'.join(line[1:]))
-                db.execute(cmd, (password, team_id, service_id, username))
+                if service_id is not None:
+                    args = (password, team_id, service_id, username)
+                elif domain_id is not None:
+                    args = (password, team_id, domain_id, username)
+                db.execute(cmd, args)
 
     # Web app loading
     def load_web_users(self, teams):
@@ -573,69 +584,6 @@ class DataManager(object):
                 for cred_id, io_ids in cred_input.items():
                     for io_id in io_ids:
                         db.execute(cred_io_cmd, (cred_id, io_id))
-
-    def load_results(self):
-        """
-        Update self.results with any results not yet loaded from the database.
-        """
-        cmd = ("SELECT * FROM result WHERE id > %s ORDER BY time ASC")
-        if self.results is None:
-            last_id = 0
-            self.results = {}
-        else:
-            last_ids = []
-            for team_results in self.results.values():
-                for check_results in team_results.values():
-                    last_ids.append(check_results[-1].id)
-            last_id = max(last_ids)
-        rows = db.get(cmd, (last_id))
-
-        for result_id, check_id, check_io_id, team_id, time, poll_input, poll_result, result in rows:
-            check = [c for c in self.checks if c.id == check_id][0]
-            check_io = [cio for cio in self.check_ios if cio.id == check_io_id]
-            team = [t for t in self.teams if t.id == team_id][0]
-            poll_input = pickle.loads(poll_input)
-            poll_result = pickle.loads(poll_result)
-            res = Result(result_id, check, check_io, team, time, poll_input, poll_result, result)
-
-            if team_id not in self.results:
-                self.results[team_id] = {}
-            if check_id not in self.results[team_id]:
-                self.results[team_id][check_id] = []
-
-            self.results[team_id][check_id].append(res)
-
-    def latest_results(self):
-        self.load_results()
-        results = {}
-        for team in self.teams:
-            results[team.id] = {}
-            for check in self.checks:
-                try:
-                    res = self.results[team.id][check.id][-1]
-                    results[team.id][check.id] = res
-                except:
-                    # Log this
-                    pass
-        return results
-
-    def change_passwords(self, team_id, domain_id, service_id, pwchange):
-        pwchange = [line.split(':') for line in pwchange.split('\r\n')]
-        if service_id is not None:
-            cmd = ('UPDATE credential SET password=%s WHERE team_id=%s '
-                   'AND service_id=%s AND username=%s')
-        elif domain_id is not None:
-            cmd = ('UPDATE credential SET password=%s WHERE team_id=%s '
-                   'AND domain_id=%s AND username=%s')
-        for line in pwchange:
-            if len(line) >= 2:
-                username = re.sub('\s+', '', line[0]).lower()
-                password = re.sub('\s+', '', ':'.join(line[1:]))
-                if service_id is not None:
-                    args = (password, team_id, service_id, username)
-                elif domain_id is not None:
-                    args = (password, team_id, domain_id, username)
-                db.execute(cmd, args)
 
     def change_user_password(self, username, newpw):
         cmd = 'UPDATE users SET password=%s WHERE username=%s'
