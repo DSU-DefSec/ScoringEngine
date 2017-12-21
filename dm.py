@@ -1,5 +1,6 @@
 import db
 from model import *
+from web_model import User
 import importlib
 import pickle
 import json
@@ -41,9 +42,11 @@ class DataManager(object):
         Load all data from the database.
         """
         self.settings = self.load_settings()
-        self.teams = self.load_teams()
+        teams = self.load_teams()
+        self.teams = list(teams.values())
+        self.users = self.load_web_users(teams)
         self.domains = self.load_domains()
-        self.credentials = self.load_credentials(self.teams, self.domains)
+        self.credentials = self.load_credentials(teams, self.domains)
 
         # Load check IOs
         check_ios = self.load_check_ios(self.credentials)
@@ -84,13 +87,13 @@ class DataManager(object):
         Load teams from the database.
 
         Returns:
-            List(Team): A list of Teams
+            Dict(int->Team): A mapping of team database IDs to Teams
         """
-        teams = []
+        teams = {}
         rows = db.get("SELECT * FROM team")
         for team_id, name, subnet, netmask in rows:
             team = Team(team_id, name, subnet, netmask)
-            teams.append(team)
+            teams[team_id] = team
         return teams
 
     def load_domains(self):
@@ -112,7 +115,7 @@ class DataManager(object):
         Load credentials from the database.
         
         Arguments:
-            teams (List(Team)): List of teams to associate credentials with
+            teams (Dict(int->Team)): Mapping of team database IDs to Teams to associate credentials with
             domains (List(Domain)): List of domains to associate credentials with
 
         Returns:
@@ -121,7 +124,7 @@ class DataManager(object):
         creds = []
         cred_rows = db.get("SELECT * FROM credential")
         for cred_id, username, password, team_id, service_id, domain_id in cred_rows:
-            team = next(filter(lambda t: t.id == team_id, teams))
+            team = teams[team_id]
             domain_lst = list(filter(lambda d: d.id == domain_id, domains))
             if len(domain_lst) == 0:
                 domain = None
@@ -318,6 +321,27 @@ class DataManager(object):
                 username = re.sub('\s+', '', line[0]).lower()
                 password = re.sub('\s+', '', ':'.join(line[1:]))
                 db.execute(cmd, (password, team_id, service_id, username))
+
+    # Web app loading
+    def load_web_users(self, teams):
+        """
+        Load the web application users from the database.
+
+        Arguments:
+            teams (Dict(int->Team)): Mapping of team database IDs to Teams
+
+        Returns:
+            Dict(str->User): Mapping of usernames to User objects for users who
+                can login to the web application.
+        """
+        users = {}
+
+        cmd = "SELECT username,team_id,is_admin FROM users"
+        user_rows = db.get(cmd)
+        for user,team_id,is_admin in user_rows:
+            team = teams[team_id]
+            users[user] = User(user, team, is_admin)
+        return users
    
     ## Config Saving Methods 
     def write_settings(self, settings):
