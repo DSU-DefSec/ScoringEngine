@@ -41,7 +41,7 @@ with connection.cursor() as cursor:
     cmd = ("CREATE TABLE users ( "
        "username VARCHAR(255) PRIMARY KEY, "
        "password CHAR(60) NOT NULL, "
-       "team_id INT NOT NULL, "
+       "team_id INT, "
        "is_admin BOOL NOT NULL, "
        "FOREIGN KEY (team_id) REFERENCES team(id) "
            "ON DELETE CASCADE)")
