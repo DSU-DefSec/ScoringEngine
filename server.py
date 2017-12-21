@@ -5,13 +5,13 @@ from forms import *
 import flask
 from flask import Flask, render_template, request, redirect
 from urllib.parse import urlparse, urljoin
-from functools import wraps
 import plot
 import score
 import validate
 import flask_login
 from flask_login import LoginManager, login_user, logout_user, login_required
 from web_model import User
+from decorators import *
 
 app = Flask(__name__)
 app.secret_key = 'this is a secret'
@@ -33,22 +33,6 @@ def is_safe_url(target):
     test_url = urlparse(urljoin(flask.request.host_url, target))
     return test_url.scheme in ('http', 'https') and \
            ref_url.netloc == test_url.netloc
-
-def admin_required(f):
-    @wraps(f)
-    def wrapped(*args, **kwargs):
-        if not flask_login.current_user.is_admin:
-            return "Access Denied"
-        return f(*args, **kwargs)
-    return wrapped
-
-def local_only(f):
-    @wraps(f)
-    def wrapped(*args, **kwargs):
-        if request.remote_addr != '127.0.0.1':
-            return "Access Denied"
-        return f(*args, **kwargs)
-    return wrapped
 
 @app.route('/')
 @app.route('/status')
@@ -78,9 +62,9 @@ def scores():
 @admin_required
 def credentials():
     dm.reload_credentials()
-    team_id = request.args.get('tid')
-    team = next(filter(lambda t: t.id == int(team_id), dm.teams))
-    credentials = [cred for cred in dm.credentials if cred.team.id == int(team_id)]
+    team_id = int(request.args.get('tid'))
+    team = next(filter(lambda t: t.id == team_id, dm.teams))
+    credentials = [cred for cred in dm.credentials if cred.team.id == team_id]
     credentials.sort(key= lambda c: (c.check_io.check.name, c.username))
     return render_template('credentials.html', credentials=credentials, team=team)
 
@@ -92,11 +76,11 @@ def bulk():
     if request.method == 'POST':
         if form.validate_on_submit():
             user = flask_login.current_user
-
             if user.is_admin:
                 team_id = form.team.data
             else:
                 team_id = user.team.id
+
             domain_id = form.domain.data
             service_id = form.service.data
             pwchange = form.pwchange.data
@@ -111,10 +95,12 @@ def bulk():
 def result_log():
     dm.reload_credentials()
     dm.load_results()
+
     team_id = int(request.args.get('tid'))
     check_id = int(request.args.get('cid'))
     results = sorted(dm.results[team_id][check_id], key= lambda r: r.time, reverse=True)
-    fname = plot.plot_results(results)
+
+    fname = plot.plot_results(results) # Results plot
     return render_template('result_log.html', results=results, fname=fname)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -124,14 +110,15 @@ def login():
     if request.method == 'POST':
         if form.validate_on_submit():
             user = load_user(form.username.data.lower())
-            if user is not None: 
+            if user is not None: # Valid user
                 login_user(user)
         
                 flask.flash('Logged in successfully!')
         
                 next = flask.request.args.get('next')
-                if not is_safe_url(next):
+                if not is_safe_url(next): # Open redirect protection
                     return flask.abort(400)
+
                 return redirect(next or flask.url_for('status'))
         else:
             error = "Invalid username/password"
