@@ -34,6 +34,14 @@ def is_safe_url(target):
     return test_url.scheme in ('http', 'https') and \
            ref_url.netloc == test_url.netloc
 
+def admin_required(f):
+    @wraps(f)
+    def wrapped(*args, **kwargs):
+        if not flask_login.current_user.is_admin:
+            return "Access Denied"
+        return f(*args, **kwargs)
+    return wrapped
+
 def local_only(f):
     @wraps(f)
     def wrapped(*args, **kwargs):
@@ -52,20 +60,22 @@ def status():
     return render_template('status.html', teams=teams, checks=checks, results=results)
 
 @app.route('/scores')
-@local_only
+@login_required
+@admin_required
 def scores():
     teams = dm.teams
     scores = {}
-    sla_limit = dm.settings['sla_limit']
-    sla_penalty = dm.settings['sla_penalty']
-    max_score = dm.settings['max_score']
+    sla_limit = 0
+    sla_penalty = 0
+    max_score = 0
     for team in teams:
         scores[team.id] = score.calc_score(team.id, sla_limit,
                                            sla_penalty, max_score)
     return render_template('scores.html', teams=teams, scores=scores)
 
 @app.route('/credentials', methods=['GET'])
-#@local_only
+@login_required
+@admin_required
 def credentials():
     dm.reload_credentials()
     team_id = request.args.get('tid')
@@ -112,6 +122,8 @@ def bulk():
     return render_template('bulk.html', error=','.join(error), teams=teams, domains=domains, services=services)
 
 @app.route('/result_log', methods=['GET'])
+@login_required
+@admin_required
 def result_log():
     dm.reload_credentials()
     dm.load_results()
@@ -134,10 +146,8 @@ def login():
                 flask.flash('Logged in successfully!')
         
                 next = flask.request.args.get('next')
-        
                 if not is_safe_url(next):
                     return flask.abort(400)
-        
                 return redirect(next or flask.url_for('status'))
         else:
             error = "Invalid username/password"
@@ -148,19 +158,3 @@ def login():
 def logout():
     logout_user()
     return redirect(flask.url_for('status'))
-
-# TODO Implement web config
-@app.route('/teams')
-@local_only
-def teams():
-    pass
-
-@app.route('/services')
-@local_only
-def services():
-    pass
-
-@app.route('/checks')
-@local_only
-def checks():
-    pass

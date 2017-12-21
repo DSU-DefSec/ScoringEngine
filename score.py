@@ -37,7 +37,7 @@ def calc_score(team_id, sla_limit, sla_penalty, max_score):
     score = raw_score - slas * sla_penalty
     return {'raw_score':raw_score, 'slas':slas, 'score':score}
 
-def sla_violations(self, results, sla_limit):
+def sla_violations(results, sla_limit):
     """
     Calculate the number of SLA violations in the given list of results.
 
