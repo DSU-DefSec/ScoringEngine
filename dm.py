@@ -5,6 +5,7 @@ import importlib
 import pickle
 import json
 import re
+import bcrypt
 
 def load_module(module_str):
     """
@@ -30,6 +31,7 @@ class DataManager(object):
         """
         db.execute("DELETE FROM settings")
         db.execute("DELETE FROM team")
+        db.execute("DELETE FROM users")
         db.execute("DELETE FROM domain")
         db.execute("DELETE FROM service")
         db.execute("DELETE FROM service_check")
@@ -376,6 +378,31 @@ class DataManager(object):
             team_ids[id] = db_id
         return team_ids
 
+    def write_web_users(self, users, teams):
+        """
+        Write the given users to the database, hashing their passwords.
+
+        Arguments:
+            users (Dict(int->User args)): A mapping of user config IDs to user initialization arguments
+            teams (Dict(int->int)): A mapping of team config IDs to team database IDs
+
+        Returns:
+            Dict(int->int): A mapping of user config IDs to user database IDs
+        """
+        user_ids = {}
+
+        cmd = ("INSERT INTO users (username, password, team_id, is_admin) "
+               "VALUES (%s, %s, %s, %s)")
+        for id, user_args in users.items():
+            ptid, username, password, is_admin = user_args
+            tid = teams[ptid] if ptid in teams else None
+            password = password.encode('utf-8')
+            pwhash = bcrypt.hashpw(password, bcrypt.gensalt())
+
+            db_id = db.execute(cmd, (username, pwhash, tid, is_admin))
+            user_ids[id] = db_id
+        return user_ids
+
     def write_domains(self, domains):
         """
         Write the given domains to the database.
@@ -507,7 +534,7 @@ class DataManager(object):
                 cred_cmd = cred_cmd_domain
             
             # Gather all of the check IOs this credential belongs to
-            cio_ids = [check_io_ids[str(pcio_id)] for pcio_id in pcio_ids]
+            cio_ids = [check_io_ids[pcio_id] for pcio_id in pcio_ids]
             for team_id in team_ids.values():
                 cred_input = {}   # cred_id -> List(checkio_id)
                 cred_service = {} # service_id -> cred_id

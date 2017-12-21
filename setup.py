@@ -39,7 +39,8 @@ with connection.cursor() as cursor:
 
     # Users table
     cmd = ("CREATE TABLE users ( "
-       "username VARCHAR(255) PRIMARY KEY, "
+       "id INT AUTO_INCREMENT PRIMARY KEY, "
+       "username VARCHAR(255), "
        "password CHAR(60) NOT NULL, "
        "team_id INT, "
        "is_admin BOOL NOT NULL, "

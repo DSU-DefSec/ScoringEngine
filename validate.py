@@ -19,6 +19,10 @@ def integer(num):
     except:
         raise Exception("%s is not an integer" % num)
 
+def boolean(b):
+    if b not in [1, 0, True, False]:
+        raise Exception("%s is not a boolean" % b)
+
 def check_function(func_str):
     try:
         parts = func_str.split('.')
@@ -53,7 +57,7 @@ def input_class(class_str):
         raise Exception("Invalid PollInput: %s" % class_str)
 
 def id_exists(id, dic):
-    if str(id) not in dic:
+    if id not in dic:
         raise Exception("Referenced ID: %s does not exist" % id)
 
 def jsondata(json_data):
