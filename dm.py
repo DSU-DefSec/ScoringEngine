@@ -81,6 +81,7 @@ class DataManager(object):
         settings["interval"] = int(settings["interval"])
         settings["jitter"] = int(settings["jitter"])
         settings["timeout"] = int(settings["timeout"])
+        settings["running"] = int(settings["running"])
 
         return settings
     
@@ -357,6 +358,17 @@ class DataManager(object):
                "VALUES (%s, %s)")
         for key, value in settings.items():
             db.execute(cmd, (key, value))
+
+    def update_setting(self, key, value):
+        """
+        Update the value of a setting in the database.
+
+        Arguments:
+            key (str): The setting to change
+            value (str): The value to change the setting to
+        """
+        cmd = "UPDATE settings SET value=%s WHERE skey=%s"
+        db.execute(cmd, (value, key))
 
     def write_teams(self, teams):
         """

@@ -17,16 +17,19 @@ class ScoringEngine(object):
         self.check()
 
     def check(self):
-        start = time.monotonic()
         while True:
-            print("New Round of Checks")
-            self.dm.reload_credentials()
+            self.dm.load_settings()
 
-            for service in self.dm.services:
-                if self.team_num is None:
-                    service.check(self.dm.teams)
-                else:
-                    service.check([self.dm.teams[self.team_num]])
+            if self.dm.settings["running"]:
+                print("New Round of Checks")
+                self.dm.reload_credentials()
+                for service in self.dm.services:
+                    if self.team_num is None:
+                        service.check(self.dm.teams)
+                    else:
+                        service.check([self.dm.teams[self.team_num]])
+            else:
+                print("Stopped")
 
             wait = self.dm.settings["interval"]
             print("Interval: " + str(wait))

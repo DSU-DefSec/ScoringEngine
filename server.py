@@ -103,6 +103,19 @@ def result_log():
     fname = plot.plot_results(results) # Results plot
     return render_template('result_log.html', results=results, fname=fname)
 
+@app.route('/competition', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def competition():
+    running = dm.settings['running']
+    if request.method =='POST':
+        if request.form['running'] == 'Start':
+            running = True
+        elif request.form['running'] == 'Stop':
+            running = False
+        dm.update_setting('running', running)
+    return render_template('competition.html', running=running)
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(dm)
