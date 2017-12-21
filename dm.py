@@ -626,6 +626,8 @@ class DataManager(object):
                 db.execute(cmd, args)
 
     def get_hash(self, username):
+        username = username.lower()
+        print(username)
         cmd = "SELECT password FROM users WHERE username=%s"
         pwhash = db.get(cmd, (username))[0][0]
         return pwhash

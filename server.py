@@ -123,7 +123,7 @@ def login():
     error = None
     if request.method == 'POST':
         if form.validate_on_submit():
-            user = load_user(form.username.data)
+            user = load_user(form.username.data.lower())
             if user is not None: 
                 login_user(user)
         

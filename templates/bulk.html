@@ -1,43 +1,87 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Bulk Password Change</h1>
-
-{% if success %}
-<div class="alert alert-success">
-    <strong>Success!</strong>
-</div>
-{% endif %}
-{% for key,value in form.errors.items() %}
-    <p>{{ key }}:{{ value }}
-{% endfor %}
-
-<form method="post" action="{{ url_for('bulk') }}">
-    {{ form.csrf_token }}
-    {% if current_user.is_admin %}
-    <div class="form-group">
-        {{ form.team.label }}
-        {{ form.team(class_="form-control") }}
+<div class="form col-sm-6">
+    <h1>Bulk Password Change</h1>
+    
+    {% if success %}
+    <div class="alert alert-success">
+        <strong>Success!</strong>
     </div>
     {% endif %}
-    <div class="form-group">
-        {{ form.ctype.label }}
-        {{ form.ctype(class_="form-control", onchange="credtype_change()") }}
-    </div>
-    <div class="form-group" id="domain-form">
-        {{ form.domain.label }}
-        {{ form.domain(class_="form-control") }}
-    </div>
-    <div class="form-group" id="service-form" hidden="">
-        {{ form.service.label }}
-        {{ form.service(class_="form-control", disabled="") }}
-    </div>
-    <div class="form-group">
-        {{ form.pwchange.label }}
-        {{ form.pwchange(rows=15, placeholder="user:password", class_="form-control") }}
-    </div>
-    <input type="submit" class="btn btn-primary" value="Submit"/>
-</form>
+
+    <form method="post" action="{{ url_for('bulk') }}">
+        {{ form.csrf_token }}
+        {% if current_user.is_admin %}
+        <div class="form-group">
+            {{ form.team.label }}
+            {% if form.errors[form.team.id] %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in form.errors[form.team.id] %}
+                        <li><strong>{{ error }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {{ form.team(class_="form-control") }}
+        </div>
+        {% endif %}
+        <div class="form-group">
+            {{ form.ctype.label }}
+            {% if form.errors[form.ctype.id] %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in form.errors[form.ctype.id] %}
+                        <li><strong>{{ error }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {{ form.ctype(class_="form-control", onchange="credtype_change()") }}
+        </div>
+        <div class="form-group" id="domain-form">
+            {{ form.domain.label }}
+            {% if form.errors[form.domain.id] %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in form.errors[form.domain.id] %}
+                        <li><strong>{{ error }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {{ form.domain(class_="form-control") }}
+        </div>
+        <div class="form-group" id="service-form" hidden="">
+            {{ form.service.label }}
+            {% if form.errors[form.service.id] %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in form.errors[form.service.id] %}
+                        <li><strong>{{ error }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {{ form.service(class_="form-control", disabled="") }}
+        </div>
+        <div class="form-group">
+            {{ form.pwchange.label }}
+            {% if form.errors[form.pwchange.id] %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in form.errors[form.pwchange.id] %}
+                        <li><strong>{{ error }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {{ form.pwchange(rows=15, placeholder="user:password", class_="form-control") }}
+        </div>
+        <input type="submit" class="btn btn-primary" value="Submit"/>
+    </form>
+</div>
 
 <script type="text/javascript">
     function credtype_change() {

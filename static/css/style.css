@@ -42,7 +42,7 @@ table {
 //    table-layout:fixed;
 }
 
-.login {
+div.form {
     position:absolute;
     left:0;
     right:0;

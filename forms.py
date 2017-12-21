@@ -18,6 +18,7 @@ class LoginForm(FlaskForm):
         pwhash = self.dm.get_hash(self.username.data)
         pwhash = pwhash.encode('utf-8')
         passwd = self.password.data.encode('utf-8')
+        print(passwd, pwhash)
 
         return bcrypt.checkpw(passwd, pwhash)
 
@@ -44,4 +45,6 @@ class PasswordChangeForm(FlaskForm):
         self.service.choices=[(s.id, 'Host: %d, Port: %d' % (s.host, s.port)) for s in dm.services]
         self.service.validators=[Optional()]
 
-        self.pwchange.validators=[InputRequired(), Regexp('^(.*[^\s]+:[^\s]+.*(\r\n)*)+$')]
+        self.pwchange.validators=[InputRequired(),
+                Regexp('^(.*[^\s]+:[^\s]+.*(\r\n)*)+$',
+                    message='Invalid format: Use user:password, one per line')]
