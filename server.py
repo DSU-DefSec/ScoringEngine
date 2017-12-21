@@ -129,3 +129,19 @@ def login():
 def logout():
     logout_user()
     return redirect(flask.url_for('status'))
+
+@app.route('/password_reset', methods=['GET', 'POST'])
+@login_required
+def pw_reset():
+    form = PasswordResetForm(dm)
+    success = False
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            username = form.user.data
+            if username == 'None':
+                username = flask_login.current_user.name
+            username = username.lower()
+            
+            dm.change_user_password(username, form.new_pw.data)
+            success = True
+    return render_template('pw_reset.html', success=success, form=form)

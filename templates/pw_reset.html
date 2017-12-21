@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="form col-sm-4">
+    <h1>Reset Password</h1>
+    {% if success %}
+    <div class="alert alert-success">
+        <strong>Success!</strong>
+    </div>
+    {% endif %}
+    {% if form.errors['validpw'] %}
+    <div class="alert alert-danger">
+        <strong>{{ form.errors['validpw'] }}</strong>
+    </div>
+    {% endif %}
+    {% if form.errors['samepw'] %}
+    <div class="alert alert-danger">
+        <strong>{{ form.errors['samepw'] }}</strong>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('pw_reset') }}">
+        {{ form.csrf_token }}
+        {% if current_user.is_admin %}
+        <div class="form-group">
+            {{ form.user.label }}
+            {% if form.errors[form.user.id] %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in form.errors[form.user.id] %}
+                        <li><strong>{{ error }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {{ form.user(class_="form-control") }}
+        </div>
+        {% endif %}
+        {% if not current_user.is_admin %}
+        <div class="form-group">
+            {{ form.current_pw.label }}
+            {% if form.errors[form.current_pw.id] %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in form.errors[form.current_pw.id] %}
+                        <li><strong>{{ error }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {{ form.current_pw(class_="form-control") }}
+        </div>
+        {% endif %}
+        <div class="form-group">
+            {{ form.new_pw.label }}
+            {% if form.errors[form.new_pw.id] %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in form.errors[form.new_pw.id] %}
+                        <li><strong>{{ error }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {{ form.new_pw(class_="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.confirm_new_pw.label }}
+            {% if form.errors[form.confirm_new_pw.id] %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in form.errors[form.confirm_new_pw.id] %}
+                        <li><strong>{{ error }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {{ form.confirm_new_pw(class_="form-control") }}
+        </div>
+        <input type="submit" class="btn btn-success" value="Submit"/>
+    </form>
+</div>
+
+{% endblock %}

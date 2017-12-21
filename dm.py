@@ -625,6 +625,13 @@ class DataManager(object):
                     args = (password, team_id, domain_id, username)
                 db.execute(cmd, args)
 
+    def change_user_password(self, username, newpw):
+        cmd = 'UPDATE users SET password=%s WHERE username=%s'
+        newpw = newpw.encode('utf-8')
+        pwhash = bcrypt.hashpw(newpw, bcrypt.gensalt())
+        print(username, newpw, pwhash)
+        db.execute(cmd, (pwhash, username))
+
     def get_hash(self, username):
         username = username.lower()
         print(username)
