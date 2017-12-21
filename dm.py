@@ -1,9 +1,11 @@
 import db
 from model import *
+from web_model import User
 import importlib
 import pickle
 import json
 import re
+import bcrypt
 
 def load_module(module_str):
     """
@@ -29,6 +31,7 @@ class DataManager(object):
         """
         db.execute("DELETE FROM settings")
         db.execute("DELETE FROM team")
+        db.execute("DELETE FROM users")
         db.execute("DELETE FROM domain")
         db.execute("DELETE FROM service")
         db.execute("DELETE FROM service_check")
@@ -41,7 +44,9 @@ class DataManager(object):
         Load all data from the database.
         """
         self.settings = self.load_settings()
-        self.teams = self.load_teams()
+        teams = self.load_teams()
+        self.teams = list(teams.values())
+        self.users = self.load_web_users(teams)
         self.domains = self.load_domains()
         self.credentials = self.load_credentials(self.teams, self.domains)
 
@@ -84,13 +89,13 @@ class DataManager(object):
         Load teams from the database.
 
         Returns:
-            List(Team): A list of Teams
+            Dict(int->Team): A mapping of team database IDs to Teams
         """
-        teams = []
+        teams = {}
         rows = db.get("SELECT * FROM team")
         for team_id, name, subnet, netmask in rows:
             team = Team(team_id, name, subnet, netmask)
-            teams.append(team)
+            teams[team_id] = team
         return teams
 
     def load_domains(self):
@@ -112,7 +117,7 @@ class DataManager(object):
         Load credentials from the database.
         
         Arguments:
-            teams (List(Team)): List of teams to associate credentials with
+            teams (Dict(int->Team)): Mapping of team database IDs to Teams to associate credentials with
             domains (List(Domain)): List of domains to associate credentials with
 
         Returns:
@@ -318,6 +323,27 @@ class DataManager(object):
                 username = re.sub('\s+', '', line[0]).lower()
                 password = re.sub('\s+', '', ':'.join(line[1:]))
                 db.execute(cmd, (password, team_id, service_id, username))
+
+    # Web app loading
+    def load_web_users(self, teams):
+        """
+        Load the web application users from the database.
+
+        Arguments:
+            teams (Dict(int->Team)): Mapping of team database IDs to Teams
+
+        Returns:
+            Dict(str->User): Mapping of usernames to User objects for users who
+                can login to the web application.
+        """
+        users = {}
+
+        cmd = "SELECT username,team_id,is_admin FROM users"
+        user_rows = db.get(cmd)
+        for user,team_id,is_admin in user_rows:
+            team = teams[team_id] if team_id in teams else None
+            users[user] = User(user, team, is_admin)
+        return users
    
     ## Config Saving Methods 
     def write_settings(self, settings):
@@ -351,6 +377,31 @@ class DataManager(object):
             db_id = db.execute(cmd, team)
             team_ids[id] = db_id
         return team_ids
+
+    def write_web_users(self, users, teams):
+        """
+        Write the given users to the database, hashing their passwords.
+
+        Arguments:
+            users (Dict(int->User args)): A mapping of user config IDs to user initialization arguments
+            teams (Dict(int->int)): A mapping of team config IDs to team database IDs
+
+        Returns:
+            Dict(int->int): A mapping of user config IDs to user database IDs
+        """
+        user_ids = {}
+
+        cmd = ("INSERT INTO users (username, password, team_id, is_admin) "
+               "VALUES (%s, %s, %s, %s)")
+        for id, user_args in users.items():
+            ptid, username, password, is_admin = user_args
+            tid = teams[ptid] if ptid in teams else None
+            password = password.encode('utf-8')
+            pwhash = bcrypt.hashpw(password, bcrypt.gensalt())
+
+            db_id = db.execute(cmd, (username, pwhash, tid, is_admin))
+            user_ids[id] = db_id
+        return user_ids
 
     def write_domains(self, domains):
         """
@@ -483,7 +534,7 @@ class DataManager(object):
                 cred_cmd = cred_cmd_domain
             
             # Gather all of the check IOs this credential belongs to
-            cio_ids = [check_io_ids[str(pcio_id)] for pcio_id in pcio_ids]
+            cio_ids = [check_io_ids[pcio_id] for pcio_id in pcio_ids]
             for team_id in team_ids.values():
                 cred_input = {}   # cred_id -> List(checkio_id)
                 cred_service = {} # service_id -> cred_id
@@ -573,3 +624,10 @@ class DataManager(object):
                 elif domain_id is not None:
                     args = (password, team_id, domain_id, username)
                 db.execute(cmd, args)
+
+    def get_hash(self, username):
+        username = username.lower()
+        print(username)
+        cmd = "SELECT password FROM users WHERE username=%s"
+        pwhash = db.get(cmd, (username))[0][0]
+        return pwhash

@@ -41,3 +41,10 @@ table {
 //    width:100%;
 //    table-layout:fixed;
 }
+
+div.form {
+    position:absolute;
+    left:0;
+    right:0;
+    margin: auto;
+}

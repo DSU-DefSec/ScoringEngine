@@ -37,6 +37,18 @@ with connection.cursor() as cursor:
     print(cmd)
     cursor.execute(cmd)
 
+    # Users table
+    cmd = ("CREATE TABLE users ( "
+       "id INT AUTO_INCREMENT PRIMARY KEY, "
+       "username VARCHAR(255), "
+       "password CHAR(60) NOT NULL, "
+       "team_id INT, "
+       "is_admin BOOL NOT NULL, "
+       "FOREIGN KEY (team_id) REFERENCES team(id) "
+           "ON DELETE CASCADE)")
+    print(cmd)
+    cursor.execute(cmd)
+
     # Service Table
     cmd = ("CREATE TABLE service ( "
         "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
