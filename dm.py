@@ -48,7 +48,7 @@ class DataManager(object):
         self.teams = list(teams.values())
         self.users = self.load_web_users(teams)
         self.domains = self.load_domains()
-        self.credentials = self.load_credentials(teams, self.domains)
+        self.credentials = self.load_credentials(self.teams, self.domains)
 
         # Load check IOs
         check_ios = self.load_check_ios(self.credentials)
@@ -126,7 +126,7 @@ class DataManager(object):
         creds = []
         cred_rows = db.get("SELECT * FROM credential")
         for cred_id, username, password, team_id, service_id, domain_id in cred_rows:
-            team = teams[team_id]
+            team = next(filter(lambda t: t.id == team_id, teams))
             domain_lst = list(filter(lambda d: d.id == domain_id, domains))
             if len(domain_lst) == 0:
                 domain = None
@@ -341,7 +341,7 @@ class DataManager(object):
         cmd = "SELECT username,team_id,is_admin FROM users"
         user_rows = db.get(cmd)
         for user,team_id,is_admin in user_rows:
-            team = teams[team_id]
+            team = teams[team_id] if team_id in teams else None
             users[user] = User(user, team, is_admin)
         return users
    
@@ -624,3 +624,8 @@ class DataManager(object):
                 elif domain_id is not None:
                     args = (password, team_id, domain_id, username)
                 db.execute(cmd, args)
+
+    def get_hash(self, username):
+        cmd = "SELECT password FROM users WHERE username=%s"
+        pwhash = db.get(cmd, (username))[0][0]
+        return pwhash

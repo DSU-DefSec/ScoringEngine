@@ -23,22 +23,37 @@
 <ul class="nav navbar-nav">
 <li class="{% block status %}{% endblock %}"><a href="{{ url_for('status') }}">Status</a></li>
 <!-- 
-<li class="{% block scores %}{% endblock %}"><a href="{{ url_for('scores') }}">Scores</a></li>
 <li class="{% block teams %}{% endblock %}"><a href="{{ url_for('teams') }}">Teams</a></li>
 <li class="{% block services %}{% endblock %}"><a href="{{ url_for('services') }}">Services</a></li>
 <li class="{% block credentials %}{% endblock %}"><a href="{{ url_for('credentials') }}">Default Credentials</a></li>
+-->
+{% if current_user.is_authenticated %}
 <li class="{% block bulk %}{% endblock %}"><a href="{{ url_for('bulk') }}">Bulk Password Change</a></li>
--->
+{% endif %}
+{% if current_user.is_authenticated and current_user.name == 'admin' %}
+<li class="{% block scores %}{% endblock %}"><a href="{{ url_for('scores') }}">Scores</a></li>
+{% endif %}
 </ul>
-<!--
 <ul class="nav navbar-nav navbar-right">
+{% if current_user.is_authenticated %}
     <li><a href="{{ url_for('logout') }}">Logout</a></li>
+{% else %}
     <li><a href="{{ url_for('login') }}">Login</a></li>
+{% endif %}
 </ul>
--->
 </div>
 </div>
 </nav>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class=flashes>
+            {% for message in messages %}
+                <div class=" alert alert-info">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
 
 <div class="container">
 {% block content %}

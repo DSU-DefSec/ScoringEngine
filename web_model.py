@@ -11,11 +11,13 @@ class User(UserMixin):
         id (str): A unicode identifier for this user
         name (str): Name of the user
         team (Team): Team the user belongs to
+        is_admin (bool): Is the user an admin?
     """
-    def __init__(self, id, team):
+    def __init__(self, id, team, is_admin):
         self.id = id
         self.name = id
         self.team = team
+        self.is_admin = is_admin
 
     def get_id(self):
         """

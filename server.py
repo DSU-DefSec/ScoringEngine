@@ -1,17 +1,38 @@
 #!/usr/bin/python3
 
 from dm import DataManager
-from flask import Flask
-from flask import render_template
-from flask import request
+from forms import *
+import flask
+from flask import Flask, render_template, request, redirect
+from urllib.parse import urlparse, urljoin
 from functools import wraps
 import plot
 import score
 import validate
+import flask_login
+from flask_login import LoginManager, login_user, logout_user, login_required
+from web_model import User
 
 app = Flask(__name__)
+app.secret_key = 'this is a secret'
+
 dm = DataManager()
 dm.load_db()
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    if user_id not in dm.users:
+        return None
+    return dm.users[user_id]
+
+def is_safe_url(target):
+    ref_url = urlparse(flask.request.host_url)
+    test_url = urlparse(urljoin(flask.request.host_url, target))
+    return test_url.scheme in ('http', 'https') and \
+           ref_url.netloc == test_url.netloc
 
 def local_only(f):
     @wraps(f)
@@ -54,8 +75,9 @@ def credentials():
     return render_template('credentials.html', credentials=credentials, team=team)
 
 @app.route('/bulk', methods=['GET', 'POST'])
-@local_only
+@login_required
 def bulk():
+    user = flask_login.current_user
     teams = dm.teams
     teams.sort(key=lambda t: t.name)
     services = dm.services
@@ -90,7 +112,6 @@ def bulk():
     return render_template('bulk.html', error=','.join(error), teams=teams, domains=domains, services=services)
 
 @app.route('/result_log', methods=['GET'])
-#@local_only
 def result_log():
     dm.reload_credentials()
     dm.load_results()
@@ -100,17 +121,35 @@ def result_log():
     fname = plot.plot_results(results)
     return render_template('result_log.html', results=results, fname=fname)
 
-# TODO Implement
-@app.route('/login')
-@local_only
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    pass
+    form = LoginForm(dm)
+    error = None
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            user = load_user(form.username.data)
+            if user is not None: 
+                login_user(user)
+        
+                flask.flash('Logged in successfully!')
+        
+                next = flask.request.args.get('next')
+        
+                if not is_safe_url(next):
+                    return flask.abort(400)
+        
+                return redirect(next or flask.url_for('status'))
+        else:
+            error = "Invalid username/password"
+    return render_template('login.html', form=form, error=error)
 
 @app.route('/logout')
-@local_only
+@login_required
 def logout():
-    pass
+    logout_user()
+    return redirect(flask.url_for('status'))
 
+# TODO Implement web config
 @app.route('/teams')
 @local_only
 def teams():
