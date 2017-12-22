@@ -1,64 +1,50 @@
 import db
 
-def calc_score(team_id, sla_limit, sla_penalty, max_score):
+def get_results_list():
     """
-    Calculate the score of the given team.
-
-    Arguments:
-        team_id (int): The ID of the team in the database
-        sla_limit (int): The number of failed checks allowed before the SLA is
-            violated
-        sla_penalty (int): The penalty for an SLA violation
-        max_score (int): The maximum possible score
+    Collect the results for all teams on each check
 
     Returns:
-        Dict(str->num): A dictionary containing the raw score, number of SLA
-            violations, and total score for the given team
+        Dict(int->Dict(int->List(bool))): A mapping of team IDs and check IDs to a list of boolean results in chronological order
     """
-    cmd = ('SELECT check_id, time, result FROM result '
-           'WHERE team_id=%s ORDER BY time ASC')
-    result_rows = db.get(cmd, (team_id))
+    cmd = ('SELECT team_id, check_id, time, result FROM result '
+           'ORDER BY time ASC')
+    result_rows = db.get(cmd)
     results = {}
-    for check_id, time, result in result_rows:
-        if check_id not in results:
-            results[check_id] = []
-        results[check_id].append({'time':time, 'result':int(result)})
+    for team_id, check_id, time, result in result_rows:
+        if team_id not in results:
+            results[team_id] = {}
+        if check_id not in results[team_id]:
+            results[team_id][check_id] = []
+        results[team_id][check_id].append(int(result))
+    return results
 
-    good_checks = 0
-    total_checks = 0
-    for key, result_list in results.items():
-        total_checks += len(result_list)
-        good_checks += sum([1 for r in result_list if r['result'] == 1])
-    raw_score = max_score * (good_checks/total_checks)
 
-    slas = 0
-    for key, result_list in results.items():
-        slas += sla_violations(result_list, sla_limit)
-    score = raw_score - slas * sla_penalty
-    return {'raw_score':raw_score, 'slas':slas, 'score':score}
-
-def sla_violations(results, sla_limit):
+def uptime(results):
     """
-    Calculate the number of SLA violations in the given list of results.
+    Determine the uptime for each check on each team, as well as total uptime.
 
     Arguments:
-        results (List(Dict(str->obj))): A list of result dictionaries. Each 
-            result dictionary contains the time of the check and the result of
-            the check
-        sla_limit (int): The number of failed checks allowed before the SLA is
-            violated
+        results (Dict(int->Dict(int->List(bool)))): A mapping of team IDs and check IDs to a list of boolean results in chronological order
 
     Returns:
-        int: The number of SLA violations
+        Dict(int->Dict(int->float)): A mapping of team and check IDs to an uptime percentage. Total uptime is stored at check ID zero which is unused.
     """
-    slas = 0
-    run = 0
-    for result in results:
-        if result['result'] == 1:
-            run = 0
-        else:
-            run += 1
-            if run > sla_limit:
-                slas += 1
-    return slas
+    uptime = {}
 
+    for team_id, team_results in results.items():
+        uptime[team_id] = {}
+        total_checks = 0
+        total_good_checks = 0
+
+        for check_id, check_results in team_results.items():
+            checks = len(check_results)
+            total_checks += checks
+
+            good_checks = sum(check_results)
+            total_good_checks += good_checks
+
+            uptime[team_id][check_id] = round(good_checks/float(checks)*100, 2)
+
+        uptime[team_id][0] = round(total_good_checks/float(total_checks)*100, 2)
+    return uptime

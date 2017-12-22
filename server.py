@@ -48,14 +48,12 @@ def status():
 @admin_required
 def scores():
     teams = dm.teams
-    scores = {}
-    sla_limit = 0
-    sla_penalty = 0
-    max_score = 0
-    for team in teams:
-        scores[team.id] = score.calc_score(team.id, sla_limit,
-                                           sla_penalty, max_score)
-    return render_template('scores.html', teams=teams, scores=scores)
+    checks = dm.checks
+    team_ids = [t.id for t in teams]
+    check_ids = [c.id for c in checks]
+    results = score.get_results_list()
+    uptime = score.uptime(results)
+    return render_template('scores.html', teams=teams, checks=checks, uptime=uptime, results=results, team_ids=team_ids, check_ids=check_ids)
 
 @app.route('/credentials', methods=['GET'])
 @login_required

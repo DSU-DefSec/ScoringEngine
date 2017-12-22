@@ -2,31 +2,92 @@
 
 {% block scores %}active{% endblock %}
 
-{% block head %}<meta http-equiv="refresh" content="5">{% endblock %}
-
 {% block content %}
-<h1>Service Scores</h1>
+<h2>Service Uptime</h2>
 
 <table class="table">
-<thead>
-<tr>
-<th>Team</th>
-<th>Raw Score</th>
-<th>SLA Violations</th>
-<th>Total Score</th>
-</tr>
-</thead>
-
-<tbody>
-{% for t in teams %}
-<tr>
-    <td>{{ t.name }}</td>
-    <td>{{ scores[t.id]['raw_score'] }}</td>
-    <td>{{ scores[t.id]['slas'] }}</td>
-    <td>{{ scores[t.id]['score'] }}</td>
-</tr>
-{% endfor %}
-</tbody>
+    <thead>
+        <tr>
+            <th></th>
+            {% for t in teams %}
+            <th>{{ t.name }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in checks %}
+        <tr>
+            <td>{{ c.name }}</td>
+            {% for t in teams %}
+            <td>{{ uptime[t.id][c.id] }}%</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        <tr>
+            <td>Total</td>
+            {% for t in teams %}
+            <td>{{ uptime[t.id][0] }}%</td>
+            {% endfor %}
+        </tr>
 </table>
+
+<div class="col-sm-6 col-sm-offset-3">
+    <div class="form-group col-sm-4">
+        <label for="sla-limit">SLA Limit</label>
+        <input type="number" class="form-control" id="sla-limit" name="sla-limit" oninput="calc_score({{ team_ids }}, {{ check_ids }})"/>
+    </div>
+    <div class="form-group col-sm-4">
+        <label for="sla-penalty">SLA Penalty</label>
+        <input type="number" class="form-control" id="sla-penalty" name="sla-penalty" oninput="calc_score({{ team_ids }}, {{ check_ids }})"/>
+    </div>
+    <div class="form-group col-sm-4">
+        <label for="max-score">Max Score</label>
+        <input type="number" class="form-control" id="max-score" name="max-score" oninput="calc_score({{ team_ids }}, {{ check_ids }})"/>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <th></th>
+        <th>Total Uptime</th>
+        <th>SLA Violations</th>
+        <th>SLA Penalties</th>
+        <th>Modified Uptime</th>
+        <th>Total Score</th>
+    </thead>
+    <tbody>
+        {% for t in teams %}
+        <tr>
+            <td>{{ t.name }}</td>
+            <td>{{ uptime[t.id][0] }}%</td>
+            <td id="{{ t.id }}-sla-v"></td>
+            <td id="{{ t.id }}-sla-p"></td>
+            <td id="{{ t.id }}-mod-u"></td>
+            <td id="{{ t.id }}-score-t"></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<table class="table" hidden="true">
+    <thead>
+        <th></th>
+        {% for t in teams %}
+        <th>{{ t.name }}</th>
+        {% endfor %}
+    </thead>
+    <tbody>
+        {% for c in checks %}
+        <tr>
+            <td>{{ c.name }}</td>
+            {% for t in teams %}
+            <td id="res-{{ t.id }}-{{ c.id }}">{{ results[t.id][c.id] }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script src="static/js/score.js"></script>
 
 {% endblock %}
