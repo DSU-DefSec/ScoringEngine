@@ -43,7 +43,7 @@ class DataManager(object):
         """
         Load all data from the database.
         """
-        self.settings = self.load_settings()
+        self.load_settings()
         teams = self.load_teams()
         self.teams = list(teams.values())
         self.users = self.load_web_users(teams)
@@ -65,9 +65,6 @@ class DataManager(object):
     def load_settings(self):
         """
         Load global settings from the database.
-
-        Returns:
-            Dict(str->Any): Settings dictionary
         """
         settings = {}
 
@@ -83,7 +80,7 @@ class DataManager(object):
         settings["timeout"] = int(settings["timeout"])
         settings["running"] = int(settings["running"])
 
-        return settings
+        self.settings = settings
     
     def load_teams(self):
         """
