@@ -170,7 +170,10 @@ class Check(object):
             poll_result = self.poller.poll_timed(poll_input)
             if poll_result.exception is None:
                 break
-        result = self.check_function(poll_result, expected)
+        try:
+            result = self.check_function(poll_result, expected)
+        except:
+            result = False
         team_id = poll_input.team.id
         self.store_result(check_io_id, team_id, poll_input,
                           poll_result, result)

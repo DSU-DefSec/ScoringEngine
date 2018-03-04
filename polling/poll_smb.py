@@ -46,7 +46,8 @@ class SmbPoller(Poller):
             conn.close()
 
             t.seek(0)
-            result = SmbPollResult(t.read())
+            content = t.read()
+            result = SmbPollResult(content)
             return result
         except Exception as e:
             result = SmbPollResult(None, e)
