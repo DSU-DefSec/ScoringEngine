@@ -27,7 +27,7 @@ class MySqlPoller(Poller):
                                    database=poll_input.db)
             cursor = conn.cursor()
             cursor.execute(poll_input.query)
-            output = ' '.join([res[0] for res in cursor.fetchall()])
+            output = cursor.fetchone()[0]
             conn.close()
     
             result = MySqlPollResult(output)
