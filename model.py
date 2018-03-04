@@ -167,7 +167,7 @@ class Check(object):
         tries = 0
         while tries < max_tries: 
             tries += 1
-            poll_result = self.poller.poll(poll_input)
+            poll_result = self.poller.poll_timed(poll_input)
             if poll_result.exception is None:
                 break
         result = self.check_function(poll_result, expected)

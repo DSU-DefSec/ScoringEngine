@@ -1,4 +1,4 @@
-from threading import Thread, Lock
+from multiprocessing import Process
 import copy
 
 class PollInput(object):
@@ -45,6 +45,20 @@ class Poller(object):
     """
     
     """
+    def poll_timed(self, poll_input):
+        output = [None]
+        p = Process(target=self.poll_async, args=(poll_input, output))
+        p.start()
+        p.join(poll_input.timeout)
+        if p.isAlive():
+            p.terminate()
+            return PollResult(Exception('Check Timed Out'))
+        else:
+            return output[0]
+
+    def poll_async(self, poll_input, output):
+        output[0] = self.poll(poll_input)
+
     def poll(self, poll_input):
         """Poll a service and return a PollResult.
 
