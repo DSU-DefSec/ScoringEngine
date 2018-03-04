@@ -307,7 +307,7 @@ class DataManager(object):
                     pass
         return results
 
-    def change_passwords(self, team_id, service_id, pwchange):
+    def change_passwords(self, team_id, domain_id, service_id, pwchange):
         """
         Change the passwords for the given credentials.
 
