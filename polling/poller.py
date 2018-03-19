@@ -1,4 +1,4 @@
-from multiprocessing import Process
+from timeout import timeout
 import copy
 
 class PollInput(object):
@@ -46,19 +46,13 @@ class Poller(object):
     
     """
     def poll_timed(self, poll_input):
-        output = [None]
-        p = Process(target=self.poll_async, args=(poll_input, output))
-        p.start()
-        p.join(poll_input.timeout)
-        if p.isAlive():
-            p.terminate()
-            return PollResult(Exception('Check Timed Out'))
-        else:
-            return output[0]
+        try:
+            poll_result = self.poll(poll_input)
+        except:
+            poll_result = PollResult(Exception("Check Timed Out"))
+        return poll_result
 
-    def poll_async(self, poll_input, output):
-        output[0] = self.poll(poll_input)
-
+    @timeout(20)
     def poll(self, poll_input):
         """Poll a service and return a PollResult.
 

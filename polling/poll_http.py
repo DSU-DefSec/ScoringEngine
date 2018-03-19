@@ -1,6 +1,7 @@
 import requests
 from requests.exceptions import *
 import tempfile
+import re
 
 from .poller import PollInput, PollResult, Poller
 
@@ -28,7 +29,8 @@ class HttpPoller(Poller):
             r = requests.get('{}://{}:{}/{}'.format(proto, server, port, path), timeout=poll_input.timeout, verify=False)
             r.raise_for_status()
 
-            result = HttpPollResult(r.text, None)
+            content = re.sub(r'\?[^"]*', '', r.text)
+            result = HttpPollResult(content, None)
             return result
         except Exception as e:
             result = HttpPollResult(None, e)

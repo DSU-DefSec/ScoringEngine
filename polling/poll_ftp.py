@@ -36,12 +36,15 @@ class FtpPoller(Poller):
         try:
             ftp.connect(poll_input.server, poll_input.port, timeout=poll_input.timeout)
             ftp.login(user=username, passwd=password)
+            ftp.set_pasv(True)
             ftp.retrbinary('RETR {}'.format(poll_input.filepath), t.write)
             ftp.quit()
 
             t.seek(0)
             result = FtpPollResult(t.read(), None)
+            t.close()
             return result
         except Exception as e:
+            t.close()
             result = FtpPollResult(None, e)
             return result

@@ -1,7 +1,7 @@
 #!/bin/bash
-for team in {1..3}; do
-    team_id=$((109+$team))
-    perc=$(mysql -u root -pUnderWaterBlowFish -e "SELECT SUM(password='Password1!' OR password='password' OR password='bae' OR password='blade' AND team_id=$team_id)/COUNT(*) FROM scoring.credential")
-    perc=$(echo $perc | cut -d ' ' -f 10)
-    echo $team,$perc
+for team in {1..4}; do
+    perc=$(mysql -u root -pPassword1! -e "SELECT SUM(password='Password1!' AND team_id=$team)/SUM(team_id=$team) AS perc FROM scoring.credential")
+    perc=$(echo $perc | cut -d ' ' -f 2)
+    date=$(date +%H:%M:%S)
+    echo $date,$perc >> /home/dsu/team_"$team"_default.csv
 done

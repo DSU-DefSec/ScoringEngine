@@ -21,7 +21,7 @@ class ScoringEngine(object):
             jitter = self.dm.settings['jitter']
 
             if running:
-                self.check(timeout)
+                self.check()
             else:
                 print("Stopped")
 
@@ -33,7 +33,7 @@ class ScoringEngine(object):
             print("Wait: " + str(wait))
             time.sleep(wait)
 
-    def check(self, timeout):
+    def check(self):
         print("New Round of Checks")
         self.dm.reload_credentials()
         for service in self.dm.services:
