@@ -20,21 +20,23 @@ function calc_score(team_ids, check_ids) {
                     run = 0;
                 } else {
                     run += 1;
-                    if (run > sla_limit) {
+                    if (run >= sla_limit) {
                         slas += 1;
+                        run = 0;
                     }
                 }
             }
             good += results.reduce(sum);
             total += results.length;
         }
-        var sla_penalties = slas*sla_penalty;
-        var modified_uptime = (good - sla_penalties) / total;
-        var total_score = modified_uptime * max_score;
+        var sla_penalties = slas * sla_penalty * max_score;
+        var uptime = good / total;
+        var raw_score = uptime * max_score;
+        var total_score = raw_score - sla_penalties;
 
         document.getElementById(tid+'-sla-v').innerHTML = slas;
         document.getElementById(tid+'-sla-p').innerHTML = sla_penalties;
-        document.getElementById(tid+'-mod-u').innerHTML = Math.round(modified_uptime*100*100)/100 + '%';
+        document.getElementById(tid+'-raw-s').innerHTML = raw_score;
         document.getElementById(tid+'-score-t').innerHTML = total_score;
     }
 }

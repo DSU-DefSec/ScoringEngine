@@ -317,15 +317,25 @@ class DataManager(object):
             pwchange (str): A series of user:pass combos separated by CRLFs
         """
         pwchange = [line.split(':') for line in pwchange.split('\r\n')]
+        cmd = 'UPDATE credential SET password=%s WHERE team_id=%s '
         if service_id is not None:
-            cmd = ('UPDATE credential SET password=%s WHERE team_id=%s '
-                   'AND service_id=%s AND username=%s')
+            cmd += 'AND service_id=%s '
         elif domain_id is not None:
-            cmd = ('UPDATE credential SET password=%s WHERE team_id=%s '
-                   'AND domain_id=%s AND username=%s')
+            cmd += 'AND domain_id=%s '
+        if pwchange[0][0] != 'all':
+            cmd += 'AND username=%s'
+        else:
+            password = pwchange[0][1]
+            if service_id is not None:
+                args = (password, team_id, service_id)
+            elif domain_id is not None:
+                args = (password, team_id, domain_id)
+            db.execute(cmd, args)
+            return
+
         for line in pwchange:
             if len(line) >= 2:
-                username = re.sub('\s+', '', line[0]).lower()
+                username = re.sub('\s+', '', line[0])
                 password = re.sub('\s+', '', ':'.join(line[1:]))
                 if service_id is not None:
                     args = (password, team_id, service_id, username)
