@@ -25,13 +25,13 @@ install_web() {
 role=$1
 sudo apt-get update
 
-if [ "$role" -eq "engine" ]; then
+if [ "$role" = "engine" ]; then
     install_engine
-elif [ "$role" -eq "db" ]; then
+elif [ "$role" = "db" ]; then
     install_db
-elif [ "$role" -eq "web" ]; then
+elif [ "$role" = "web" ]; then
     install_web
-elif [ "$role" -eq "all" ]; then
+elif [ "$role" = "all" ]; then
     install_engine
     install_db
     install_web
