@@ -14,34 +14,35 @@ class ScoringEngine(object):
         self.team_num = team_num
 
     def start(self):
-        self.check()
-
-    def check(self):
         while True:
             self.dm.load_settings()
+            running = self.dm.settings['running']
+            interval = self.dm.settings['interval']
+            jitter = self.dm.settings['jitter']
 
-            if self.dm.settings["running"]:
-                print("New Round of Checks")
-                self.dm.reload_credentials()
-                for service in self.dm.services:
-                    if self.team_num is None:
-                        service.check(self.dm.teams)
-                    else:
-                        service.check([self.dm.teams[self.team_num]])
+            if running:
+                self.check()
             else:
                 print("Stopped")
 
-            wait = self.dm.settings["interval"]
+            wait = interval
             print("Interval: " + str(wait))
-            jitter = random.randint(-self.dm.settings["jitter"],
-                                    self.dm.settings["jitter"])
-            print("Jitter: " + str(jitter))
-            wait += jitter
+            offset = random.randint(-jitter, jitter)
+            print("Jitter: " + str(offset))
+            wait += offset
             print("Wait: " + str(wait))
             time.sleep(wait)
-        print("Competition End")
 
-        
+    def check(self):
+        print("New Round of Checks")
+        self.dm.reload_credentials()
+        for service in self.dm.services:
+            if self.team_num is None:
+                service.check(self.dm.teams)
+            else:
+                service.check([self.dm.teams[self.team_num]])
+
+
 if __name__ == '__main__':
     if len(sys.argv) > 2:
         print("Usage: ./engine [team_number]")

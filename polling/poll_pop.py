@@ -18,6 +18,9 @@ class PopPoller(Poller):
     def poll(self, poll_input):
         username = poll_input.credentials.username
         password = poll_input.credentials.password
+#        domain = poll_input.credentials.domain
+#        if domain is not None:
+#            username = '%s@%s' % (username, domain)
     
         try:
             pop = poplib.POP3(poll_input.server, poll_input.port, 2)

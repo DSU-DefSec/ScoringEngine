@@ -1,4 +1,4 @@
-from threading import Thread, Lock
+from timeout import timeout
 import copy
 
 class PollInput(object):
@@ -45,6 +45,14 @@ class Poller(object):
     """
     
     """
+    def poll_timed(self, poll_input):
+        try:
+            poll_result = self.poll(poll_input)
+        except:
+            poll_result = PollResult(Exception("Check Timed Out"))
+        return poll_result
+
+    @timeout(20)
     def poll(self, poll_input):
         """Poll a service and return a PollResult.
 

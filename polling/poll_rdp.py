@@ -21,12 +21,12 @@ class RdpPoller(Poller):
         domain = poll_input.credentials.domain
         
         if domain is None:
-            opt_str = '--ignore-certificate --authonly -u {} -p {} {}:{}'
+            opt_str = '--ignore-certificate --authonly -u \'{}\' -p \'{}\' {}:{}'
             options = opt_str.format(
                     username, password,
                     poll_input.server, poll_input.port)
         else:
-            opt_str = '--ignore-certificate --authonly -d {} -u {} -p {} {}:{}'
+            opt_str = '--ignore-certificate --authonly -d {} -u \'{}\' -p \'{}\' {}:{}'
             options = opt_str.format(
                     domain.domain, username, password,
                     poll_input.server, poll_input.port)
