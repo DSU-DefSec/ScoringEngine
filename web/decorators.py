@@ -17,4 +17,3 @@ def local_only(f):
             return "Access Denied"
         return f(*args, **kwargs)
     return wrapped
-
