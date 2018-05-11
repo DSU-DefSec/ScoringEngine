@@ -1,4 +1,4 @@
-from timeout import timeout
+from ..timeout import timeout
 import copy
 
 class PollInput(object):

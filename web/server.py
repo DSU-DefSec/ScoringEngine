@@ -1,17 +1,17 @@
 #!/usr/bin/python3
 
 from dm import DataManager
-from forms import *
 import flask
 from flask import Flask, render_template, request, redirect
 from urllib.parse import urlparse, urljoin
-import plot
-import score
+from .forms import *
+from . import plot
+from . import score
 import validate
 import flask_login
 from flask_login import LoginManager, login_user, logout_user, login_required
-from web_model import User
-from decorators import *
+from .model import User
+from .decorators import *
 
 app = Flask(__name__)
 app.secret_key = 'this is a secret'

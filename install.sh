@@ -1,9 +1,16 @@
 #!/bin/bash
 
-install_engine() {
-    echo "Installing engine..."
-    sudo apt-get install -y python3 python3-pip python-dev python3-tk freetds-dev libssl-dev libffi-dev libldap2-dev libsasl2-dev freerdp
+install_common() {
+    echo "Installing common files..."
+    sudo apt-get install -y python3 python3-pip python-dev
     sudo pip3 install -U pip
+    echo "Common files installed"
+}
+
+install_engine() {
+    install_common
+    echo "Installing engine..."
+    sudo apt-get install -y freetds-dev libssl-dev libffi-dev libldap2-dev libsasl2-dev freerdp
     sudo pip3 install dnspython paramiko pysmb pymysql pymssql pyldap requests
     echo "Engine Installed!"
 }
@@ -15,9 +22,9 @@ install_db() {
 }
 
 install_web() {
+    install_common
     echo "Installing Web..."
-    sudo apt install -y python3 python3-pip python-dev python3-tk
-    sudo pip3 install -U pip
+    sudo apt-get install -y python3-tk
     sudo pip3 install Flask flask-login flask-wtf matplotlib bcrypt
     echo "Web Installed!"
 }

@@ -26,7 +26,7 @@ def boolean(b):
 def check_function(func_str):
     try:
         parts = func_str.split('.')
-        if parts[0] != 'checker':
+        if parts[1] != 'checker':
             raise Exception()
         dm.load_module(func_str)
     except:
@@ -35,7 +35,7 @@ def check_function(func_str):
 def poller(poller_str):
     try:
         parts = poller_str.split('.')
-        if parts[0] != 'polling':
+        if parts[1] != 'polling':
             raise Exception()
         if 'Poller' not in parts[-1]:
             raise Exception()
@@ -47,7 +47,8 @@ def poller(poller_str):
 def input_class(class_str):
     try:
         parts = class_str.split('.')
-        if parts[0] != 'polling':
+        print(class_str)
+        if parts[1] != 'polling':
             raise Exception()
         if 'PollInput' not in parts[-1]:
             raise Exception()

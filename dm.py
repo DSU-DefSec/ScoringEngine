@@ -1,6 +1,6 @@
 import db
-from model import *
-from web_model import User
+from engine.model import *
+from web.model import User
 import importlib
 import pickle
 import json

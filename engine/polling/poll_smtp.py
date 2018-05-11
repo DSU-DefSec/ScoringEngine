@@ -2,7 +2,7 @@ from smtplib import *
 import socket
 import random
 
-from polling.poller import PollInput, PollResult, Poller
+from .poller import PollInput, PollResult, Poller
 
 class SmtpPollInput(PollInput):
 

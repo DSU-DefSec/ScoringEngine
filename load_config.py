@@ -2,7 +2,7 @@
 import sys
 import json
 import pickle
-from model import *
+from engine.model import *
 from dm import DataManager
 from dm import load_module
 import validate
@@ -143,8 +143,8 @@ def parse_checks(contents, services):
         id = int(id)
 
         name, check_function, poller, service_id = args
-        check_function = 'checker.' + check_function
-        poller = 'polling.' + poller
+        check_function = 'engine.checker.' + check_function
+        poller = 'engine.polling.' + poller
 
         validate.check_function(check_function)
         validate.poller(poller)
@@ -189,7 +189,7 @@ def parse_poll_inputs(contents):
         validate.integer(id)
         id = int(id)
 
-        input_class_str = 'polling.' + args[0]
+        input_class_str = 'engine.polling.' + args[0]
         args = ','.join(args[1:])
 
         validate.input_class(input_class_str)
