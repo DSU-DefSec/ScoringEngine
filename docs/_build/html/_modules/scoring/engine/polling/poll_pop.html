@@ -1,0 +1,250 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>scoring.engine.polling.poll_pop &mdash; Scoring Engine  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+
+  
+  <script src="../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../index.html" class="icon icon-home"> Scoring Engine
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/modules.html">scoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/scoring.html">scoring package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/scoring.engine.html">scoring.engine package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/scoring.engine.checker.html">scoring.engine.checker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/scoring.engine.polling.html">scoring.engine.polling package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../source/scoring.web.html">scoring.web package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Scoring Engine</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../../index.html">Module code</a> &raquo;</li>
+        
+      <li>scoring.engine.polling.poll_pop</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for scoring.engine.polling.poll_pop</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">poplib</span>
+
+<span class="kn">from</span> <span class="nn">.poller</span> <span class="k">import</span> <span class="n">PollInput</span><span class="p">,</span> <span class="n">PollResult</span><span class="p">,</span> <span class="n">Poller</span>
+
+<div class="viewcode-block" id="PopPollInput"><a class="viewcode-back" href="../../../../source/scoring.engine.polling.html#scoring.engine.polling.poll_pop.PopPollInput">[docs]</a><span class="k">class</span> <span class="nc">PopPollInput</span><span class="p">(</span><span class="n">PollInput</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">starttls</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PopPollInput</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">server</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">starttls</span> <span class="o">=</span> <span class="n">starttls</span></div>
+
+<div class="viewcode-block" id="PopPollResult"><a class="viewcode-back" href="../../../../source/scoring.engine.polling.html#scoring.engine.polling.poll_pop.PopPollResult">[docs]</a><span class="k">class</span> <span class="nc">PopPollResult</span><span class="p">(</span><span class="n">PollResult</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">authenticated</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PopPollResult</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">exceptions</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">authenticated</span> <span class="o">=</span> <span class="n">authenticated</span></div>
+
+<div class="viewcode-block" id="PopPoller"><a class="viewcode-back" href="../../../../source/scoring.engine.polling.html#scoring.engine.polling.poll_pop.PopPoller">[docs]</a><span class="k">class</span> <span class="nc">PopPoller</span><span class="p">(</span><span class="n">Poller</span><span class="p">):</span>
+<div class="viewcode-block" id="PopPoller.poll"><a class="viewcode-back" href="../../../../source/scoring.engine.polling.html#scoring.engine.polling.poll_pop.PopPoller.poll">[docs]</a>    <span class="k">def</span> <span class="nf">poll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">poll_input</span><span class="p">):</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">poll_input</span><span class="o">.</span><span class="n">credentials</span><span class="o">.</span><span class="n">username</span>
+        <span class="n">password</span> <span class="o">=</span> <span class="n">poll_input</span><span class="o">.</span><span class="n">credentials</span><span class="o">.</span><span class="n">password</span>
+<span class="c1">#        domain = poll_input.credentials.domain</span>
+<span class="c1">#        if domain is not None:</span>
+<span class="c1">#            username = &#39;%s@%s&#39; % (username, domain)</span>
+    
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pop</span> <span class="o">=</span> <span class="n">poplib</span><span class="o">.</span><span class="n">POP3</span><span class="p">(</span><span class="n">poll_input</span><span class="o">.</span><span class="n">server</span><span class="p">,</span> <span class="n">poll_input</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">poll_input</span><span class="o">.</span><span class="n">starttls</span><span class="p">:</span>
+                <span class="n">pop</span><span class="o">.</span><span class="n">stls</span><span class="p">()</span>
+
+            <span class="n">pop</span><span class="o">.</span><span class="n">user</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+            <span class="n">pop</span><span class="o">.</span><span class="n">pass_</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+            <span class="n">pop</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+            
+            <span class="n">result</span> <span class="o">=</span> <span class="n">PopPollResult</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">PopPollResult</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Nic Mews-Schmuck.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

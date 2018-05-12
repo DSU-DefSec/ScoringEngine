@@ -1,0 +1,590 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>scoring.web package &mdash; Scoring Engine  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="scoring.engine.polling package" href="scoring.engine.polling.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Scoring Engine
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="modules.html">scoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scoring.html">scoring package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scoring.engine.html">scoring.engine package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scoring.engine.checker.html">scoring.engine.checker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scoring.engine.polling.html">scoring.engine.polling package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">scoring.web package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scoring.web.decorators">scoring.web.decorators module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scoring.web.forms">scoring.web.forms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scoring.web.model">scoring.web.model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scoring.web.plot">scoring.web.plot module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scoring.web.score">scoring.web.score module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scoring-web-server-module">scoring.web.server module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scoring.web.web_model">scoring.web.web_model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scoring.web">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scoring Engine</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">scoring</a> &raquo;</li>
+        
+          <li><a href="scoring.html">scoring package</a> &raquo;</li>
+        
+      <li>scoring.web package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/scoring.web.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="scoring-web-package">
+<h1>scoring.web package<a class="headerlink" href="#scoring-web-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-scoring.web.decorators">
+<span id="scoring-web-decorators-module"></span><h2>scoring.web.decorators module<a class="headerlink" href="#module-scoring.web.decorators" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scoring.web.decorators.admin_required">
+<code class="descclassname">scoring.web.decorators.</code><code class="descname">admin_required</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/decorators.html#admin_required"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.decorators.admin_required" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="scoring.web.decorators.local_only">
+<code class="descclassname">scoring.web.decorators.</code><code class="descname">local_only</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/decorators.html#local_only"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.decorators.local_only" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-scoring.web.forms">
+<span id="scoring-web-forms-module"></span><h2>scoring.web.forms module<a class="headerlink" href="#module-scoring.web.forms" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="scoring.web.forms.LoginForm">
+<em class="property">class </em><code class="descclassname">scoring.web.forms.</code><code class="descname">LoginForm</code><span class="sig-paren">(</span><em>dm</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/forms.html#LoginForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.forms.LoginForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">flask_wtf.form.FlaskForm</span></code></p>
+<dl class="attribute">
+<dt id="scoring.web.forms.LoginForm.password">
+<code class="descname">password</code><em class="property"> = &lt;UnboundField(PasswordField, ('Password',), {'validators': [&lt;wtforms.validators.InputRequired object&gt;]})&gt;</em><a class="headerlink" href="#scoring.web.forms.LoginForm.password" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="scoring.web.forms.LoginForm.username">
+<code class="descname">username</code><em class="property"> = &lt;UnboundField(StringField, ('Username',), {'validators': [&lt;wtforms.validators.InputRequired object&gt;]})&gt;</em><a class="headerlink" href="#scoring.web.forms.LoginForm.username" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scoring.web.forms.LoginForm.validate">
+<code class="descname">validate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/forms.html#LoginForm.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.forms.LoginForm.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates the form by calling <cite>validate</cite> on each field, passing any
+extra <cite>Form.validate_&lt;fieldname&gt;</cite> validators to the field validator.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="scoring.web.forms.PasswordChangeForm">
+<em class="property">class </em><code class="descclassname">scoring.web.forms.</code><code class="descname">PasswordChangeForm</code><span class="sig-paren">(</span><em>dm</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/forms.html#PasswordChangeForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.forms.PasswordChangeForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">flask_wtf.form.FlaskForm</span></code></p>
+<dl class="attribute">
+<dt id="scoring.web.forms.PasswordChangeForm.ctype">
+<code class="descname">ctype</code><em class="property"> = &lt;UnboundField(SelectField, ('Credential Type',), {})&gt;</em><a class="headerlink" href="#scoring.web.forms.PasswordChangeForm.ctype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="scoring.web.forms.PasswordChangeForm.domain">
+<code class="descname">domain</code><em class="property"> = &lt;UnboundField(SelectField, ('Domain',), {'coerce': &lt;class 'int'&gt;})&gt;</em><a class="headerlink" href="#scoring.web.forms.PasswordChangeForm.domain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="scoring.web.forms.PasswordChangeForm.pwchange">
+<code class="descname">pwchange</code><em class="property"> = &lt;UnboundField(TextAreaField, ('Password Changes',), {})&gt;</em><a class="headerlink" href="#scoring.web.forms.PasswordChangeForm.pwchange" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="scoring.web.forms.PasswordChangeForm.service">
+<code class="descname">service</code><em class="property"> = &lt;UnboundField(SelectField, ('Service',), {'coerce': &lt;class 'int'&gt;})&gt;</em><a class="headerlink" href="#scoring.web.forms.PasswordChangeForm.service" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="scoring.web.forms.PasswordChangeForm.team">
+<code class="descname">team</code><em class="property"> = &lt;UnboundField(SelectField, ('Team',), {'coerce': &lt;class 'int'&gt;})&gt;</em><a class="headerlink" href="#scoring.web.forms.PasswordChangeForm.team" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="scoring.web.forms.PasswordResetForm">
+<em class="property">class </em><code class="descclassname">scoring.web.forms.</code><code class="descname">PasswordResetForm</code><span class="sig-paren">(</span><em>dm</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/forms.html#PasswordResetForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.forms.PasswordResetForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">flask_wtf.form.FlaskForm</span></code></p>
+<dl class="attribute">
+<dt id="scoring.web.forms.PasswordResetForm.confirm_new_pw">
+<code class="descname">confirm_new_pw</code><em class="property"> = &lt;UnboundField(PasswordField, ('Confirm New Password',), {'validators': [&lt;wtforms.validators.InputRequired object&gt;]})&gt;</em><a class="headerlink" href="#scoring.web.forms.PasswordResetForm.confirm_new_pw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="scoring.web.forms.PasswordResetForm.current_pw">
+<code class="descname">current_pw</code><em class="property"> = &lt;UnboundField(PasswordField, ('Current Password',), {'validators': [&lt;wtforms.validators.Optional object&gt;]})&gt;</em><a class="headerlink" href="#scoring.web.forms.PasswordResetForm.current_pw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="scoring.web.forms.PasswordResetForm.new_pw">
+<code class="descname">new_pw</code><em class="property"> = &lt;UnboundField(PasswordField, ('New Password',), {'validators': [&lt;wtforms.validators.InputRequired object&gt;]})&gt;</em><a class="headerlink" href="#scoring.web.forms.PasswordResetForm.new_pw" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="scoring.web.forms.PasswordResetForm.user">
+<code class="descname">user</code><em class="property"> = &lt;UnboundField(SelectField, ('User',), {'validators': [&lt;wtforms.validators.Optional object&gt;]})&gt;</em><a class="headerlink" href="#scoring.web.forms.PasswordResetForm.user" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="scoring.web.forms.PasswordResetForm.validate">
+<code class="descname">validate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/forms.html#PasswordResetForm.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.forms.PasswordResetForm.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates the form by calling <cite>validate</cite> on each field, passing any
+extra <cite>Form.validate_&lt;fieldname&gt;</cite> validators to the field validator.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scoring.web.model">
+<span id="scoring-web-model-module"></span><h2>scoring.web.model module<a class="headerlink" href="#module-scoring.web.model" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="scoring.web.model.User">
+<em class="property">class </em><code class="descclassname">scoring.web.model.</code><code class="descname">User</code><span class="sig-paren">(</span><em>id</em>, <em>team</em>, <em>is_admin</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/model.html#User"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.model.User" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">flask_login.mixins.UserMixin</span></code></p>
+<p>A Flask-Login user.</p>
+<dl class="attribute">
+<dt id="scoring.web.model.User.is_authenticated">
+<code class="descname">is_authenticated</code><a class="headerlink" href="#scoring.web.model.User.is_authenticated" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> – Is the user authenticated?</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scoring.web.model.User.is_active">
+<code class="descname">is_active</code><a class="headerlink" href="#scoring.web.model.User.is_active" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> – Has the account been activated?</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scoring.web.model.User.is_anonymous">
+<code class="descname">is_anonymous</code><a class="headerlink" href="#scoring.web.model.User.is_anonymous" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> – Is this an anonymous user?</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scoring.web.model.User.id">
+<code class="descname">id</code><a class="headerlink" href="#scoring.web.model.User.id" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – A unicode identifier for this user</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scoring.web.model.User.name">
+<code class="descname">name</code><a class="headerlink" href="#scoring.web.model.User.name" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – Name of the user</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scoring.web.model.User.team">
+<code class="descname">team</code><a class="headerlink" href="#scoring.web.model.User.team" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>Team</em> – Team the user belongs to</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scoring.web.model.User.is_admin">
+<code class="descname">is_admin</code><a class="headerlink" href="#scoring.web.model.User.is_admin" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> – Is the user an admin?</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scoring.web.model.User.get_id">
+<code class="descname">get_id</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/model.html#User.get_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.model.User.get_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the ID of the user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A unicode identifier for the user</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">(str)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scoring.web.plot">
+<span id="scoring-web-plot-module"></span><h2>scoring.web.plot module<a class="headerlink" href="#module-scoring.web.plot" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scoring.web.plot.plot_results">
+<code class="descclassname">scoring.web.plot.</code><code class="descname">plot_results</code><span class="sig-paren">(</span><em>results</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/plot.html#plot_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.plot.plot_results" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-scoring.web.score">
+<span id="scoring-web-score-module"></span><h2>scoring.web.score module<a class="headerlink" href="#module-scoring.web.score" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scoring.web.score.get_results_list">
+<code class="descclassname">scoring.web.score.</code><code class="descname">get_results_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/score.html#get_results_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.score.get_results_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect the results for all teams on each check</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A mapping of team IDs and check IDs to a list of boolean results in chronological order</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Dict(int-&gt;Dict(int-&gt;List(bool)))</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scoring.web.score.uptime">
+<code class="descclassname">scoring.web.score.</code><code class="descname">uptime</code><span class="sig-paren">(</span><em>results</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/score.html#uptime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.score.uptime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine the uptime for each check on each team, as well as total uptime.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>results</strong> (<em>Dict</em><em>(</em><em>int-&gt;Dict</em><em>(</em><em>int-&gt;List</em><em>(</em><em>bool</em><em>)</em><em>)</em><em>)</em>) – A mapping of team IDs and check IDs to a list of boolean results in chronological order</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A mapping of team and check IDs to an uptime percentage. Total uptime is stored at check ID zero which is unused.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Dict(int-&gt;Dict(int-&gt;float))</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="scoring-web-server-module">
+<h2>scoring.web.server module<a class="headerlink" href="#scoring-web-server-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-scoring.web.web_model">
+<span id="scoring-web-web-model-module"></span><h2>scoring.web.web_model module<a class="headerlink" href="#module-scoring.web.web_model" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="scoring.web.web_model.WebModel">
+<em class="property">class </em><code class="descclassname">scoring.web.web_model.</code><code class="descname">WebModel</code><a class="reference internal" href="../_modules/scoring/web/web_model.html#WebModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.web_model.WebModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">data_model.DataModel</span></code></p>
+<dl class="method">
+<dt id="scoring.web.web_model.WebModel.change_passwords">
+<code class="descname">change_passwords</code><span class="sig-paren">(</span><em>team_id</em>, <em>domain_id</em>, <em>service_id</em>, <em>pwchange</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/web_model.html#WebModel.change_passwords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.web_model.WebModel.change_passwords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the passwords for the given credentials.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>team_id</strong> (<em>int</em>) – The ID of the team the credential belongs to</li>
+<li><strong>domain_id</strong> (<em>int</em>) – The ID of the domain the credential belongs to</li>
+<li><strong>service_id</strong> (<em>int</em>) – The ID of the service the credential belongs to</li>
+<li><strong>pwchange</strong> (<em>str</em>) – A series of user:pass combos separated by CRLFs</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scoring.web.web_model.WebModel.change_user_password">
+<code class="descname">change_user_password</code><span class="sig-paren">(</span><em>username</em>, <em>newpw</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/web_model.html#WebModel.change_user_password"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.web_model.WebModel.change_user_password" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the given user’s password to the given password.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>username</strong> (<em>str</em>) – The user to change the password for</li>
+<li><strong>newpw</strong> (<em>str</em>) – The new password</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scoring.web.web_model.WebModel.get_user_password">
+<code class="descname">get_user_password</code><span class="sig-paren">(</span><em>username</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/web_model.html#WebModel.get_user_password"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.web_model.WebModel.get_user_password" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the password hash for the given user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>username</strong> (<em>str</em>) – The username to get the hash for</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The password hash</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">(str)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scoring.web.web_model.WebModel.latest_results">
+<code class="descname">latest_results</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/web_model.html#WebModel.latest_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.web_model.WebModel.latest_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gather the latest results for each team/check combo.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A mapping of each team and check to its latest result</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">results (Dict(int-&gt;Dict(int-&gt;(<a class="reference internal" href="scoring.engine.html#scoring.engine.model.Result" title="scoring.engine.model.Result">Result</a>))))</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scoring.web.web_model.WebModel.load_db">
+<code class="descname">load_db</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/web_model.html#WebModel.load_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.web_model.WebModel.load_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load all data from the database, including web-specific data.”</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scoring.web.web_model.WebModel.load_web_users">
+<code class="descname">load_web_users</code><span class="sig-paren">(</span><em>teams</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/web_model.html#WebModel.load_web_users"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.web_model.WebModel.load_web_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the web application users from the database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>teams</strong> (<em>Dict</em><em>(</em><em>int-&gt;Team</em><em>)</em>) – Mapping of team database IDs to Teams</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="docutils">
+<dt>Mapping of usernames to User objects for users who</dt>
+<dd>can login to the web application.</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Dict(str-&gt;User)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="scoring.web.web_model.WebModel.update_setting">
+<code class="descname">update_setting</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scoring/web/web_model.html#WebModel.update_setting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scoring.web.web_model.WebModel.update_setting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the value of a setting in the database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>key</strong> (<em>str</em>) – The setting to change</li>
+<li><strong>value</strong> (<em>str</em>) – The value to change the setting to</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scoring.web">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-scoring.web" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="scoring.engine.polling.html" class="btn btn-neutral" title="scoring.engine.polling package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Nic Mews-Schmuck.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
