@@ -32,12 +32,13 @@ def get(table, columns, where=None, orderby=None, args=None):
     """
     # Build command
     columns = ','.join(columns)
-    cmd = 'SELECT ' + columns
+    cmd = 'SELECT %s FROM %s' % (columns, table)
     if where is not None:
         cmd += ' WHERE ' + where
     if orderby is not None:
         cmd += ' ORDER BY ' + orderby
 
+    print(cmd)
     # Execute command
     connection = connect()
     with connection.cursor() as cursor:

@@ -26,7 +26,7 @@ class WebModel(DataModel):
                 can login to the web application.
         """
         users = {}
-        user_rows = db.get('users', ['username', 'team_id', 'is_admin']))
+        user_rows = db.get('users', ['username', 'team_id', 'is_admin'])
         for user,team_id,is_admin in user_rows:
             teams_match = filter(lambda t: t.id == team_id, teams)
             if len(teams_match):

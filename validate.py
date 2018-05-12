@@ -1,5 +1,5 @@
 #!/bin/python
-import dm
+from utils import load_module
 import json
 import re
 

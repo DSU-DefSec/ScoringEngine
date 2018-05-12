@@ -2,8 +2,9 @@
 import sys
 import json
 from engine.model import *
-from dm import DataManager
-from dm import load_module
+import db
+import db_writer
+from utils import load_module
 import validate
 
 def load_config(filename):
@@ -36,25 +37,24 @@ def load_config(filename):
     credentials = parse_credentials(contents, domains, check_ios)
     print(credentials)
 
-    dm = DataManager()
     print("Emptying existing database...")
-    dm.reset_db()
+    db.reset_all_tables()
     print("Writing global settings to DB...")
-    dm.write_settings(settings)
+    db_writer.write_settings(settings)
     print("Writing teams to DB...")
-    team_ids = dm.write_teams(teams)
+    team_ids = db_writer.write_teams(teams)
     print("Writing users to DB...")
-    user_ids = dm.write_web_users(users, team_ids)
+    user_ids = db_writer.write_web_users(users, team_ids)
     print("Writing domains to DB...")
-    domain_ids = dm.write_domains(domains)
+    domain_ids = db_writer.write_domains(domains)
     print("Writing services to DB...")
-    service_ids = dm.write_services(services)
+    service_ids = db_writer.write_services(services)
     print("Writing checks to DB...")
-    check_ids = dm.write_checks(checks, service_ids)
+    check_ids = db_writer.write_checks(checks, service_ids)
     print("Writing checkIOs to DB...")
-    check_io_ids = dm.write_check_ios(check_ios, poll_inputs, check_ids)
+    check_io_ids = db_writer.write_check_ios(check_ios, poll_inputs, check_ids)
     print("Writing credentials to DB...")
-    credential_ids = dm.write_credentials(credentials, team_ids, domain_ids, check_io_ids)
+    credential_ids = db_writer.write_credentials(credentials, team_ids, domain_ids, check_io_ids)
 
 def parse_global(contents):
     settings = {}

@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from dm import DataManager
+from .web_model import WebModel
 import flask
 from flask import Flask, render_template, request, redirect
 from urllib.parse import urlparse, urljoin
@@ -16,17 +16,17 @@ from .decorators import *
 app = Flask(__name__)
 app.secret_key = 'this is a secret'
 
-dm = DataManager()
-dm.load_db()
+wm = WebModel()
+wm.load_db()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    if user_id not in dm.users:
+    if user_id not in wm.users:
         return None
-    return dm.users[user_id]
+    return wm.users[user_id]
 
 def is_safe_url(target):
     ref_url = urlparse(flask.request.host_url)
@@ -37,9 +37,9 @@ def is_safe_url(target):
 @app.route('/')
 @app.route('/status')
 def status():
-    teams = dm.teams
-    checks = dm.checks
-    results = dm.latest_results()
+    teams = wm.teams
+    checks = wm.checks
+    results = wm.latest_results()
     teams.sort(key=lambda t: t.name)
     return render_template('status.html', teams=teams, checks=checks, results=results)
 
@@ -47,8 +47,8 @@ def status():
 @login_required
 @admin_required
 def scores():
-    teams = dm.teams
-    checks = dm.checks
+    teams = wm.teams
+    checks = wm.checks
     team_ids = [t.id for t in teams]
     check_ids = [c.id for c in checks]
     results = score.get_results_list()
@@ -59,10 +59,10 @@ def scores():
 @login_required
 @admin_required
 def credentials():
-    dm.reload_credentials()
+    wm.reload_credentials()
     team_id = int(request.args.get('tid'))
-    team = next(filter(lambda t: t.id == team_id, dm.teams))
-    credentials = [cred for cred in dm.credentials if cred.team.id == team_id]
+    team = next(filter(lambda t: t.id == team_id, wm.teams))
+    credentials = [cred for cred in wm.credentials if cred.team.id == team_id]
     credentials.sort(key= lambda c: (c.check_io.check.name, c.username))
     return render_template('credentials.html', credentials=credentials, team=team)
 
@@ -83,7 +83,7 @@ def bulk():
             service_id = form.service.data
             pwchange = form.pwchange.data
 
-            dm.change_passwords(team_id, domain_id, service_id, pwchange)
+            wm.change_passwords(team_id, domain_id, service_id, pwchange)
             success = True
     return render_template('bulk.html', form=form, success=success)
 
@@ -91,12 +91,12 @@ def bulk():
 @login_required
 @admin_required
 def result_log():
-    dm.reload_credentials()
-    dm.load_results()
+    wm.reload_credentials()
+    wm.load_results()
 
     team_id = int(request.args.get('tid'))
     check_id = int(request.args.get('cid'))
-    results = sorted(dm.results[team_id][check_id], key= lambda r: r.time, reverse=True)
+    results = sorted(wm.results[team_id][check_id], key= lambda r: r.time, reverse=True)
 
     fname = plot.plot_results(results) # Results plot
     return render_template('result_log.html', results=results, fname=fname)
@@ -105,13 +105,13 @@ def result_log():
 @login_required
 @admin_required
 def competition():
-    running = dm.settings['running']
+    running = wm.settings['running']
     if request.method =='POST':
         if request.form['running'] == 'Start':
             running = True
         elif request.form['running'] == 'Stop':
             running = False
-        dm.update_setting('running', running)
+        wm.update_setting('running', running)
     return render_template('competition.html', running=running)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -153,6 +153,6 @@ def pw_reset():
                 username = flask_login.current_user.name
             username = username.lower()
             
-            dm.change_user_password(username, form.new_pw.data)
+            wm.change_user_password(username, form.new_pw.data)
             success = True
     return render_template('pw_reset.html', success=success, form=form)

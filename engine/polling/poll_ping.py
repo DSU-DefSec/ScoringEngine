@@ -1,6 +1,6 @@
 import subprocess
 
-from polling.poller import PollInput, PollResult, Poller
+from .poller import PollInput, PollResult, Poller
 
 class PingPollInput(PollInput):
 
