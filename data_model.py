@@ -34,7 +34,6 @@ class DataModel(object):
         self.load_settings()
         teams = self.load_teams()
         self.teams = list(teams.values())
-        self.users = self.load_web_users(teams)
         self.domains = self.load_domains()
         self.credentials = self.load_credentials(self.teams, self.domains)
 

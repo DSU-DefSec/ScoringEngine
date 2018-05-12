@@ -103,52 +103,6 @@ def reset_all_tables():
     reset_table('credential')
     reset_table('result')
 
-def set_web_user_password(username, pwhash):
-    """
-    Set the password hash of a web user in the database.
-
-    Arguments:
-        username (str): The user whose password to change
-        pwhash (str): Hash of the user's password
-    """
-    cmd = 'UPDATE users SET password=%s WHERE username=%s'
-    execute(cmd, (pwhash, username))
-
-def get_user_password(username):
-    """
-    Get the password hash for the given user.
-
-    Arguments:
-        username (str): The user to get the hash for
-
-    Returns:
-        (str): The password hash
-    """
-    cmd = 'SELECT password FROM users WHERE username=%s'
-    pwhash = get(cmd, (username))[0][0]
-    return pwhash
-
-def set_credential_password(username, password, team_id, service_id=None, domain_id=None):
-    """
-    Set the password for the credentials matching the given criteria.
-
-    Arguments:
-        username (str): The username of the credentials
-        password (str): The password to change to
-        team_id (str): The ID of the team of the credentials
-        service_id (str): Optional, the ID of the service of the credentials. service_id and domain_id cannot both be None
-        domain_id (str): Optional, the ID of the domain of the credentials. service_id and domain_id cannot both be None
-    """
-    if service_id is None and domain_id is None:
-        raise Exception('service_id and domain_id cannot both be None.')
-    cmd = 'UPDATE credential SET password=%s WHERE username=%s AND team_id=%s'
-    if service_id is not None:
-        cmd += ' AND service_id=%s'
-        db.execute(cmd, (password, username, team_id, service_id))
-    else:
-        cmd += ' AND domain_id=%s'
-        db.execute(cmd, (password, username, team_id, domain_id))
-
 def insert(table, columns, args):
     """
     Insert data into the given table.
@@ -173,3 +127,24 @@ def modify(table, set, args, where=None):
     if where is not None:
         cmd += ' WHERE %s' % where
     db.execute(cmd, args)
+
+def set_credential_password(username, password, team_id, service_id=None, domain_id=None):
+    """
+    Set the password for the credentials matching the given criteria.
+
+    Arguments:
+        username (str): The username of the credentials
+        password (str): The password to change to
+        team_id (str): The ID of the team of the credentials
+        service_id (str): Optional, the ID of the service of the credentials. service_id and domain_id cannot both be None
+        domain_id (str): Optional, the ID of the domain of the credentials. service_id and domain_id cannot both be None
+    """
+    if service_id is None and domain_id is None:
+        raise Exception('service_id and domain_id cannot both be None.')
+    cmd = 'UPDATE credential SET password=%s WHERE username=%s AND team_id=%s'
+    if service_id is not None:
+        cmd += ' AND service_id=%s'
+        db.execute(cmd, (password, username, team_id, service_id))
+    else:
+        cmd += ' AND domain_id=%s'
+        db.execute(cmd, (password, username, team_id, domain_id))
