@@ -61,8 +61,8 @@ with connection.cursor() as cursor:
     cmd = ("CREATE TABLE service_check ( "
         "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
         "name VARCHAR(255) NOT NULL UNIQUE, "
-        "check_function TEXT NOT NULL, "
-        "poller TEXT NOT NULL, "
+        "check_function VARCHAR(255) NOT NULL, "
+        "poller VARCHAR(255) NOT NULL, "
         "service_id INT NOT NULL, "
         "FOREIGN KEY (service_id) REFERENCES service(id) "
             "ON DELETE CASCADE)")
@@ -79,8 +79,8 @@ with connection.cursor() as cursor:
     # Check Input Table
     cmd = ("CREATE TABLE check_io ( "
         "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
-        "input LONGBLOB NOT NULL, "
-        "expected TEXT NOT NULL, "
+        "input VARCHAR(4095) NOT NULL, "
+        "expected VARCHAR(4095) NOT NULL, "
         "check_id INT NOT NULL, "
         "FOREIGN KEY (check_id) REFERENCES service_check(id) "
             "ON DELETE CASCADE)")
@@ -123,8 +123,8 @@ with connection.cursor() as cursor:
         "check_io_id INT NOT NULL, "
         "team_id INT NOT NULL, "
         "time TIMESTAMP NOT NULL, "
-        "poll_input LONGBLOB NOT NULL, "
-        "poll_result LONGBLOB NOT NULL, "
+        "poll_input VARCHAR(4095) NOT NULL, "
+        "poll_result VARCHAR(4096) NOT NULL, "
         "result BOOL NOT NULL, "
         "FOREIGN KEY (check_id) REFERENCES service_check(id) "
             "ON DELETE CASCADE, "
