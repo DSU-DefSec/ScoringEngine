@@ -57,16 +57,15 @@ class DataModel(object):
         settings = {}
 
         # Load settings from db
-        cmd = "SELECT skey,value FROM settings"
-        settings_rows = db.get(cmd)
+        settings_rows = db.get('settings', ['skey', 'value'])
         for key, value in settings_rows:
             settings[key] = value
 
         # Cast to correct data types
-        settings["interval"] = int(settings["interval"])
-        settings["jitter"] = int(settings["jitter"])
-        settings["timeout"] = int(settings["timeout"])
-        settings["running"] = int(settings["running"])
+        settings['interval'] = int(settings['interval'])
+        settings['jitter'] = int(settings['jitter'])
+        settings['timeout'] = int(settings['timeout'])
+        settings['running'] = int(settings['running'])
 
         self.settings = settings
     
@@ -78,7 +77,7 @@ class DataModel(object):
             Dict(int->Team): A mapping of team database IDs to Teams
         """
         teams = {}
-        rows = db.get("SELECT * FROM team")
+        rows = db.getall('team')
         for team_id, name, subnet, netmask in rows:
             team = Team(team_id, name, subnet, netmask)
             teams[team_id] = team
@@ -92,7 +91,7 @@ class DataModel(object):
             List(Domain): List of domains
         """
         domains = []
-        domain_rows = db.get("SELECT * FROM domain")
+        domain_rows = db.getall('domain')
         for domain_id, fqdn in domain_rows:
             domain = Domain(domain_id, fqdn)
             domains.append(domain)
@@ -110,7 +109,7 @@ class DataModel(object):
             List(Credential): List of credentials
         """
         creds = []
-        cred_rows = db.get("SELECT * FROM credential")
+        cred_rows = db.getall('credential')
         for cred_id, username, password, team_id, service_id, domain_id in cred_rows:
             team = next(filter(lambda t: t.id == team_id, teams))
             domain_lst = list(filter(lambda d: d.id == domain_id, domains))
@@ -140,11 +139,11 @@ class DataModel(object):
         check_ios = {}
    
         # Gather all of the check IOs
-        check_io_rows = db.get("SELECT * FROM check_io")
+        check_io_rows = db.getall('check_io')
         for check_io_id, poll_input, expected, check_id in check_io_rows:
             # Gather all of the credentials which belong to this check IO
-            cmd = "SELECT * FROM cred_input WHERE check_io_id=%s"
-            cred_input_rows = db.get(cmd, (check_io_id))
+            cred_input_rows = db.get('cred_input', ['*'],
+                                     where='check_io_id=%s', args=(check_io_id))
             check_creds = []
             for cred_input_id, cred_id, _check_io_id in cred_input_rows:
                 cred = next(filter(lambda c: c.id == cred_id, credentials))
@@ -177,8 +176,7 @@ class DataModel(object):
                 services
         """
         checks = []
-        cmd = "SELECT * FROM service_check" 
-        check_rows = db.get(cmd)
+        check_rows = db.getall('service_check')
         for check_id, name, check_string, \
             poller_string, service_id in check_rows:
 
@@ -209,7 +207,7 @@ class DataModel(object):
             List(Service): A list of services
         """
         services = []
-        service_rows = db.get("SELECT * FROM service")
+        service_rows = db.getall('service')
         for service_id, host, port in service_rows:
             schecks = []
             for check, sid in checks:
@@ -239,8 +237,6 @@ class DataModel(object):
         """
         Update self.results with any results not yet loaded from the database.
         """
-        cmd = ("SELECT * FROM result WHERE id > %s ORDER BY time ASC")
-
         if self.results is None:
             last_id = 0
             self.results = {}
@@ -256,7 +252,8 @@ class DataModel(object):
                 print(last_ids)
                 last_id = max(last_ids)
 
-        rows = db.get(cmd, (last_id))
+        rows = db.get('result', ['*'], where='id > %s',
+                      orderby='time ASC', args=(last_id))
 
         # Gather the results
         for result_id, check_id, check_io_id, team_id, time, poll_input, poll_result, result in rows:
@@ -283,14 +280,3 @@ class DataModel(object):
                 self.results[team_id][check_id] = []
 
             self.results[team_id][check_id].append(res)
-
-    def update_setting(self, key, value):
-        """
-        Update the value of a setting in the database.
-
-        Arguments:
-            key (str): The setting to change
-            value (str): The value to change the setting to
-        """
-        cmd = "UPDATE settings SET value=%s WHERE skey=%s"
-        db.execute(cmd, (value, key))

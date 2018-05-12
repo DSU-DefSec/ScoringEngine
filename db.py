@@ -167,3 +167,9 @@ def insert(table, columns, args):
     cmd += ' VALUES (%s)' % vals
     id = db.execute(cmd, args)
     return id
+
+def modify(table, set, args, where=None):
+    cmd = 'UPDATE %s SET %s' % (table, set)
+    if where is not None:
+        cmd += ' WHERE %s' % where
+    db.execute(cmd, args)
