@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import sys
 import json
-import pickle
 from engine.model import *
 from dm import DataManager
 from dm import load_module
@@ -195,11 +194,10 @@ def parse_poll_inputs(contents):
         validate.input_class(input_class_str)
         validate.jsondata(args)
 
-        input_class = load_module(input_class_str)
         args = json.loads(args)
-        input = input_class(*args)
+        input = [input_class_str, args]
         
-        poll_inputs[id] = pickle.dumps(input)
+        poll_inputs[id] = json.dumps(input)
     return poll_inputs
 
 

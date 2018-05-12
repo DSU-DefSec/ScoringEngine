@@ -1,7 +1,6 @@
 import random
 import copy
 import db
-import pickle
 from threading import Thread
 
 class Team(object):
@@ -197,8 +196,8 @@ class Check(object):
         cmd = ("INSERT INTO result (check_id, check_io_id, team_id, "
 	       "time, poll_input, poll_result, result) "
                "VALUES (%s, %s, %s, NOW(), %s, %s, %s)")
-        poll_input = pickle.dumps(poll_input)
-        poll_result = pickle.dumps(poll_result)
+        poll_input = json.dumps(poll_input, default=poll_input.serialize)
+        poll_result = json.dumps(poll_result, default=poll_result.serialize)
         db.execute(cmd, (self.id, check_io_id, team_id, 
                          poll_input, poll_result, result))
 

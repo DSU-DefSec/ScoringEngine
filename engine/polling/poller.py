@@ -20,6 +20,9 @@ class PollInput(object):
         del attrs['port']
         return attrs
 
+    def serialize(self, obj):
+        class_str = '%s.%s' % (self.__module__, self.__class__.__name__)
+        return [class_str, self.__dict__]
 
     def __str__(self):
         return str(self.attrs())
@@ -37,6 +40,10 @@ class PollResult(object):
         attrs = copy.copy(self.__dict__)
         del attrs['exception']
         return attrs
+
+    def serialize(self, obj):
+        class_str = '%s.%s' % (self.__module__, self.__class__.__name__)
+        return [class_str, self.__dict__]
 
     def __str__(self):
         return str(self.attrs())
