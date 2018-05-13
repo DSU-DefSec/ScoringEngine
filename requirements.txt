@@ -3,3 +3,4 @@ requests
 dnspython
 paramiko
 matplotlib
+pymysql
