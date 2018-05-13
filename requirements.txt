@@ -1,0 +1,12 @@
+dnspython
+paramiko
+pysmb
+pymysql
+pymssql
+pyldap
+requests
+Flask
+flask-login
+flask-wtf
+matplotlib
+bcrypt
