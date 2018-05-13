@@ -9,7 +9,7 @@ class WebModel(DataModel):
 
     def load_db(self):
         """
-        Load all data from the database, including web-specific data."
+        Load all data from the database, including web-specific data.
         """
         super().load_db()
         self.users = self.load_web_users(self.teams)
@@ -22,8 +22,7 @@ class WebModel(DataModel):
             teams (Dict(int->Team)): Mapping of team database IDs to Teams
 
         Returns:
-            Dict(str->User): Mapping of usernames to User objects for users who
-                can login to the web application.
+            Dict(str->User): Mapping of usernames to User objects for users who can login to the web application.
         """
         users = {}
         user_rows = db.get('users', ['username', 'team_id', 'is_admin'])
@@ -41,7 +40,7 @@ class WebModel(DataModel):
         Gather the latest results for each team/check combo.
 
         Returns:
-            results (Dict(int->Dict(int->(Result)))): A mapping of each team and check to its latest result
+            Dict(int->Dict(int->(Result))): A mapping of each team and check to its latest result
         """
         self.load_results()
         results = {}
@@ -92,7 +91,7 @@ class WebModel(DataModel):
             username (str): The username to get the hash for
 
         Returns:
-            (str): The password hash
+            str: The password hash
         """
         username = username.lower()
         hash_rows = db.get('users', ['password'], where='username=%s',

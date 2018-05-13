@@ -15,12 +15,10 @@ def write_teams(teams):
     Write the given teams to the database.
 
     Arguments:
-        teams (Dict(int->Team args)): A mapping of team config IDs to team
-            initialization arguments
+        teams (Dict(int->Team args)): A mapping of team config IDs to team initialization arguments
 
     Returns:
-        Dict(int->int): A mapping of team config IDs to 
-            team database IDs
+        Dict(int->int): A mapping of team config IDs to team database IDs
     """
     team_ids = {}
     for id, team in teams.items():
@@ -57,12 +55,10 @@ def write_domains(domains):
     Write the given domains to the database.
 
     Arguments:
-        domains (Dict(int->Domain args)): A mapping of domain config IDs to
-            domain initialization arguments
+        domains (Dict(int->Domain args)): A mapping of domain config IDs to domain initialization arguments
 
     Returns:
-        Dict(int->int): A mapping of domain config IDs to
-            domain database IDs
+        Dict(int->int): A mapping of domain config IDs to domain database IDs
     """
     domain_ids = {}
     for id, domain in domains.items():
@@ -75,12 +71,10 @@ def write_services(services):
     Write the given services to the database.
 
     Arguments:
-        services (Dict(int->Service args)): A mapping of service config IDs to
-            service initialization arguments
+        services (Dict(int->Service args)): A mapping of service config IDs to service initialization arguments
 
     Returns:
-        Dict(int->int): A mapping of service config IDs to 
-            service database IDs
+        Dict(int->int): A mapping of service config IDs to service database IDs
     """
     service_ids = {}
     for id, service in services.items():
@@ -93,14 +87,11 @@ def write_checks(checks, service_ids):
     Write the given checks to the database.
 
     Arguments:
-        checks (Dict(int->Check args)): A mapping of check config IDs to check 
-            initialization arguments
-        service_ids (Dict(int->int)): A mapping of service config IDs to 
-            service database IDs
+        checks (Dict(int->Check args)): A mapping of check config IDs to check initialization arguments
+        service_ids (Dict(int->int)): A mapping of service config IDs to service database IDs
 
     Returns:
-        Dict(int->int): A mapping of check config IDs to 
-            check database IDs
+        Dict(int->int): A mapping of check config IDs to check database IDs
     """
     check_ids = {}
     for id, check in checks.items():
@@ -118,17 +109,12 @@ def write_check_ios(check_ios, poll_inputs, check_ids):
     Write the given input-output pairs to the database.
 
     Arguments:
-        check_ios (Dict(int->CheckIO args)): A mapping of check input-output
-            pair config IDs to check input-output pair initializaiton
-            arguments
-        poll_inputs (Dict(int->Serialized PollInput)): A mapping of poll
-            input config IDs to serialized poll inputs
-        check_ids (Dict(int->int)): A mapping of check config IDs to 
-            check database IDs
+        check_ios (Dict(int->CheckIO args)): A mapping of check input-output pair config IDs to check input-output pair initializaiton arguments
+        poll_inputs (Dict(int->Serialized PollInput)): A mapping of poll input config IDs to serialized poll inputs
+        check_ids (Dict(int->int)): A mapping of check config IDs to check database IDs
 
     Returns:
-        Dict(int->int): A mapping of check input-output pair config IDs
-            to check input-output pair database IDs
+        Dict(int->int): A mapping of check input-output pair config IDs to check input-output pair database IDs
     """
     check_io_ids = {}
     for id, check_io in check_ios.items():

@@ -8,12 +8,10 @@ class EngineModel(DataModel):
         Load check input-output pairs from the database.
 
         Arguments:
-            credentials (List(Credential)): List of credentials to associate
-            input-output pairs with
+            credentials (List(Credential)): List of credentials to associate input-output pairs with
 
         Returns:
-            Dict(int->List(CheckIO)): Mapping of check IDs to a list of
-                check input-output pairs
+            Dict(int->List(CheckIO)): Mapping of check IDs to a list of check input-output pairs
         """
         check_ios = super().load_check_ios(credentials)
         for check_id,cios in check_ios.items():

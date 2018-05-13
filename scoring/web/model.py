@@ -24,6 +24,6 @@ class User(UserMixin):
         Get the ID of the user.
 
         Returns:
-            (str): A unicode identifier for the user
+            str: A unicode identifier for the user
         """
         return self.id

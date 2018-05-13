@@ -8,7 +8,6 @@ Welcome to Scoring Engine's documentation!
 
 .. toctree::
    :caption: Contents:
-   :maxdepth: 2
    :glob:
 
    source/*

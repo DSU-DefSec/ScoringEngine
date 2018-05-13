@@ -112,12 +112,10 @@ class DataModel(object):
         List(input_class_str, Dict(attr->value)).
 
         Arguments:
-            credentials (List(Credential)): List of credentials to associate
-            input-output pairs with
+            credentials (List(Credential)): List of credentials to associate input-output pairs with
 
         Returns:
-            Dict(int->List(CheckIO)): Mapping of check IDs to a list of
-                check input-output pairs
+            Dict(int->List(CheckIO)): Mapping of check IDs to a list of check input-output pairs
         """
         check_ios = {}
    
@@ -151,12 +149,10 @@ class DataModel(object):
         Load checks from the database.
 
         Arguments:
-            check_ios (Dict(int->List(CheckIO))): Mapping of check IDs to a
-                list of check input-output pairs to associate checks with 
+            check_ios (Dict(int->List(CheckIO))): Mapping of check IDs to a list of check input-output pairs to associate checks with 
 
         Returns:
-            List(Check,int): A list of checks and the ID of their associated
-                services
+            List(Check,int): A list of checks and the ID of their associated services
         """
         checks = []
         check_rows = db.getall('service_check')
@@ -218,7 +214,7 @@ class DataModel(object):
     
     def load_results(self):
         """
-        Update self.results with any results not yet loaded from the database.
+        Update results with any results not yet loaded from the database.
         """
         if self.results is None:
             last_id = 0

@@ -10,7 +10,7 @@ def connect():
     credentials and host.
 
     Returns:
-        (Connection): A connection to the database
+        Connection: A connection to the database
     """
     connection = pymysql.connect(host=host, 
             user=user, password=password)
@@ -28,7 +28,7 @@ def get(table, columns, where=None, orderby=None, args=None):
         args (Tuple(str)): Optional, arguments for a prepared statement
 
     Returns:
-        (List(List(object))): List of rows which match the SELECT statement
+        List(List(object)): List of rows which match the SELECT statement
     """
     # Build command
     columns = ','.join(columns)
@@ -56,7 +56,7 @@ def getall(table):
         table (str): The table to get rows from
 
     Returns:
-        (List(List(object))): List of all rows in the table
+        List(List(object)): List of all rows in the table
     """
     rows = get(table, ['*'])
     return rows
@@ -70,7 +70,7 @@ def execute(cmd, args=None):
         args (Tuple(str)): Optional, arguments for a prepared statement
 
     Returns:
-        (int): The ID of the last row created or modified by the command
+        int: The ID of the last row created or modified by the command
     """
     connection = connect()
     with connection.cursor() as cursor:
@@ -114,7 +114,7 @@ def insert(table, columns, args):
         args (List(str)): List of pieces of data corresponding to the columns
 
     Returns:
-        (int): The ID of the row
+        int: The ID of the inserted row 
     """
     columns = ','.join(columns)
     vals = ', '.join(['%s']*len(args))
@@ -124,6 +124,14 @@ def insert(table, columns, args):
     return id
 
 def modify(table, set, args, where=None):
+    """
+    Modify the given columns in the given table matching the given criteria.
+
+    Arguments:
+        table (str): The table to modify
+        set (str): The fields to modify (field1=%s, field2=%s)
+        where (str): The matching criteria
+    """
     cmd = 'UPDATE %s SET %s' % (table, set)
     if where is not None:
         cmd += ' WHERE %s' % where

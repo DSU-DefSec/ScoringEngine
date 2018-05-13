@@ -84,8 +84,7 @@ class Service(object):
 
     def check(self, teams):
         """
-        Conduct all checks on this service for every given team
-        in parallel.
+        Conduct all checks on this service for every given team in parallel.
         
         Arguments:
             teams (List(Team)): The teams to run checks on
@@ -97,8 +96,7 @@ class Service(object):
 
     def get_ip(self, subnet):
         """
-        Calculate an IP from the given subnet and this
-        service's host number.
+        Calculate an IP from the given subnet and this service's host number.
 
         Arguments:
             subnet (IP): The subnet used to calculate the IP
@@ -119,12 +117,9 @@ class Check(object):
     Attributes:
         id (int): The ID of the check in the database
         name (str): The display name of the check
-        check_function (PollResult, List or Dict -> bool): The function
-            used to check the output of the poller
-        check_ios (List(CheckIO): All of the possible input-output pairs
-            which can be used with this check
-        poller (Poller): The poller used to run this check against the
-            service
+        check_function ((PollResult, List or Dict) -> bool): The function used to check the output of the poller
+        check_ios (List(CheckIO)): All of the possible input-output pairs which can be used with this check
+        poller (Poller): The poller used to run this check against the service
         service (Service): The service this check is for
     """
 
@@ -157,8 +152,7 @@ class Check(object):
         Conduct a check against a single team and store the result.
         
         Arguments:
-            check_io (CheckIO): The ID of the check input-output pair
-                used in the check
+            check_io (CheckIO): The ID of the check input-output pair used in the check
             poll_input (PollInput): The input to the poller
             expected (List or Dict): The expected output from the poller
         """
@@ -210,8 +204,7 @@ class CheckIO(object):
         id (int): The ID of the input-output pair in the database
         poll_input (PollInput): The input to be used in the check
         expected (List or Dict): The output expected from the check
-        credentials (List(Credential)): All of the possible credentials to
-            be combined with the poll input
+        credentials (List(Credential)): All of the possible credentials to be combined with the poll input
         check (Check): The check this input-output pair is for
     """
     

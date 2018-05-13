@@ -4,6 +4,15 @@ import matplotlib
 from datetime import datetime
 
 def plot_results(results):
+    """
+    Generate an image plotting check uptime.
+
+    Arguments:
+        results (List(Result)): An chronological list of results for a check
+
+    Returns:
+        str: The filename of the generated image
+    """
     dates = []
     ys = []
     for result in results:
