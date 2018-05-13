@@ -8,7 +8,7 @@ setup(name='ScoringEngine',
     author='Nic Mews-Schmuck',
     author_email='nems608@gmail.com',
     license='TODO',
-    packages=['ScoringEngine'],
+    packages=['.'],
     zip_safe=False,
     install_requires=[],
 )
