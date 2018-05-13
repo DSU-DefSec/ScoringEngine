@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from setuptools import setup
 
 setup(name='scoring',
     version='0.1',
