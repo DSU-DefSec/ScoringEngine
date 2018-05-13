@@ -17,7 +17,7 @@ app = Flask(__name__)
 app.secret_key = 'this is a secret'
 
 wm = WebModel()
-wm.load_db()
+#wm.load_db()
 
 login_manager = LoginManager()
 login_manager.init_app(app)

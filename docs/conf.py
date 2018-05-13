@@ -165,7 +165,7 @@ texinfo_documents = [
 # -- Extension configuration -------------------------------------------------
 
 import sys
-from mock import Mock as MagicMock
+from unittest.mock import MagicMock
 
 class Mock(MagicMock):
     @classmethod
@@ -173,8 +173,8 @@ class Mock(MagicMock):
         return MagicMock()
 
 MOCK_MODULES = [
-    'dnspython',
-    'paramiko',
+#    'dnspython',
+#    'paramiko',
     'pysmb',
     'pymysql',
     'pymssql',
@@ -183,7 +183,7 @@ MOCK_MODULES = [
     'Flask',
     'flask-login',
     'flask-wtf',
-    'matplotlib',
+#    'matplotlib',
     'bcrypt',
 ]
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
