@@ -1,7 +1,7 @@
-scoring
-=======
+ScoringEngine
+=============
 
 .. toctree::
    :maxdepth: 4
 
-   scoring
+   ScoringEngine

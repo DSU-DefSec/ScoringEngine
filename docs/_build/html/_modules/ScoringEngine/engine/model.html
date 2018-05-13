@@ -1,0 +1,529 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ScoringEngine.engine.model &mdash; Scoring Engine  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Scoring Engine
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/ScoringEngine.html">ScoringEngine package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/ScoringEngine.engine.html">ScoringEngine.engine package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/ScoringEngine.engine.checker.html">ScoringEngine.engine.checker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/ScoringEngine.engine.polling.html">ScoringEngine.engine.polling package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/ScoringEngine.web.html">ScoringEngine.web package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">ScoringEngine</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Scoring Engine</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>ScoringEngine.engine.model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ScoringEngine.engine.model</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">db</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="k">import</span> <span class="n">Thread</span>
+
+<div class="viewcode-block" id="Team"><a class="viewcode-back" href="../../../source/ScoringEngine.engine.html#ScoringEngine.engine.model.Team">[docs]</a><span class="k">class</span> <span class="nc">Team</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Team in the competition.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        id (int): ID of the team in the database</span>
+<span class="sd">        name (str): Name of the team</span>
+<span class="sd">        subnet (IP): Subnet of the team</span>
+<span class="sd">        netmask (IP): Netmask of the subnet</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">subnet</span><span class="p">,</span> <span class="n">netmask</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subnet</span> <span class="o">=</span> <span class="n">subnet</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">netmask</span> <span class="o">=</span> <span class="n">netmask</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
+
+
+<div class="viewcode-block" id="Domain"><a class="viewcode-back" href="../../../source/ScoringEngine.engine.html#ScoringEngine.engine.model.Domain">[docs]</a><span class="k">class</span> <span class="nc">Domain</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An Active Directory domain.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        id (int): ID of the domain in the database</span>
+<span class="sd">        domain (str): First part of the FQDN</span>
+<span class="sd">        fqdn (str): The fully qualified domain name of the domain</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">fqdn</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">fqdn</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fqdn</span> <span class="o">=</span> <span class="n">fqdn</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fqdn</span></div>
+
+
+<div class="viewcode-block" id="Credential"><a class="viewcode-back" href="../../../source/ScoringEngine.engine.html#ScoringEngine.engine.model.Credential">[docs]</a><span class="k">class</span> <span class="nc">Credential</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Credential used to log in to a service.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        id (int): The ID of the credential in the database</span>
+<span class="sd">        username (str): The username used to log in</span>
+<span class="sd">        password (str): The password used to log in</span>
+<span class="sd">        team (Team): The team this credential applies to</span>
+<span class="sd">        domain (Domain): The domain this credential applies to</span>
+<span class="sd">        check_io (CheckIO): The input-output pair this credential is for</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">team</span><span class="p">,</span> <span class="n">domain</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">username</span> <span class="o">=</span> <span class="n">username</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="n">password</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">team</span> <span class="o">=</span> <span class="n">team</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="se">\\</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Service"><a class="viewcode-back" href="../../../source/ScoringEngine.engine.html#ScoringEngine.engine.model.Service">[docs]</a><span class="k">class</span> <span class="nc">Service</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Service to be checked.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        id (int): The ID of the service in the database</span>
+<span class="sd">        host (int): The host number of the service</span>
+<span class="sd">        port (int): The port of the service</span>
+<span class="sd">        checks (Check): A list of checks to be run on the service</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">checks</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checks</span> <span class="o">=</span> <span class="n">checks</span>
+
+<div class="viewcode-block" id="Service.check"><a class="viewcode-back" href="../../../source/ScoringEngine.engine.html#ScoringEngine.engine.model.Service.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">teams</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Conduct all checks on this service for every given team</span>
+<span class="sd">        in parallel.</span>
+<span class="sd">        </span>
+<span class="sd">        Arguments:</span>
+<span class="sd">            teams (List(Team)): The teams to run checks on</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">checks</span><span class="p">:</span>
+            <span class="n">thread</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">check</span><span class="o">.</span><span class="n">check</span><span class="p">,</span>
+                            <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">teams</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+            <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Service.get_ip"><a class="viewcode-back" href="../../../source/ScoringEngine.engine.html#ScoringEngine.engine.model.Service.get_ip">[docs]</a>    <span class="k">def</span> <span class="nf">get_ip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subnet</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate an IP from the given subnet and this</span>
+<span class="sd">        service&#39;s host number.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            subnet (IP): The subnet used to calculate the IP</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">octets</span> <span class="o">=</span> <span class="n">subnet</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+        <span class="n">octets</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">)</span>
+        <span class="n">ip</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">octets</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ip</span></div>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Check"><a class="viewcode-back" href="../../../source/ScoringEngine.engine.html#ScoringEngine.engine.model.Check">[docs]</a><span class="k">class</span> <span class="nc">Check</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Check to be run against a service.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        id (int): The ID of the check in the database</span>
+<span class="sd">        name (str): The display name of the check</span>
+<span class="sd">        check_function (PollResult, List or Dict -&gt; bool): The function</span>
+<span class="sd">            used to check the output of the poller</span>
+<span class="sd">        check_ios (List(CheckIO): All of the possible input-output pairs</span>
+<span class="sd">            which can be used with this check</span>
+<span class="sd">        poller (Poller): The poller used to run this check against the</span>
+<span class="sd">            service</span>
+<span class="sd">        service (Service): The service this check is for</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">check_function</span><span class="p">,</span> <span class="n">check_ios</span><span class="p">,</span> <span class="n">poller</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_function</span> <span class="o">=</span> <span class="n">check_function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_ios</span> <span class="o">=</span> <span class="n">check_ios</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">poller</span> <span class="o">=</span> <span class="n">poller</span>
+
+<div class="viewcode-block" id="Check.check"><a class="viewcode-back" href="../../../source/ScoringEngine.engine.html#ScoringEngine.engine.model.Check.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">teams</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select a random input-output pair and run a check against all</span>
+<span class="sd">        teams in parallel.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            teams (List(Team)): The list of teams to check</span>
+<span class="sd">            host (int): The host in the team&#39;s subnet to check</span>
+<span class="sd">            port (int): The port of the host to check</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">check_io</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">check_ios</span><span class="p">)</span>
+        <span class="n">poll_inputs</span> <span class="o">=</span> <span class="n">check_io</span><span class="o">.</span><span class="n">get_poll_inputs</span><span class="p">(</span><span class="n">teams</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">poll_input</span> <span class="ow">in</span> <span class="n">poll_inputs</span><span class="p">:</span>
+            <span class="n">thread</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">check_single</span><span class="p">,</span>
+                            <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">check_io</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">poll_input</span><span class="p">,</span><span class="n">check_io</span><span class="o">.</span><span class="n">expected</span><span class="p">))</span>
+            <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Check.check_single"><a class="viewcode-back" href="../../../source/ScoringEngine.engine.html#ScoringEngine.engine.model.Check.check_single">[docs]</a>    <span class="k">def</span> <span class="nf">check_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_io_id</span><span class="p">,</span> <span class="n">poll_input</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Conduct a check against a single team and store the result.</span>
+<span class="sd">        </span>
+<span class="sd">        Arguments:</span>
+<span class="sd">            check_io (CheckIO): The ID of the check input-output pair</span>
+<span class="sd">                used in the check</span>
+<span class="sd">            poll_input (PollInput): The input to the poller</span>
+<span class="sd">            expected (List or Dict): The expected output from the poller</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">max_tries</span> <span class="o">=</span> <span class="mi">5</span> <span class="c1"># TODO make this configurable</span>
+        <span class="n">tries</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">tries</span> <span class="o">&lt;</span> <span class="n">max_tries</span><span class="p">:</span> 
+            <span class="n">tries</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">poll_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">poller</span><span class="o">.</span><span class="n">poll_timed</span><span class="p">(</span><span class="n">poll_input</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">poll_result</span><span class="o">.</span><span class="n">exception</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">poll_result</span><span class="o">.</span><span class="n">exception</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_function</span><span class="p">(</span><span class="n">poll_result</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">team_id</span> <span class="o">=</span> <span class="n">poll_input</span><span class="o">.</span><span class="n">team</span><span class="o">.</span><span class="n">id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_result</span><span class="p">(</span><span class="n">check_io_id</span><span class="p">,</span> <span class="n">team_id</span><span class="p">,</span> <span class="n">poll_input</span><span class="p">,</span>
+                          <span class="n">poll_result</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Check.store_result"><a class="viewcode-back" href="../../../source/ScoringEngine.engine.html#ScoringEngine.engine.model.Check.store_result">[docs]</a>    <span class="k">def</span> <span class="nf">store_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check_io_id</span><span class="p">,</span> <span class="n">team_id</span><span class="p">,</span> <span class="n">poll_input</span><span class="p">,</span>
+                     <span class="n">poll_result</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Store the result of a check in the database.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            check_io_id (int): The ID of the check input-output pair</span>
+<span class="sd">                in the database</span>
+<span class="sd">            team_id (int): The ID of the team checked in the database</span>
+<span class="sd">            poll_input (PollInput): The input with credentials used in</span>
+<span class="sd">                the check</span>
+<span class="sd">            poll_result (PollResult): The output of the poller used in</span>
+<span class="sd">                the check</span>
+<span class="sd">            result (bool): The result of the check</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;INSERT INTO result (check_id, check_io_id, team_id, &quot;</span>
+	       <span class="s2">&quot;time, poll_input, poll_result, result) &quot;</span>
+               <span class="s2">&quot;VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, NOW(), </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="n">poll_input</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">poll_input</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">poll_input</span><span class="o">.</span><span class="n">serialize</span><span class="p">)</span>
+        <span class="n">poll_result</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">poll_result</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">poll_result</span><span class="o">.</span><span class="n">serialize</span><span class="p">)</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">check_io_id</span><span class="p">,</span> <span class="n">team_id</span><span class="p">,</span> 
+                         <span class="n">poll_input</span><span class="p">,</span> <span class="n">poll_result</span><span class="p">,</span> <span class="n">result</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="CheckIO"><a class="viewcode-back" href="../../../source/ScoringEngine.engine.html#ScoringEngine.engine.model.CheckIO">[docs]</a><span class="k">class</span> <span class="nc">CheckIO</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A input-output pair used in a check.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        id (int): The ID of the input-output pair in the database</span>
+<span class="sd">        poll_input (PollInput): The input to be used in the check</span>
+<span class="sd">        expected (List or Dict): The output expected from the check</span>
+<span class="sd">        credentials (List(Credential)): All of the possible credentials to</span>
+<span class="sd">            be combined with the poll input</span>
+<span class="sd">        check (Check): The check this input-output pair is for</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">poll_input</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="n">credentials</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">poll_input</span> <span class="o">=</span> <span class="n">poll_input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expected</span> <span class="o">=</span> <span class="n">expected</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span> <span class="o">=</span> <span class="n">credentials</span>
+
+<div class="viewcode-block" id="CheckIO.get_poll_inputs"><a class="viewcode-back" href="../../../source/ScoringEngine.engine.html#ScoringEngine.engine.model.CheckIO.get_poll_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">get_poll_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">teams</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate team-specific poll inputs from this input-output pair.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            teams (List(Team)): The teams to generate inputs for</span>
+<span class="sd">            host (int): The host in the team&#39;s subnet to check</span>
+<span class="sd">            port (int): The port of the host to check</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">credentials</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_poll_inputs_no_creds</span><span class="p">(</span><span class="n">teams</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_poll_inputs_creds</span><span class="p">(</span><span class="n">teams</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CheckIO.get_poll_inputs_no_creds"><a class="viewcode-back" href="../../../source/ScoringEngine.engine.html#ScoringEngine.engine.model.CheckIO.get_poll_inputs_no_creds">[docs]</a>    <span class="k">def</span> <span class="nf">get_poll_inputs_no_creds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">teams</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate team-specific poll inputs from this input-output pair</span>
+<span class="sd">        which don&#39;t use credentials.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            teams (List(Team)): The teams to generate inputs for</span>
+<span class="sd">            host (int): The host in the team&#39;s subnet to check</span>
+<span class="sd">            port (int): The port of the host to check</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">poll_inputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">team</span> <span class="ow">in</span> <span class="n">teams</span><span class="p">:</span>
+            <span class="n">poll_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_poll_input</span><span class="p">(</span><span class="n">team</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+            <span class="n">poll_inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poll_input</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">poll_inputs</span></div>
+
+<div class="viewcode-block" id="CheckIO.get_poll_inputs_creds"><a class="viewcode-back" href="../../../source/ScoringEngine.engine.html#ScoringEngine.engine.model.CheckIO.get_poll_inputs_creds">[docs]</a>    <span class="k">def</span> <span class="nf">get_poll_inputs_creds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">teams</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate team-specific poll inputs from this input-output pair</span>
+<span class="sd">        which use credentials.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            teams (List(Team)): The teams to generate inputs for</span>
+<span class="sd">            host (int): The host in the team&#39;s subnet to check</span>
+<span class="sd">            port (int): The port of the host to check</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">poll_inputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">credential</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">credentials</span><span class="p">)</span>
+        <span class="n">creds</span> <span class="o">=</span> <span class="p">[</span><span class="n">cred</span> <span class="k">for</span> <span class="n">cred</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span> 
+                 <span class="k">if</span> <span class="n">cred</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">credential</span><span class="o">.</span><span class="n">username</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">creds</span><span class="p">:</span>
+            <span class="n">team</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">team</span>
+            <span class="k">if</span> <span class="n">team</span> <span class="ow">in</span> <span class="n">teams</span><span class="p">:</span>
+                <span class="n">poll_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_poll_input</span><span class="p">(</span><span class="n">team</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+                <span class="n">poll_input</span><span class="o">.</span><span class="n">credentials</span> <span class="o">=</span> <span class="n">c</span>
+                <span class="n">poll_inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poll_input</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">poll_inputs</span></div>
+
+<div class="viewcode-block" id="CheckIO.make_poll_input"><a class="viewcode-back" href="../../../source/ScoringEngine.engine.html#ScoringEngine.engine.model.CheckIO.make_poll_input">[docs]</a>    <span class="k">def</span> <span class="nf">make_poll_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a team-specific poll input from the general one in this</span>
+<span class="sd">        input-output pair</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            team (Team): The team to generate an input for</span>
+<span class="sd">            host (int): The host in the team&#39;s subnet to check</span>
+<span class="sd">            port (int): The port of the host to check</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">poll_input</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">poll_input</span><span class="p">)</span>
+        <span class="n">server</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">get_ip</span><span class="p">(</span><span class="n">team</span><span class="o">.</span><span class="n">subnet</span><span class="p">)</span>
+        <span class="n">poll_input</span><span class="o">.</span><span class="n">server</span> <span class="o">=</span> <span class="n">server</span>
+        <span class="n">poll_input</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
+        <span class="n">poll_input</span><span class="o">.</span><span class="n">team</span> <span class="o">=</span> <span class="n">team</span>
+        <span class="k">return</span> <span class="n">poll_input</span></div></div>
+
+
+<div class="viewcode-block" id="Result"><a class="viewcode-back" href="../../../source/ScoringEngine.engine.html#ScoringEngine.engine.model.Result">[docs]</a><span class="k">class</span> <span class="nc">Result</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The result of a check.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        id (int): The ID of the result in the database</span>
+<span class="sd">        check (Check): The check this result resulted from</span>
+<span class="sd">        check_io (CheckIO): The input-output pair used in the check</span>
+<span class="sd">        team (Team): The team this result is for</span>
+<span class="sd">        poll_input (PollInput): The specific poller input used in the check</span>
+<span class="sd">        poll_result (PollResult): The specific poller output retrieved from</span>
+<span class="sd">            the poller</span>
+<span class="sd">        result (bool): The result of the check</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">check</span><span class="p">,</span> <span class="n">check_io</span><span class="p">,</span> <span class="n">team</span><span class="p">,</span> 
+                 <span class="n">time</span><span class="p">,</span> <span class="n">poll_input</span><span class="p">,</span> <span class="n">poll_result</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check</span> <span class="o">=</span> <span class="n">check</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_io</span> <span class="o">=</span> <span class="n">check_io</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">team</span> <span class="o">=</span> <span class="n">team</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">poll_input</span> <span class="o">=</span> <span class="n">poll_input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">poll_result</span> <span class="o">=</span> <span class="n">poll_result</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">result</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Nic Mews-Schmuck.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>scoring &mdash; Scoring Engine  documentation</title>
+  <title>ScoringEngine &mdash; Scoring Engine  documentation</title>
   
 
   
@@ -28,7 +28,8 @@
     <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="ScoringEngine.web package" href="ScoringEngine.web.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -77,11 +78,19 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">scoring</a></li>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ScoringEngine.html">ScoringEngine package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ScoringEngine.engine.html">ScoringEngine.engine package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ScoringEngine.engine.checker.html">ScoringEngine.engine.checker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ScoringEngine.engine.polling.html">ScoringEngine.engine.polling package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ScoringEngine.web.html">ScoringEngine.web package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ScoringEngine</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ScoringEngine.html">ScoringEngine package</a></li>
 </ul>
-</div>
+</li>
+</ul>
+
             
           
         </div>
@@ -125,7 +134,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>scoring</li>
+      <li>ScoringEngine</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -144,45 +153,46 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="scoring">
-<h1>scoring<a class="headerlink" href="#scoring" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="scoringengine">
+<h1>ScoringEngine<a class="headerlink" href="#scoringengine" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="scoring.html">scoring package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="scoring.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="scoring.engine.html">scoring.engine package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="scoring.engine.html#subpackages">Subpackages</a></li>
-<li class="toctree-l4"><a class="reference internal" href="scoring.engine.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="scoring.engine.html#module-scoring.engine.engine_model">scoring.engine.engine_model module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="scoring.engine.html#module-scoring.engine.model">scoring.engine.model module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="scoring.engine.html#module-scoring.engine.timeout">scoring.engine.timeout module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="scoring.engine.html#module-scoring.engine">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ScoringEngine.html">ScoringEngine package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ScoringEngine.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ScoringEngine.engine.html">ScoringEngine.engine package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ScoringEngine.engine.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ScoringEngine.engine.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ScoringEngine.engine.html#module-ScoringEngine.engine.engine_model">ScoringEngine.engine.engine_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ScoringEngine.engine.html#module-ScoringEngine.engine.model">ScoringEngine.engine.model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ScoringEngine.engine.html#module-ScoringEngine.engine.timeout">ScoringEngine.engine.timeout module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ScoringEngine.engine.html#module-ScoringEngine.engine">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="scoring.web.html">scoring.web package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="scoring.web.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="scoring.web.html#module-scoring.web.decorators">scoring.web.decorators module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="scoring.web.html#module-scoring.web.forms">scoring.web.forms module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="scoring.web.html#module-scoring.web.model">scoring.web.model module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="scoring.web.html#module-scoring.web.plot">scoring.web.plot module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="scoring.web.html#module-scoring.web.score">scoring.web.score module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="scoring.web.html#scoring-web-server-module">scoring.web.server module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="scoring.web.html#module-scoring.web.web_model">scoring.web.web_model module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="scoring.web.html#module-scoring.web">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ScoringEngine.web.html">ScoringEngine.web package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ScoringEngine.web.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ScoringEngine.web.html#module-ScoringEngine.web.decorators">ScoringEngine.web.decorators module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ScoringEngine.web.html#module-ScoringEngine.web.forms">ScoringEngine.web.forms module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ScoringEngine.web.html#module-ScoringEngine.web.model">ScoringEngine.web.model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ScoringEngine.web.html#module-ScoringEngine.web.plot">ScoringEngine.web.plot module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ScoringEngine.web.html#module-ScoringEngine.web.score">ScoringEngine.web.score module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ScoringEngine.web.html#module-ScoringEngine.web.server">ScoringEngine.web.server module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ScoringEngine.web.html#module-ScoringEngine.web.web_model">ScoringEngine.web.web_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ScoringEngine.web.html#module-ScoringEngine.web">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="scoring.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scoring.html#module-scoring.data_model">scoring.data_model module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scoring.html#module-scoring.db">scoring.db module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scoring.html#module-scoring.db_writer">scoring.db_writer module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scoring.html#module-scoring.engine">scoring.engine module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scoring.html#module-scoring.load_config">scoring.load_config module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scoring.html#module-scoring.setup">scoring.setup module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scoring.html#module-scoring.utils">scoring.utils module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scoring.html#module-scoring.validate">scoring.validate module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="scoring.html#module-scoring">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ScoringEngine.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ScoringEngine.html#module-ScoringEngine.data_model">ScoringEngine.data_model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ScoringEngine.html#module-ScoringEngine.db">ScoringEngine.db module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ScoringEngine.html#module-ScoringEngine.db_writer">ScoringEngine.db_writer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ScoringEngine.html#module-ScoringEngine.engine">ScoringEngine.engine module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ScoringEngine.html#module-ScoringEngine.load_config">ScoringEngine.load_config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ScoringEngine.html#scoringengine-setup-module">ScoringEngine.setup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ScoringEngine.html#module-ScoringEngine.setup_db">ScoringEngine.setup_db module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ScoringEngine.html#module-ScoringEngine.utils">ScoringEngine.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ScoringEngine.html#module-ScoringEngine.validate">ScoringEngine.validate module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ScoringEngine.html#module-ScoringEngine">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -194,6 +204,13 @@
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="ScoringEngine.web.html" class="btn btn-neutral" title="ScoringEngine.web package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

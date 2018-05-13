@@ -1,0 +1,322 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ScoringEngine.web.web_model &mdash; Scoring Engine  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Scoring Engine
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/ScoringEngine.html">ScoringEngine package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/ScoringEngine.engine.html">ScoringEngine.engine package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/ScoringEngine.engine.checker.html">ScoringEngine.engine.checker package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/ScoringEngine.engine.polling.html">ScoringEngine.engine.polling package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/ScoringEngine.web.html">ScoringEngine.web package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">ScoringEngine</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Scoring Engine</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>ScoringEngine.web.web_model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ScoringEngine.web.web_model</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">db</span>
+<span class="kn">from</span> <span class="nn">data_model</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">web.model</span> <span class="k">import</span> <span class="n">User</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">bcrypt</span>
+
+<div class="viewcode-block" id="WebModel"><a class="viewcode-back" href="../../../source/ScoringEngine.web.html#ScoringEngine.web.web_model.WebModel">[docs]</a><span class="k">class</span> <span class="nc">WebModel</span><span class="p">(</span><span class="n">DataModel</span><span class="p">):</span>
+
+<div class="viewcode-block" id="WebModel.load_db"><a class="viewcode-back" href="../../../source/ScoringEngine.web.html#ScoringEngine.web.web_model.WebModel.load_db">[docs]</a>    <span class="k">def</span> <span class="nf">load_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load all data from the database, including web-specific data.&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load_db</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">users</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_web_users</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">teams</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WebModel.load_web_users"><a class="viewcode-back" href="../../../source/ScoringEngine.web.html#ScoringEngine.web.web_model.WebModel.load_web_users">[docs]</a>    <span class="k">def</span> <span class="nf">load_web_users</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">teams</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load the web application users from the database.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            teams (Dict(int-&gt;Team)): Mapping of team database IDs to Teams</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dict(str-&gt;User): Mapping of usernames to User objects for users who</span>
+<span class="sd">                can login to the web application.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">users</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">user_rows</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;users&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;team_id&#39;</span><span class="p">,</span> <span class="s1">&#39;is_admin&#39;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">user</span><span class="p">,</span><span class="n">team_id</span><span class="p">,</span><span class="n">is_admin</span> <span class="ow">in</span> <span class="n">user_rows</span><span class="p">:</span>
+            <span class="n">teams_match</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">team_id</span><span class="p">,</span> <span class="n">teams</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">teams_match</span><span class="p">):</span>
+                <span class="n">team</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">team</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">teams_match</span><span class="p">)</span>
+            <span class="n">users</span><span class="p">[</span><span class="n">user</span><span class="p">]</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">team</span><span class="p">,</span> <span class="n">is_admin</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">users</span></div>
+
+<div class="viewcode-block" id="WebModel.latest_results"><a class="viewcode-back" href="../../../source/ScoringEngine.web.html#ScoringEngine.web.web_model.WebModel.latest_results">[docs]</a>    <span class="k">def</span> <span class="nf">latest_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gather the latest results for each team/check combo.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            results (Dict(int-&gt;Dict(int-&gt;(Result)))): A mapping of each team and check to its latest result</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_results</span><span class="p">()</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">team</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">teams</span><span class="p">:</span>
+            <span class="n">results</span><span class="p">[</span><span class="n">team</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">checks</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">team</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">check</span><span class="o">.</span><span class="n">id</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">team</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">check</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">results</span><span class="p">[</span><span class="n">team</span><span class="o">.</span><span class="n">id</span><span class="p">][</span><span class="n">check</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span>
+        <span class="k">return</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="WebModel.change_passwords"><a class="viewcode-back" href="../../../source/ScoringEngine.web.html#ScoringEngine.web.web_model.WebModel.change_passwords">[docs]</a>    <span class="k">def</span> <span class="nf">change_passwords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">team_id</span><span class="p">,</span> <span class="n">domain_id</span><span class="p">,</span> <span class="n">service_id</span><span class="p">,</span> <span class="n">pwchange</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change the passwords for the given credentials.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            team_id (int): The ID of the team the credential belongs to</span>
+<span class="sd">            domain_id (int): The ID of the domain the credential belongs to</span>
+<span class="sd">            service_id (int): The ID of the service the credential belongs to</span>
+<span class="sd">            pwchange (str): A series of user:pass combos separated by CRLFs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pwchange</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">pwchange</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">&#39;</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">pwchange</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">username</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;\s+&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">password</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;\s+&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+                <span class="n">db</span><span class="o">.</span><span class="n">set_credential_password</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">team_id</span><span class="p">,</span>
+                                           <span class="n">service_id</span><span class="p">,</span> <span class="n">domain_id</span><span class="p">)</span></div>
+       
+<div class="viewcode-block" id="WebModel.change_user_password"><a class="viewcode-back" href="../../../source/ScoringEngine.web.html#ScoringEngine.web.web_model.WebModel.change_user_password">[docs]</a>    <span class="k">def</span> <span class="nf">change_user_password</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">newpw</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the given user&#39;s password to the given password.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            username (str): The user to change the password for</span>
+<span class="sd">            newpw (str): The new password</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">newpw</span> <span class="o">=</span> <span class="n">newpw</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="n">pwhash</span> <span class="o">=</span> <span class="n">bcrypt</span><span class="o">.</span><span class="n">hashpw</span><span class="p">(</span><span class="n">newpw</span><span class="p">,</span> <span class="n">bcrypt</span><span class="o">.</span><span class="n">gensalt</span><span class="p">())</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="s1">&#39;users&#39;</span><span class="p">,</span> <span class="s1">&#39;password=</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">pwhash</span><span class="p">,</span> <span class="n">username</span><span class="p">),</span>
+                  <span class="n">where</span><span class="o">=</span><span class="s1">&#39;username=</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WebModel.get_user_password"><a class="viewcode-back" href="../../../source/ScoringEngine.web.html#ScoringEngine.web.web_model.WebModel.get_user_password">[docs]</a>    <span class="k">def</span> <span class="nf">get_user_password</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the password hash for the given user.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            username (str): The username to get the hash for</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            (str): The password hash</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">username</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">hash_rows</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;users&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">],</span> <span class="n">where</span><span class="o">=</span><span class="s1">&#39;username=</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
+                           <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">username</span><span class="p">))</span>
+        <span class="n">pwhash</span> <span class="o">=</span> <span class="n">hash_rows</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">pwhash</span></div>
+
+<div class="viewcode-block" id="WebModel.update_setting"><a class="viewcode-back" href="../../../source/ScoringEngine.web.html#ScoringEngine.web.web_model.WebModel.update_setting">[docs]</a>    <span class="k">def</span> <span class="nf">update_setting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the value of a setting in the database.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            key (str): The setting to change</span>
+<span class="sd">            value (str): The value to change the setting to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">modify</span><span class="p">(</span><span class="s1">&#39;settings&#39;</span><span class="p">,</span> <span class="s1">&#39;value=</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">key</span><span class="p">),</span> <span class="n">where</span><span class="o">=</span><span class="s1">&#39;skey=</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Nic Mews-Schmuck.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
