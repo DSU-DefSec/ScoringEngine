@@ -165,7 +165,7 @@ texinfo_documents = [
 # -- Extension configuration -------------------------------------------------
 
 import sys
-from unittest.mock import MagicMock
+from mock import Mock as MagicMock
 
 class Mock(MagicMock):
     @classmethod
@@ -179,7 +179,7 @@ MOCK_MODULES = [
     'pymysql',
     'pymssql',
     'pyldap',
-    'requests',
+#    'requests',
     'Flask',
     'flask-login',
     'flask-wtf',
