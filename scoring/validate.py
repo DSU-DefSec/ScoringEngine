@@ -1,5 +1,5 @@
 #!/bin/python
-from utils import load_module
+from .utils import load_module
 import json
 import re
 

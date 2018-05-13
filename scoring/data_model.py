@@ -1,7 +1,7 @@
-from utils import load_module
+from .utils import load_module
 import json
-import db
-from engine.model import *
+from . import db
+from .engine.model import *
 
 class DataModel(object):
 

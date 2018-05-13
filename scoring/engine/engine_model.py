@@ -1,4 +1,4 @@
-from data_model import *
+from ..data_model import *
 import json
 
 class EngineModel(DataModel):

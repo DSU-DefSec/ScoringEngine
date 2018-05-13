@@ -1,6 +1,6 @@
 import random
 import copy
-import db
+from .. import db
 from threading import Thread
 
 class Team(object):

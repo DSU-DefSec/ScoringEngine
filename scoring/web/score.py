@@ -1,4 +1,4 @@
-import db
+from .. import db
 
 def get_results_list():
     """

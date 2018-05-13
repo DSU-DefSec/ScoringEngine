@@ -7,7 +7,7 @@ from urllib.parse import urlparse, urljoin
 from .forms import *
 from . import plot
 from . import score
-import validate
+from .. import validate
 import flask_login
 from flask_login import LoginManager, login_user, logout_user, login_required
 from .model import User

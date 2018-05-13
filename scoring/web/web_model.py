@@ -1,6 +1,6 @@
-import db
-from data_model import *
-from web.model import User
+from .. import db
+from ..data_model import *
+from .model import User
 import json
 import re
 import bcrypt
