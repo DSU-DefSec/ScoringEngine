@@ -173,18 +173,5 @@ class Mock(MagicMock):
     def __getattr__(cls, name):
         return MagicMock()
 
-MOCK_MODULES = [
-#    'dnspython',
-#    'paramiko',
-    'pysmb',
-    'pymysql',
-    'pymssql',
-    'pyldap',
-#    'requests',
-    'Flask',
-    'flask-login',
-    'flask-wtf',
-#    'matplotlib',
-    'bcrypt',
-]
+MOCK_MODULES = ['pysmb', 'pymysql', 'pymssql', 'pyldap', 'Flask', 'flask-login', 'flask-wtf', 'bcrypt']
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
