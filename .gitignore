@@ -5,3 +5,6 @@ __pycache__
 checkfiles/*
 !checkfiles/.gitkeep
 static/imgs/*.png
+docs/_build/*
+docs/_static/*
+docs/_templates/*

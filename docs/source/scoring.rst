@@ -52,10 +52,10 @@ scoring.load\_config module
     :undoc-members:
     :show-inheritance:
 
-scoring.setup module
---------------------
+scoring.setup\_db module
+------------------------
 
-.. automodule:: scoring.setup
+.. automodule:: scoring.setup_db
     :members:
     :undoc-members:
     :show-inheritance:
