@@ -129,7 +129,7 @@ def competition():
             running = True
         elif request.form['running'] == 'Stop':
             running = False
-        wms;dlkjf.update_setting('running', running)
+        wm.update_setting('running', running)
     return render_template('competition.html', running=running)
 
 @app.route('/login', methods=['GET', 'POST'])
