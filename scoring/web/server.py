@@ -17,7 +17,7 @@ app = Flask(__name__)
 app.secret_key = 'this is a secret'
 
 wm = WebModel()
-#wm.load_db()
+wm.load_db()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -37,6 +37,9 @@ def is_safe_url(target):
 @app.route('/')
 @app.route('/status')
 def status():
+    """
+    Render the main status page.
+    """
     teams = wm.teams
     checks = wm.checks
     results = wm.latest_results()
@@ -47,6 +50,9 @@ def status():
 @login_required
 @admin_required
 def scores():
+    """
+    Render a page showing scores for each team.
+    """
     teams = wm.teams
     checks = wm.checks
     team_ids = [t.id for t in teams]
@@ -59,6 +65,9 @@ def scores():
 @login_required
 @admin_required
 def credentials():
+    """
+    Render a page showing all of the credentials for the team given by a GET parameter.
+    """
     wm.reload_credentials()
     team_id = int(request.args.get('tid'))
     team = next(filter(lambda t: t.id == team_id, wm.teams))
@@ -69,6 +78,9 @@ def credentials():
 @app.route('/bulk', methods=['GET', 'POST'])
 @login_required
 def bulk():
+    """
+    Render the bulk password change request form.
+    """
     form = PasswordChangeForm(dm)
     success = False
     if request.method == 'POST':
@@ -91,6 +103,9 @@ def bulk():
 @login_required
 @admin_required
 def result_log():
+    """
+    Render the log of all of the checks for the team and check given by GET parameters.
+    """
     wm.reload_credentials()
     wm.load_results()
 
@@ -105,17 +120,23 @@ def result_log():
 @login_required
 @admin_required
 def competition():
+    """
+    Render page with a button for starting and stopping the engine.
+    """
     running = wm.settings['running']
     if request.method =='POST':
         if request.form['running'] == 'Start':
             running = True
         elif request.form['running'] == 'Stop':
             running = False
-        wm.update_setting('running', running)
+        wms;dlkjf.update_setting('running', running)
     return render_template('competition.html', running=running)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """
+    Render the user login page.
+    """
     form = LoginForm(dm)
     error = None
     if request.method == 'POST':
@@ -138,12 +159,18 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
+    """
+    Log out the user and redirect them to the status page.
+    """
     logout_user()
     return redirect(flask.url_for('status'))
 
 @app.route('/password_reset', methods=['GET', 'POST'])
 @login_required
 def pw_reset():
+    """
+    Render a password reset form.
+    """
     form = PasswordResetForm(dm)
     success = False
     if request.method == 'POST':
