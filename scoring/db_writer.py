@@ -1,4 +1,5 @@
 import db
+import bcrypt
 
 def write_settings(settings):
     """
@@ -165,7 +166,7 @@ def write_credentials(credentials, team_ids, domain_ids, check_io_ids):
                     if pdomain_id is None:
                         cred_id = db.insert('credential',
                                             ['username', 'password', 'team_id',
-                                             'service_id', 'domain_id'],
+                                             'service_id'],
                                             (user, passwd, team_id, service_id))
                     else:
                         domain_id = domain_ids[pdomain_id]

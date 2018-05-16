@@ -28,9 +28,9 @@ class SshPoller(Poller):
             cli = client.SSHClient()
             cli.load_host_keys('/dev/null')
             cli.set_missing_host_key_policy(client.AutoAddPolicy())
-            cli.connect(poll_input.server, poll_input.port, username, password, timeout=poll_input.timeout)
+            cli.connect(poll_input.server, poll_input.port, username, password)
             if poll_input.task is not None:
-                stdin, stdout, stderr = cli.exec_command(poll_input.task, timeout=poll_input.timeout//2)
+                stdin, stdout, stderr = cli.exec_command(poll_input.task)
                 out = stdout.read().decode('utf-8')
                 err = stderr.read().decode('utf-8')
                 output = (out, err)

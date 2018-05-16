@@ -22,7 +22,12 @@ class PollInput(object):
 
     def serialize(self, obj):
         class_str = '%s.%s' % (self.__module__, self.__class__.__name__)
-        return [class_str, self.__dict__]
+        args = self.__dict__
+        if 'team' in args:
+            args['team'] = args['team'].id
+        if 'credentials' in args:
+            args['credentials'] = args['credentials'].id
+        return [class_str, args]
 
     def __str__(self):
         return str(self.attrs())
@@ -43,7 +48,8 @@ class PollResult(object):
 
     def serialize(self, obj):
         class_str = '%s.%s' % (self.__module__, self.__class__.__name__)
-        return [class_str, self.__dict__]
+        args = self.__dict__
+        return [class_str, args]
 
     def __str__(self):
         return str(self.attrs())

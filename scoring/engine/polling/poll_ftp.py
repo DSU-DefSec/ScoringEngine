@@ -22,7 +22,7 @@ class FtpPollResult(PollResult):
     """
     def __init__(self, file_contents, exceptions):
         super(FtpPollResult, self).__init__(exceptions)
-        self.file_contents = file_contents
+        self.file_contents = file_contents.encode('utf-8')
 
 class FtpPoller(Poller):
     """
@@ -34,7 +34,7 @@ class FtpPoller(Poller):
         ftp = ftplib.FTP()
         t = tempfile.NamedTemporaryFile()
         try:
-            ftp.connect(poll_input.server, poll_input.port, timeout=poll_input.timeout)
+            ftp.connect(poll_input.server, poll_input.port)
             ftp.login(user=username, passwd=password)
             ftp.set_pasv(True)
             ftp.retrbinary('RETR {}'.format(poll_input.filepath), t.write)

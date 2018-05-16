@@ -5,9 +5,8 @@ from .poller import PollInput, PollResult, Poller
 
 class MsSqlPollInput(PollInput):
 
-    def __init__(self, domain, db, query, server=None, port=None):
+    def __init__(self, db, query, server=None, port=None):
         super(MsSqlPollInput, self).__init__(server, port)
-        self.domain = domain
         self.db = db
         self.query = query
 

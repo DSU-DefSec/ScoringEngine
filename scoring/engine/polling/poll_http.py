@@ -16,7 +16,7 @@ class HttpPollResult(PollResult):
 
     def __init__(self, file_contents, exceptions):
         super(HttpPollResult, self).__init__(exceptions)
-        self.file_contents = file_contents
+        self.file_contents = None
 
 class HttpPoller(Poller):
     
@@ -26,7 +26,8 @@ class HttpPoller(Poller):
             server = poll_input.server
             port = poll_input.port
             path = poll_input.path
-            r = requests.get('{}://{}:{}/{}'.format(proto, server, port, path), timeout=poll_input.timeout, verify=False)
+            url = '{}://{}:{}/{}'.format(proto, server, port, path)
+            r = requests.get(url, verify=False)
             r.raise_for_status()
 
             content = re.sub(r'\?[^"]*', '', r.text)

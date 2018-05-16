@@ -1,5 +1,6 @@
 import random
 import copy
+import json
 import db
 from threading import Thread
 
@@ -191,7 +192,13 @@ class Check(object):
 	       "time, poll_input, poll_result, result) "
                "VALUES (%s, %s, %s, NOW(), %s, %s, %s)")
         poll_input = json.dumps(poll_input, default=poll_input.serialize)
-        poll_result = json.dumps(poll_result, default=poll_result.serialize)
+        try:
+            poll_result = json.dumps(poll_result, default=poll_result.serialize)
+        except:
+            print("Dump failed")
+            print(poll_result.__class__.__name__)
+            print(poll_result.__dict__)
+            return
         db.execute(cmd, (self.id, check_io_id, team_id, 
                          poll_input, poll_result, result))
 

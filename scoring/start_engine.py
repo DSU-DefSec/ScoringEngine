@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from dm import DataManager
+from engine.engine_model import EngineModel
 from threading import Thread
 import time, datetime
 import random
@@ -8,17 +8,17 @@ import sys
 class ScoringEngine(object):
 
     def __init__(self, team_num=None):
-        self.dm = DataManager()
-        self.dm.load_db()
-        self.dm.teams.sort(key=lambda t: t.name)
+        self.em = EngineModel()
+        self.em.load_db()
+        self.em.teams.sort(key=lambda t: t.name)
         self.team_num = team_num
 
     def start(self):
         while True:
-            self.dm.load_settings()
-            running = self.dm.settings['running']
-            interval = self.dm.settings['interval']
-            jitter = self.dm.settings['jitter']
+            self.em.load_settings()
+            running = self.em.settings['running']
+            interval = self.em.settings['interval']
+            jitter = self.em.settings['jitter']
 
             if running:
                 self.check()
@@ -35,12 +35,12 @@ class ScoringEngine(object):
 
     def check(self):
         print("New Round of Checks")
-        self.dm.reload_credentials()
-        for service in self.dm.services:
+        self.em.reload_credentials()
+        for service in self.em.services:
             if self.team_num is None:
-                service.check(self.dm.teams)
+                service.check(self.em.teams)
             else:
-                service.check([self.dm.teams[self.team_num]])
+                service.check([self.em.teams[self.team_num]])
 
 
 if __name__ == '__main__':

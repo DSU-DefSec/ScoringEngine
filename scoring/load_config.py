@@ -4,7 +4,7 @@ import json
 from engine.model import *
 import db
 import db_writer
-from utils import load_module
+import utils
 import validate
 
 def load_config(filename):
@@ -194,10 +194,11 @@ def parse_poll_inputs(contents):
         validate.input_class(input_class_str)
         validate.jsondata(args)
 
+        input_class = utils.load_module(input_class_str)
         args = json.loads(args)
-        input = [input_class_str, args]
+        poll_input = input_class(*args)
         
-        poll_inputs[id] = json.dumps(input)
+        poll_inputs[id] = json.dumps(poll_input, default=poll_input.serialize)
     return poll_inputs
 
 
