@@ -19,14 +19,15 @@ class EngineModel(DataModel):
                 poll_input = cio.poll_input
                 input_class_str, input_args = json.loads(poll_input)
                 input_class = load_module(input_class_str)
+                poll_input = input_class.deserialize(input_class, input_args, self.teams, self.credentials)
 
-                if 'team' in input_args:
-                    id = input_args['team']
-                    input_args['team'] = [t for t in self.teams if t.id == id][0]
-                if 'credentials' in input_args:
-                    id = input_args['credentials']
-                    input_args['credentials'] = [c for c in self.credentials if c.id == id][0]
-
-                poll_input = input_class(**input_args)
+#                if 'team' in input_args:
+#                    id = input_args['team']
+#                    input_args['team'] = [t for t in self.teams if t.id == id][0]
+#                if 'credentials' in input_args:
+#                    id = input_args['credentials']
+#                    input_args['credentials'] = [c for c in self.credentials if c.id == id][0]
+#
+#                poll_input = input_class(**input_args)
                 cio.poll_input = poll_input
         return check_ios

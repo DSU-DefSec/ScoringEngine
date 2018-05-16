@@ -32,6 +32,25 @@ class PollInput(object):
     def __str__(self):
         return str(self.attrs())
 
+    def deserialize(input_class, args, teams, credentials):
+        team = None
+        creds = None
+        if 'team' in args:
+            id = args['team']
+            del args['team']
+            team = [t for t in teams if t.id == id][0]
+        if 'credentials' in args:
+            id = args['credentials']
+            del args['credentials']
+            creds = [c for c in credentials if c.id == id][0]
+
+        poll_input = input_class(**args)
+        if team:
+            poll_input.team = team
+        if creds:
+            poll_input.credentials = creds
+        return poll_input
+
 
 class PollResult(object):
     """Wrapper for the results of polling a service.

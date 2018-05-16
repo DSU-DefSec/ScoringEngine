@@ -30,8 +30,10 @@
     </td>
     <td>
     <ul>
-    {% for key, value in r.poll_result.attrs().items() %}
+    {% for key, value in r.poll_result.items() %}
+        {% if key != 'exception' %}
             <li>{{ key }}:{{ value }}</li>
+        {% endif %}
     {% endfor %}
     </ul>
     </td>
@@ -45,7 +47,7 @@
             Fail
         </td>
     {% endif %}
-    <td>{{ r.poll_result.exception }}</td>
+    <td>{{ r.poll_result['exception'] }}</td>
 </tr>
 {% endfor %}
 </tbody>

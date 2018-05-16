@@ -1,6 +1,7 @@
 from .. import db
 from ..data_model import *
 from .model import User
+import utils
 import json
 import re
 import bcrypt
@@ -142,10 +143,14 @@ class WebModel(DataModel):
         for result_id, check_id, check_io_id, team_id, time, poll_input, poll_result, result in rows:
             # Construct the result from the database info
             check = [c for c in self.checks if c.id == check_id][0]
-            check_io = [cio for cio in self.check_ios if cio.id == check_io_id]
+            check_io = [cio for cio in self.check_ios if cio.id == check_io_id][0]
             team = [t for t in self.teams if t.id == team_id][0]
-            poll_input = json.loads(poll_input)
-            poll_result = json.loads(poll_result)
+
+            input_class_str, input_args = json.loads(poll_input)
+            input_class = utils.load_module(input_class_str)
+            poll_input = input_class.deserialize(input_class, input_args, self.teams, self.credentials)
+
+            poll_result = json.loads(poll_result)[1]
 
             res = Result(result_id, check, check_io, team, time, poll_input, poll_result, result)
 

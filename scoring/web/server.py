@@ -113,7 +113,9 @@ def result_log():
     check_id = int(request.args.get('cid'))
     results = sorted(wm.results[team_id][check_id], key= lambda r: r.time, reverse=True)
 
-    fname = plot.plot_results(results) # Results plot
+#    fname = plot.plot_results(results) # Results plot
+    fname = ''
+    print([r.check_io.expected for r in results])
     return render_template('result_log.html', results=results, fname=fname)
 
 @app.route('/competition', methods=['GET', 'POST'])
