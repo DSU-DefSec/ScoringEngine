@@ -2,7 +2,7 @@
 
 import hashlib
 import difflib
-REF_PAGES_DIR = 'checkfiles'
+REF_PAGES_DIR = 'checkfiles/expected'
 
 def direct_match(poll_result, expected):
     if poll_result.file_contents is None:
@@ -11,24 +11,29 @@ def direct_match(poll_result, expected):
 
 
 def hash_match(poll_result, expected):
-    if poll_result.file_contents is None:
+    if poll_result.file_name is None:
         return False
 
+    f = open(poll_result.file_name, 'rb')
+    content = f.read()
+    f.close()
+
     sha1 = hashlib.sha1()
-    sha1.update(poll_result.file_contents)
+    sha1.update(content)
     hex_hash = sha1.hexdigest()
 
     return expected[0] == hex_hash
 
 def diff_match(poll_result, expected):
-    if poll_result.file_contents is None:
+    if poll_result.file_name is None:
         return False
 
-    f = poll_result.file_contents
     tolerance = expected['tolerance']
-    expected_file = open('%s/%s' % (REF_PAGES_DIR, expected['file']), 'r')
 
-    page = [line + '\n' for line in f.split('\n')]
+    f = open(poll_result.file_name, 'r')
+    page = f.readlines()
+
+    expected_file = open('%s/%s' % (REF_PAGES_DIR, expected['file']), 'r')
     expected_page = expected_file.readlines()
     
     diff = difflib.unified_diff(page, expected_page)

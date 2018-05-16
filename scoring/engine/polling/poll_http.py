@@ -1,9 +1,9 @@
 import requests
 from requests.exceptions import *
-import tempfile
 import re
-
 from .poller import PollInput, PollResult, Poller
+from .file_poller import FilePoller
+
 
 class HttpPollInput(PollInput):
 
@@ -14,11 +14,11 @@ class HttpPollInput(PollInput):
 
 class HttpPollResult(PollResult):
 
-    def __init__(self, file_contents, exceptions):
+    def __init__(self, file_name, exceptions):
         super(HttpPollResult, self).__init__(exceptions)
-        self.file_contents = None
+        self.file_name = file_name
 
-class HttpPoller(Poller):
+class HttpPoller(FilePoller):
     
     def poll(self, poll_input):
         try:
@@ -31,7 +31,12 @@ class HttpPoller(Poller):
             r.raise_for_status()
 
             content = re.sub(r'\?[^"]*', '', r.text)
-            result = HttpPollResult(content, None)
+
+            f = self.open_file()
+            f.write(content.encode('utf-8'))
+            f.close()
+
+            result = HttpPollResult(f.name, None)
             return result
         except Exception as e:
             result = HttpPollResult(None, e)

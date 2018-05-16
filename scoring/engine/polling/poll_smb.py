@@ -3,10 +3,10 @@ from smb.base import *
 from smb.smb_structs import *
 from nmb.NetBIOS import NetBIOS
 from smb.SMBConnection import SMBConnection
-import tempfile
 import socket
 
-from .poller import PollInput, PollResult, Poller
+from .poller import PollInput, PollResult
+from .file_poller import FilePoller
 
 class SmbPollInput(PollInput):
 
@@ -18,11 +18,11 @@ class SmbPollInput(PollInput):
 
 class SmbPollResult(PollResult):
 
-    def __init__(self, file_contents, exceptions=None):
+    def __init__(self, file_name, exceptions=None):
         super(SmbPollResult, self).__init__(exceptions)
-        self.file_contents = file_contents
+        self.file_name = file_name
 
-class SmbPoller(Poller):
+class SmbPoller(FilePoller):
 
     def poll(self, poll_input):
         username = poll_input.credentials.username
@@ -36,13 +36,13 @@ class SmbPoller(Poller):
                 conn = SMBConnection(username, password, '', poll_input.hostname, domain.domain)
 
             conn.connect(poll_input.server, poll_input.port)
-            t = tempfile.TemporaryFile()
-            conn.retrieveFile(poll_input.sharename, poll_input.path, t)
+
+            f = self.open_file()
+            conn.retrieveFile(poll_input.sharename, poll_input.path, f)
+            f.close()
             conn.close()
 
-            t.seek(0)
-            content = t.read()
-            result = SmbPollResult(content)
+            result = SmbPollResult(f.name)
             return result
         except Exception as e:
             result = SmbPollResult(None, e)
