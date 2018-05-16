@@ -16,8 +16,8 @@ class PollInput(object):
 
     def attrs(self):
         attrs = copy.copy(self.__dict__)
-        del attrs['server']
-        del attrs['port']
+#        del attrs['server']
+#        del attrs['port']
         return attrs
 
     def serialize(self, obj):
