@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from . import db
+import db
 
 if __name__ == '__main__':
     connection = db.connect()

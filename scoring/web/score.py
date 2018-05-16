@@ -1,21 +1,26 @@
 from .. import db
 
-def get_results_list():
+def get_results_list(team_ids, check_ids):
     """
     Collect the results for all teams on each check
+
+    Arguments:
+        team_ids (List(int)): The IDs of each team
+        check_ids (List(int)): The IDs of each check
 
     Returns:
         Dict(int->Dict(int->List(bool))): A mapping of team IDs and check IDs to a list of boolean results in chronological order
     """
-    cmd = ('SELECT team_id, check_id, time, result FROM result '
-           'ORDER BY time ASC')
-    result_rows = db.get(cmd)
+    # Build results dict
     results = {}
-    for team_id, check_id, time, result in result_rows:
-        if team_id not in results:
-            results[team_id] = {}
-        if check_id not in results[team_id]:
+    for team_id in team_ids:
+        results[team_id] = {}
+        for check_id in check_ids:
             results[team_id][check_id] = []
+
+    # Fill results dict
+    result_rows = db.get('result', ['team_id', 'check_id', 'time', 'result'], orderby='time ASC')
+    for team_id, check_id, time, result in result_rows:
         results[team_id][check_id].append(int(result))
     return results
 
@@ -44,7 +49,13 @@ def uptime(results):
             good_checks = sum(check_results)
             total_good_checks += good_checks
 
-            uptime[team_id][check_id] = round(good_checks/float(checks)*100, 2)
+            if checks == 0:
+                uptime[team_id][check_id] = 0
+            else:
+                uptime[team_id][check_id] = round(good_checks/float(checks)*100, 2)
 
-        uptime[team_id][0] = round(total_good_checks/float(total_checks)*100, 2)
+        if total_checks == 0:
+            uptime[team_id][0] = 0
+        else:
+            uptime[team_id][0] = round(total_good_checks/float(total_checks)*100, 2)
     return uptime

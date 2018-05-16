@@ -1,6 +1,7 @@
 #!/bin/bash
 
 install_common() {
+    sudo apt-get update
     echo "Installing common files..."
     sudo apt-get install -y python3 python3-pip python-dev
     sudo pip3 install -U pip
@@ -23,14 +24,14 @@ install_db() {
 
 install_web() {
     install_common
+    install_engine
     echo "Installing Web..."
     sudo apt-get install -y python3-tk
-    sudo pip3 install Flask flask-login flask-wtf matplotlib bcrypt
+    sudo pip3 install Flask flask-login flask-wtf bcrypt
     echo "Web Installed!"
 }
 
 role=$1
-sudo apt-get update
 
 if [ "$role" == "engine" ]; then
     install_engine

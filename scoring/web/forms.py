@@ -13,11 +13,11 @@ class LoginForm(FlaskForm):
         password (PasswordField): A password field
         wm (WebModel): The web model
     """
+    username = StringField('Username', validators=[InputRequired()])
+    password = PasswordField('Password', validators=[InputRequired()])
 
     def __init__(self, wm):
-        super(LoginForm, self).__init__()
-        username = StringField('Username', validators=[InputRequired()])
-        password = PasswordField('Password', validators=[InputRequired()])
+        super().__init__()
         self.wm = wm
 
     def validate(self):
@@ -30,7 +30,7 @@ class LoginForm(FlaskForm):
         if not super(LoginForm, self).validate():
             return False
 
-        pwhash = self.wm.get_hash(self.username.data)
+        pwhash = self.wm.get_user_password(self.username.data)
         pwhash = pwhash.encode('utf-8')
         passwd = self.password.data.encode('utf-8')
 
@@ -49,27 +49,27 @@ class PasswordChangeForm(FlaskForm):
         pwchange (TextAreaField): Field for inputting password changes
         wm (WebModel): The web model
     """
+    team = SelectField('Team', coerce=int)
+    ctype = SelectField('Credential Type')
+    domain = SelectField('Domain', coerce=int)
+    service = SelectField('Service', coerce=int)
+    pwchange = TextAreaField('Password Changes')
 
     def __init__(self, wm):
         super(PasswordChangeForm, self).__init__()
-        team = SelectField('Team', coerce=int)
-        ctype = SelectField('Credential Type')
-        domain = SelectField('Domain', coerce=int)
-        service = SelectField('Service', coerce=int)
-        pwchange = TextAreaField('Password Changes')
         self.wm = wm
 
         # Add options and validators for each field
-        self.team.choices=[(t.id, t.name) for t in dm.teams]
+        self.team.choices=[(t.id, t.name) for t in wm.teams]
         self.team.validators=[Optional()]
 
         self.ctype.choices=[('Local', 'Local'), ('Domain', 'Domain')]
         self.ctype.validators=[InputRequired()]
         
-        self.domain.choices=[(d.id, d.fqdn) for d in dm.domains]
+        self.domain.choices=[(d.id, d.fqdn) for d in wm.domains]
         self.domain.validators=[Optional()]
 
-        self.service.choices=[(s.id, 'Host: %d, Port: %d' % (s.host, s.port)) for s in dm.services]
+        self.service.choices=[(s.id, 'Host: %d, Port: %d' % (s.host, s.port)) for s in wm.services]
         self.service.validators=[Optional()]
 
         # Regex validator: "user:pass\r\nuser2:pass2"
@@ -88,15 +88,16 @@ class PasswordResetForm(FlaskForm):
         confirm_new_pw (PasswordField): Field to confirm the user's new password
         wm (WebModel): The web model
     """
+    user = SelectField('User', validators=[Optional()])
+    current_pw = PasswordField('Current Password', validators=[Optional()])
+    new_pw = PasswordField('New Password', validators=[InputRequired()])
+    confirm_new_pw = PasswordField('Confirm New Password', validators=[InputRequired()])
 
     def __init__(self, wm):
         super(PasswordResetForm, self).__init__()
-        user = SelectField('User', validators=[Optional()])
-        current_pw = PasswordField('Current Password', validators=[Optional()])
-        new_pw = PasswordField('New Password', validators=[InputRequired()])
-        confirm_new_pw = PasswordField('Confirm New Password', validators=[InputRequired()])
         self.wm = wm
-        self.user.choices=[(username, username) for username in dm.users.keys()]
+        self.user.choices=[(username, username) for username in wm.users.keys()]
+        self.user.choices.sort()
 
     def validate(self):
         """
@@ -121,7 +122,7 @@ class PasswordResetForm(FlaskForm):
             print(username)
             username = username.lower()
     
-            pwhash = self.dm.get_hash(username)
+            pwhash = self.wm.get_user_password(username)
             pwhash = pwhash.encode('utf-8')
             passwd = self.current_pw.data.encode('utf-8')
     

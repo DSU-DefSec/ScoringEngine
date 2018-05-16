@@ -1,4 +1,4 @@
-from . import db
+import db
 
 def write_settings(settings):
     """

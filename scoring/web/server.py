@@ -5,7 +5,7 @@ import flask
 from flask import Flask, render_template, request, redirect
 from urllib.parse import urlparse, urljoin
 from .forms import *
-from . import plot
+#from . import plot
 from . import score
 from .. import validate
 import flask_login
@@ -57,7 +57,7 @@ def scores():
     checks = wm.checks
     team_ids = [t.id for t in teams]
     check_ids = [c.id for c in checks]
-    results = score.get_results_list()
+    results = score.get_results_list(team_ids, check_ids)
     uptime = score.uptime(results)
     return render_template('scores.html', teams=teams, checks=checks, uptime=uptime, results=results, team_ids=team_ids, check_ids=check_ids)
 
@@ -81,7 +81,7 @@ def bulk():
     """
     Render the bulk password change request form.
     """
-    form = PasswordChangeForm(dm)
+    form = PasswordChangeForm(wm)
     success = False
     if request.method == 'POST':
         if form.validate_on_submit():
@@ -137,7 +137,7 @@ def login():
     """
     Render the user login page.
     """
-    form = LoginForm(dm)
+    form = LoginForm(wm)
     error = None
     if request.method == 'POST':
         if form.validate_on_submit():
@@ -171,7 +171,7 @@ def pw_reset():
     """
     Render a password reset form.
     """
-    form = PasswordResetForm(dm)
+    form = PasswordResetForm(wm)
     success = False
     if request.method == 'POST':
         if form.validate_on_submit():

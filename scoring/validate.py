@@ -1,5 +1,5 @@
 #!/bin/python
-from .utils import load_module
+import utils 
 import json
 import re
 
@@ -28,7 +28,7 @@ def check_function(func_str):
         parts = func_str.split('.')
         if parts[1] != 'checker':
             raise Exception()
-        dm.load_module(func_str)
+        utils.load_module(func_str)
     except:
         raise Exception("Invalid check function: %s" % func_str)
 
@@ -39,7 +39,7 @@ def poller(poller_str):
             raise Exception()
         if 'Poller' not in parts[-1]:
             raise Exception()
-        dm.load_module(poller_str)
+        utils.load_module(poller_str)
     except Exception as e:
         raise e
         raise Exception("Invalid poller: %s" % poller_str)
@@ -52,7 +52,7 @@ def input_class(class_str):
             raise Exception()
         if 'PollInput' not in parts[-1]:
             raise Exception()
-        dm.load_module(class_str)
+        utils.load_module(class_str)
     except Exception as e:
         raise e
         raise Exception("Invalid PollInput: %s" % class_str)

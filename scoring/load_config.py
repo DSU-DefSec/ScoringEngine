@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import sys
 import json
-from .engine.model import *
-from . import db
-from . import db_writer
-from .utils import load_module
-from . import validate
+from engine.model import *
+import db
+import db_writer
+from utils import load_module
+import validate
 
 def load_config(filename):
     f = open(filename, 'r')

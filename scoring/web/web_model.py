@@ -13,6 +13,7 @@ class WebModel(DataModel):
         """
         super().load_db()
         self.users = self.load_web_users(self.teams)
+        self.load_results()
 
     def load_web_users(self, teams):
         """
@@ -27,11 +28,11 @@ class WebModel(DataModel):
         users = {}
         user_rows = db.get('users', ['username', 'team_id', 'is_admin'])
         for user,team_id,is_admin in user_rows:
-            teams_match = filter(lambda t: t.id == team_id, teams)
-            if len(teams_match):
+            teams_match = [t for t in teams if t.id == team_id]
+            if len(teams_match) == 0:
                 team = None
             else:
-                team = next(teams_match)
+                team = teams_match[0]
             users[user] = User(user, team, is_admin)
         return users
 
@@ -108,3 +109,44 @@ class WebModel(DataModel):
             value (str): The value to change the setting to
         """
         db.modify('settings', 'value=%s', (value, key), where='skey=%s')
+
+    def load_results(self):
+        """
+        Update results with any results not yet loaded from the database.
+        """
+        if self.results is None:
+            last_id = 0
+            # Setup dict
+            self.results = {}
+            for team in self.teams:
+                self.results[team.id] = {}
+                for check in self.checks:
+                    self.results[team.id][check.id] = []
+        else:
+            # If results exist, we can just load the latest ones and keep the old ones
+            # Here we find the id of the last result we already have
+            last_ids = []
+            for team_results in self.results.values():
+                for check_results in team_results.values():
+                    if len(check_results) != 0:
+                        last_ids.append(check_results[-1].id)
+            last_id = -1
+            if len(last_ids) != 0:
+                print(last_ids)
+                last_id = max(last_ids)
+
+        rows = db.get('result', ['*'], where='id > %s',
+                      orderby='time ASC', args=(last_id))
+
+        # Gather the results
+        for result_id, check_id, check_io_id, team_id, time, poll_input, poll_result, result in rows:
+            # Construct the result from the database info
+            check = [c for c in self.checks if c.id == check_id][0]
+            check_io = [cio for cio in self.check_ios if cio.id == check_io_id]
+            team = [t for t in self.teams if t.id == team_id][0]
+            poll_input = json.loads(poll_input)
+            poll_result = json.loads(poll_result)
+
+            res = Result(result_id, check, check_io, team, time, poll_input, poll_result, result)
+
+            self.results[team_id][check_id].append(res)

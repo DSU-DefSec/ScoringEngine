@@ -1,8 +1,8 @@
 import pymysql
 
-host='127.0.0.1'
+host='192.168.2.3'
 user='root'
-password='toor'
+password='Password1!'
 
 def connect():
     """
@@ -88,7 +88,7 @@ def reset_table(table):
     Arguments:
         table (str): Table to delete all data from
     """
-    execute('DELETE FROM %s', (table))
+    execute('DELETE FROM %s' % table)
 
 def reset_all_tables():
     """
@@ -120,7 +120,7 @@ def insert(table, columns, args):
     vals = ', '.join(['%s']*len(args))
     cmd = 'INSERT INTO %s (%s)' % (table, columns)
     cmd += ' VALUES (%s)' % vals
-    id = db.execute(cmd, args)
+    id = execute(cmd, args)
     return id
 
 def modify(table, set, args, where=None):
@@ -135,7 +135,7 @@ def modify(table, set, args, where=None):
     cmd = 'UPDATE %s SET %s' % (table, set)
     if where is not None:
         cmd += ' WHERE %s' % where
-    db.execute(cmd, args)
+    execute(cmd, args)
 
 def set_credential_password(username, password, team_id, service_id=None, domain_id=None):
     """
@@ -153,7 +153,7 @@ def set_credential_password(username, password, team_id, service_id=None, domain
     cmd = 'UPDATE credential SET password=%s WHERE username=%s AND team_id=%s'
     if service_id is not None:
         cmd += ' AND service_id=%s'
-        db.execute(cmd, (password, username, team_id, service_id))
+        execute(cmd, (password, username, team_id, service_id))
     else:
         cmd += ' AND domain_id=%s'
-        db.execute(cmd, (password, username, team_id, domain_id))
+        execute(cmd, (password, username, team_id, domain_id))
