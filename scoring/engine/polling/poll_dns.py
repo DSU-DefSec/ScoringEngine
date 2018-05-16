@@ -37,8 +37,6 @@ class DnsPoller(Poller):
     def poll(self, poll_input):
         res = resolver.Resolver()
         res.nameservers = [poll_input.server]
-        res.lifetime = poll_input.timeout
-        res.timeout = poll_input.timeout
         res.port = poll_input.port
     
         try:

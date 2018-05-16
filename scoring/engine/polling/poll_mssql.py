@@ -19,15 +19,13 @@ class MsSqlPollResult(PollResult):
 class MsSqlPoller(Poller):
 
     def poll(self, poll_input):
-        socket.setdefaulttimeout(10)
-    
         username = poll_input.credentials.username
         password = poll_input.credentials.password
     
         try:
             conn = pymssql.connect(poll_input.server,
                                    '{}\\{}'.format(poll_input.domain, username),
-                                   password, poll_input.db,timeout=2)
+                                   password, poll_input.db)
             cursor = conn.cursor()
             cursor.execute(poll_input.query)
             output = ' '.join([str(row[0]) for row in cursor.fetchall()])

@@ -22,8 +22,6 @@ class SmtpPollResult(PollResult):
 
 class SmtpPoller(Poller):
     def poll(self, poll_input):
-        socket.setdefaulttimeout(10)
-        
         from_user = random.choice(poll_input.users)
         to_user = random.choice(poll_input.users)
         from_addr = "%s@%s" % (from_user, poll_input.fqdn)

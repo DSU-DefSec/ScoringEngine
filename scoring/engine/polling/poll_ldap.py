@@ -32,7 +32,7 @@ class LdapPoller(Poller):
             uri = 'ldap://%s:%d' % (poll_input.server, poll_input.port)
             con = ldap.initialize(uri)
             con.simple_bind_s(dn, password)
-            output = con.search_st(base, scope, filt, attrs, timeout=poll_input.timeout)
+            output = con.search_st(base, scope, filt, attrs)
             output = output[0][1] # Only check first value
             
             result = LdapPollResult(output)

@@ -17,8 +17,6 @@ class ImapPollResult(PollResult):
 class ImapPoller(Poller):
 
     def poll(self, poll_input):
-        socket.setdefaulttimeout(10)
-
         username = poll_input.credentials.username
         password = poll_input.credentials.password
         

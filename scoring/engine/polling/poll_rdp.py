@@ -32,7 +32,7 @@ class RdpPoller(Poller):
                     poll_input.server, poll_input.port)
 
         try:
-            output = subprocess.check_output('timeout {} xfreerdp {}'.format(poll_input.timeout, options), shell=True, stderr=subprocess.STDOUT)
+            output = subprocess.check_output('xfreerdp {}'.format(options), shell=True, stderr=subprocess.STDOUT)
             result = RdpPollResult(True)
             return result
         except Exception as e:

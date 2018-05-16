@@ -25,22 +25,17 @@ class SmbPollResult(PollResult):
 class SmbPoller(Poller):
 
     def poll(self, poll_input):
-        socket.setdefaulttimeout(poll_input.timeout)
-
         username = poll_input.credentials.username
         password = poll_input.credentials.password
         domain = poll_input.credentials.domain
     
         try:
-#            n = NetBIOS()
-#            hostname = n.queryIPForName(poll_input.server,timeout=10)[0]
-#            n.close()
             if domain is None:
                 conn = SMBConnection(username, password, '', poll_input.hostname)
             else:
                 conn = SMBConnection(username, password, '', poll_input.hostname, domain.domain)
 
-            conn.connect(poll_input.server, poll_input.port,timeout=poll_input.timeout)
+            conn.connect(poll_input.server, poll_input.port)
             t = tempfile.TemporaryFile()
             conn.retrieveFile(poll_input.sharename, poll_input.path, t)
             conn.close()
