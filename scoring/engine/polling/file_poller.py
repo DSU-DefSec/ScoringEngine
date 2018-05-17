@@ -18,10 +18,8 @@ class FilePoller(Poller):
         Returns:
             str: The file extension or 'txt' if there is none
         """
-        print(path)
         pieces = path.split('.')
         if len(pieces) > 1:
-            print(pieces[-1])
             return pieces[-1]
         else:
             return 'txt'
