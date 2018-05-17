@@ -22,7 +22,7 @@ def get(table, columns, where=None, orderby=None, args=None):
 
     Arguments:
         table (str): Table to SELECT data from
-        columns (str): Columns to get
+        columns (List(str)): Columns to get
         where (str): Optional, MySQL WHERE statement
         orderby (str): Optional, MySQL ORDER BY statement
         args (Tuple(str)): Optional, arguments for a prepared statement
