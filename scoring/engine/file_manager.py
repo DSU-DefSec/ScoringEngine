@@ -17,7 +17,7 @@ class FileManager(object):
         while True:
             self.deduplicate_files()
             self.push_files()
-            time.sleep(60)
+            time.sleep(5)
 
     def get_files(self):
         paths = []
@@ -42,19 +42,8 @@ class FileManager(object):
                     self.master_files[hash] = path
                 
     def relative_path(self, master, file):
-        master_parts = master.split('/')
-        file_parts = file.split('/')
-        rel_master_parts = []
-        i = 0
-        while i < len(file_parts) - 1:
-            if master_parts[i] != file_parts[i]:
-                break
-            i += 1
-        while i < len(file_parts) - 1:
-            rel_master_parts.append('..')
-            i += 1
-        rel_master_parts.append(master_parts[-1])
-        rel_master = '/'.join(rel_master_parts)
+        file_dir = os.path.dirname(file)
+        rel_master = os.path.relpath(master, file_dir)
         return rel_master
     
     def deduplicate_files(self):
@@ -74,5 +63,4 @@ class FileManager(object):
         local_files = os.listdir(CHECK_FILES_PATH)
         for local_file in local_files:
             local_file = '%s/%s' % (CHECK_FILES_PATH, local_file)
-            print(webserver_ip, local_file, remote)
             subprocess.call(['rsync', '-a', local_file, remote])
