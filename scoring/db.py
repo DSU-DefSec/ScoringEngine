@@ -38,7 +38,6 @@ def get(table, columns, where=None, orderby=None, args=None):
     if orderby is not None:
         cmd += ' ORDER BY ' + orderby
 
-    print(cmd)
     # Execute command
     connection = connect()
     with connection.cursor() as cursor:

@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 from engine.engine_model import EngineModel
+from engine.file_manager import FileManager
 from threading import Thread
 import time, datetime
 import random
@@ -43,6 +44,7 @@ class ScoringEngine(object):
                 service.check([self.em.teams[self.team_num]])
 
 
+
 if __name__ == '__main__':
     if len(sys.argv) > 2:
         print("Usage: ./engine [team_number]")
@@ -51,4 +53,10 @@ if __name__ == '__main__':
     if len(sys.argv) == 2:
         team_num = int(sys.argv[1]) - 1
         engine = ScoringEngine(team_num)
-    engine.start()
+
+    file_manager = FileManager()
+    file_manager_thread = Thread(target=file_manager.manage_files)
+    file_manager_thread.start()
+    while True:
+        time.sleep(10)
+    #engine.start()
