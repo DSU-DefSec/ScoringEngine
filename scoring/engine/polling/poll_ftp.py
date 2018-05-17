@@ -33,7 +33,8 @@ class FtpPoller(FilePoller):
 
         ftp = ftplib.FTP()
 
-        f = self.open_file()
+        extension = self.get_extension(poll_input.filepath)
+        f = self.open_file(extension)
 
         try:
             ftp.connect(poll_input.server, poll_input.port)

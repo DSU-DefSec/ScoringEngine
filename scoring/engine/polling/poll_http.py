@@ -32,7 +32,7 @@ class HttpPoller(FilePoller):
 
             content = re.sub(r'\?[^"]*', '', r.text)
 
-            f = self.open_file()
+            f = self.open_file('html')
             f.write(content.encode('utf-8'))
             f.close()
 

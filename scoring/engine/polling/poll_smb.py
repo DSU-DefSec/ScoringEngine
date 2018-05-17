@@ -37,7 +37,8 @@ class SmbPoller(FilePoller):
 
             conn.connect(poll_input.server, poll_input.port)
 
-            f = self.open_file()
+            extension = self.get_extension(poll_input.path)
+            f = self.open_file(extension)
             conn.retrieveFile(poll_input.sharename, poll_input.path, f)
             f.close()
             conn.close()
