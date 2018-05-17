@@ -1,5 +1,7 @@
+import db
 import time
 import os
+import subprocess
 import hashlib
 
 CHECK_FILES_PATH = 'checkfiles'
@@ -67,4 +69,10 @@ class FileManager(object):
                 os.symlink(rel_path, file)
     
     def push_files(self):
-        pass
+        webserver_ip = db.get('settings', ['value'], where='skey=%s', args=['webserver_ip'])[0][0]
+        remote = 'rsync://%s/checkfiles' % webserver_ip
+        local_files = os.listdir(CHECK_FILES_PATH)
+        for local_file in local_files:
+            local_file = '%s/%s' % (CHECK_FILES_PATH, local_file)
+            print(webserver_ip, local_file, remote)
+            subprocess.call(['rsync', '-a', local_file, remote])

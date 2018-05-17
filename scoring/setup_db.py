@@ -25,7 +25,7 @@ if __name__ == '__main__':
         cmd = ("CREATE TABLE settings ( "
                "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
                "skey VARCHAR(255) NOT NULL, "
-               "value INT NOT NULL)")
+               "value VARCHAR(255) NOT NULL)")
         print(cmd)
         cursor.execute(cmd)
     
