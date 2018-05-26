@@ -1,7 +1,11 @@
 *.pyc
 *.sql
-__pycache__
+*/__pycache__
 */__cache__
-checkfiles/*
-!checkfiles/.gitkeep
-static/imgs/*.png
+scoring/checkfiles/*
+!scoring/checkfiles/.gitkeep
+!scoring/checkfiles/expected/.gitkeep
+scoring/web/static/imgs/*.png
+docs/_build/*
+docs/_static/*
+docs/_templates/*

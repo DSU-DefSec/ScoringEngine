@@ -1,0 +1,9 @@
+mock
+requests
+dnspython
+paramiko
+matplotlib
+flask-wtf
+pysmb
+flask-login
+Flask
