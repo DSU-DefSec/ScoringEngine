@@ -75,11 +75,18 @@ def credentials():
     credentials.sort(key= lambda c: (c.check_io.check.name, c.username))
     return render_template('credentials.html', credentials=credentials, team=team)
 
-@app.route('/bulk', methods=['GET', 'POST'])
-@login_required
-def bulk():
+@app.route('/pcr', methods=['GET', 'POST'])
+def pcr():
     """
-    Render the bulk password change request form.
+    Render the password change request overview page.
+    """
+    return render_template('pcr_overview.html')
+
+@app.route('/new-pcr', methods=['GET', 'POST'])
+@login_required
+def new_pcr():
+    """
+    Render the password change request form.
     """
     form = PasswordChangeForm(wm)
     success = False
@@ -97,7 +104,7 @@ def bulk():
 
             wm.change_passwords(team_id, domain_id, service_id, pwchange)
             success = True
-    return render_template('bulk.html', form=form, success=success)
+    return render_template('pcr_new.html', form=form, success=success)
 
 @app.route('/result_log', methods=['GET'])
 @login_required

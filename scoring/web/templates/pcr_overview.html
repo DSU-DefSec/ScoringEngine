@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block pcr %}active{% endblock %}
+
+{% block content %}
+<table class="table">
+    <thead>
+        <th>Submission Time</th>
+        <th>Processed Time</th>
+        <th>Domain/Service</th>
+        <th>Status</th>
+        <th>
+            <a href="{{ url_for('new_pcr') }}" class="btn btn-success">
+                New Request
+            </a>
+        </th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>2018-05-30 05:00:02</td>
+            <td>-</td>
+            <td>TEAM.VNET</td>
+            <td class="font-weight-bold text-primary">Pending</td>
+            <td>
+                <button class="btn btn-primary">
+                    View
+                </button>
+                <button class="btn btn-danger">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+        <tr>
+            <td>2018-05-30 03:54:32</td>
+            <td>2018-05-30 04:02:24</td>
+            <td>192.168.1.5:53</td>
+            <td class="font-weight-bold text-success">Processed</td>
+            <td>
+                <button class="btn btn-primary">
+                    View
+                </button>
+                <button class="btn btn-danger">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+        <tr>
+            <td>2018-05-29 21:35:44</td>
+            <td>-</td>
+            <td>192.168.1.6:3389</td>
+            <td class="font-weight-bold text-warning">Awaiting Approval</td>
+            <td>
+                <button class="btn btn-primary">
+                    View
+                </button>
+                <button class="btn btn-danger">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+{% endblock %}

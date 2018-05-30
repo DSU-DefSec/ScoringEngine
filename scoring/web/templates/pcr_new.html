@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="col-sm-6 col-sm-offset-3">
-    <h1>Bulk Password Change</h1>
+<div class="col-sm-6 offset-sm-3">
+    <h2 class="text-center">Bulk Password Change</h2>
     
     {% if success %}
     <div class="alert alert-success">
@@ -10,7 +10,7 @@
     </div>
     {% endif %}
 
-    <form method="post" action="{{ url_for('bulk') }}">
+    <form method="post" action="{{ url_for('new_pcr') }}">
         {{ form.csrf_token }}
         {% if current_user.is_admin %}
         <div class="form-group">
