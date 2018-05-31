@@ -5,7 +5,7 @@
 <table class="table">
     <thead>
         <th>Submission Time</th>
-        <th>Processed Time</th>
+        <th>Completion Time</th>
         <th>Domain/Service</th>
         <th>Status</th>
         <th>
@@ -21,19 +21,22 @@
             <td>TEAM.VNET</td>
             <td class="text-primary"><strong>Pending</strong></td>
             <td>
-                <button class="btn btn-primary">
+                <form method="post" action="{{ url_for('pcr') }}" id="delete-1">
+                <a href="{{ url_for('pcr_details') }}?id=1" class="btn btn-primary">
                     View
-                </button>
-                <button class="btn btn-danger">
-                    <i class="fas fa-trash"></i>
-                </button>
+                </a>
+                    <input hidden="true" value="1"></input>
+                    <button type="submit" form="delete-1" class="btn btn-danger">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
             </td>
         </tr>
         <tr>
             <td>2018-05-30 03:54:32</td>
             <td>2018-05-30 04:02:24</td>
             <td>192.168.1.5:53</td>
-            <td class="text-success"><strong>Processed</strong></td>
+            <td class="text-success"><strong>Completed</strong></td>
             <td>
                 <button class="btn btn-primary">
                     View
