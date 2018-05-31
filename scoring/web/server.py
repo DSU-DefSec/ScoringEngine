@@ -82,6 +82,13 @@ def pcr():
     """
     return render_template('pcr_overview.html')
 
+@app.route('/pcr_details', methods=['GET', 'POST'])
+def pcr_details():
+    """
+    Render the password change request details page.
+    """
+    return render_template('pcr_details.html')
+
 @app.route('/new-pcr', methods=['GET', 'POST'])
 @login_required
 def new_pcr():
