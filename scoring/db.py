@@ -147,7 +147,7 @@ def delete(table, args, where=None):
         args (List(str)): List of pieces of data corresponding to the columns
         where (str): The matching criteria
     """
-    cmd = 'DELETE FROM %s'
+    cmd = 'DELETE FROM %s' % table
     if where is not None:
         cmd += ' WHERE %s' % where
     execute(cmd, args)
