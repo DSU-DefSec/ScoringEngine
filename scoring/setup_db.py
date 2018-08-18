@@ -139,10 +139,13 @@ if __name__ == '__main__':
         # Password change request table
         cmd = ("CREATE TABLE pcr ( "
             "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
-            "submitted TIMESTAMP NOT NULL, "
-            "completed TIMESTAMP NOT NULL, "
+            "team_id INT NOT NULL, "
+            "service_id INT, "
+            "domain_id INT, "
+            "submitted TIMESTAMP DEFAULT CURRENT_TIMESTAMP, "
+            "completed TIMESTAMP NULL, "
             "status INT NOT NULL, "
-            "creds VARCHAR(65535) NOT NULL, "
+            "creds TEXT NOT NULL, "
             "team_comment VARCHAR(4095) DEFAULT '', "
             "admin_comment VARCHAR(4095) DEFAULT '', "
             "FOREIGN KEY (team_id) REFERENCES team(id) "
@@ -151,6 +154,8 @@ if __name__ == '__main__':
                 "ON DELETE CASCADE, "
             "FOREIGN KEY (domain_id) REFERENCES domain(id) "
                 "ON DELETE CASCADE)")
+        print(cmd)
+        cursor.execute(cmd)
     
         connection.commit()
         connection.close()
