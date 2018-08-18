@@ -125,7 +125,7 @@ if __name__ == '__main__':
             "team_id INT NOT NULL, "
             "time TIMESTAMP NOT NULL, "
             "poll_input VARCHAR(4095) NOT NULL, "
-            "poll_result VARCHAR(4096) NOT NULL, "
+            "poll_result VARCHAR(4095) NOT NULL, "
             "result BOOL NOT NULL, "
             "FOREIGN KEY (check_id) REFERENCES service_check(id) "
                 "ON DELETE CASCADE, "
@@ -135,6 +135,22 @@ if __name__ == '__main__':
                 "ON DELETE CASCADE)")
         print(cmd)
         cursor.execute(cmd)
+
+        # Password change request table
+        cmd = ("CREATE TABLE pcr ( "
+            "id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, "
+            "submitted TIMESTAMP NOT NULL, "
+            "completed TIMESTAMP NOT NULL, "
+            "status INT NOT NULL, "
+            "creds VARCHAR(65535) NOT NULL, "
+            "team_comment VARCHAR(4095) DEFAULT '', "
+            "admin_comment VARCHAR(4095) DEFAULT '', "
+            "FOREIGN KEY (team_id) REFERENCES team(id) "
+                "ON DELETE CASCADE, "
+            "FOREIGN KEY (service_id) REFERENCES service(id) "
+                "ON DELETE CASCADE, "
+            "FOREIGN KEY (domain_id) REFERENCES domain(id) "
+                "ON DELETE CASCADE)")
     
         connection.commit()
         connection.close()
