@@ -1,8 +1,8 @@
 import pymysql
 
-host='192.168.2.3'
+host='127.0.0.1'
 user='root'
-password='Password1!'
+password='toor'
 
 def connect():
     """
@@ -102,6 +102,7 @@ def reset_all_tables():
     reset_table('check_io')
     reset_table('credential')
     reset_table('result')
+    reset_table('pcr')
 
 def insert(table, columns, args):
     """
@@ -129,9 +130,24 @@ def modify(table, set, args, where=None):
     Arguments:
         table (str): The table to modify
         set (str): The fields to modify (field1=%s, field2=%s)
+        args (List(str)): List of pieces of data corresponding to the columns
         where (str): The matching criteria
     """
     cmd = 'UPDATE %s SET %s' % (table, set)
+    if where is not None:
+        cmd += ' WHERE %s' % where
+    execute(cmd, args)
+
+def delete(table, args, where=None):
+    """
+    Delete the given rows from the given table matching the given criteria.
+
+    Arguments:
+        table (str): The table to modify
+        args (List(str)): List of pieces of data corresponding to the columns
+        where (str): The matching criteria
+    """
+    cmd = 'DELETE FROM %s'
     if where is not None:
         cmd += ' WHERE %s' % where
     execute(cmd, args)
