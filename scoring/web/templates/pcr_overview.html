@@ -15,51 +15,48 @@
         </th>
     </thead>
     <tbody>
+        {% for pcr in pcrs %}
         <tr>
-            <td>2018-05-30 05:00:02</td>
-            <td>-</td>
-            <td>TEAM.VNET</td>
-            <td class="text-primary"><strong>Pending</strong></td>
+            <td>{{ pcr.submitted }}</td>
             <td>
-                <form method="post" action="{{ url_for('pcr') }}" id="delete-1">
-                <a href="{{ url_for('pcr_details') }}?id=1" class="btn btn-primary">
+            {% if pcr.completed is none %}
+                -
+            {% else %}
+                {{ pcr.completed }}
+            {% endif %}
+            </td>
+            <td>
+            {% if pcr.service_id is none %}
+                {{ domains[pcr.domain_id] }}
+            {% else %}
+                {% set s = services[pcr.service_id] %}
+                Host: {{ s.host }}, Port: {{ s.port }}
+            {% endif %}
+            </td>
+            {% if pcr.status == 0 %}
+            <td class="text-success"><strong>Complete</strong></td>
+            {% elif pcr.status == 1 %}
+            <td class="text-primary"><strong>Pending</strong></td>
+            {% elif pcr.status == 2 %}
+            <td class="text-warning"><strong>Awaiting Approval</strong></td>
+            {% elif pcr.status == 3 %}
+            <td class="text-danger"><strong>Denied</strong></td>
+            {% endif %}
+            <td>
+                <form method="post" action="{{ url_for('pcr') }}" id="delete-{{pcr.id}}">
+                <a href="{{ url_for('pcr_details') }}?id={{pcr.id}}" class="btn btn-primary">
                     View
                 </a>
-                    <input hidden="true" value="1"></input>
-                    <button type="submit" form="delete-1" class="btn btn-danger">
+                {% if pcr.status != 0 %}
+                    <input type="hidden" id="reqId" name="reqId" value="{{pcr.id}}"/>
+                    <button type="submit" form="delete-{{pcr.id}}" class="btn btn-danger">
                         <i class="fas fa-trash"></i>
                     </button>
+                {% endif %}
                 </form>
             </td>
         </tr>
-        <tr>
-            <td>2018-05-30 03:54:32</td>
-            <td>2018-05-30 04:02:24</td>
-            <td>192.168.1.5:53</td>
-            <td class="text-success"><strong>Completed</strong></td>
-            <td>
-                <button class="btn btn-primary">
-                    View
-                </button>
-                <button class="btn btn-danger">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        </tr>
-        <tr>
-            <td>2018-05-29 21:35:44</td>
-            <td>-</td>
-            <td>192.168.1.6:3389</td>
-            <td class="text-warning"><strong>Awaiting Approval</strong></td>
-            <td>
-                <button class="btn btn-primary">
-                    View
-                </button>
-                <button class="btn btn-danger">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        </tr>
+        {% endfor %}
     </tbody>
 </table>
 {% endblock %}

@@ -2,7 +2,7 @@
 
 from .web_model import WebModel
 import flask
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 from urllib.parse import urlparse, urljoin
 from .forms import *
 #from . import plot
@@ -10,8 +10,9 @@ from . import score
 from .. import validate
 import flask_login
 from flask_login import LoginManager, login_user, logout_user, login_required
-from .model import User
+from .model import User, PasswordChangeRequest, PCRStatus
 from .decorators import *
+import db
 
 app = Flask(__name__)
 app.secret_key = 'this is a secret'
@@ -76,11 +77,33 @@ def credentials():
     return render_template('credentials.html', credentials=credentials, team=team)
 
 @app.route('/pcr', methods=['GET', 'POST'])
+@login_required
 def pcr():
     """
     Render the password change request overview page.
     """
-    return render_template('pcr_overview.html')
+    user = flask_login.current_user
+    if request.method == 'GET':
+        if user.is_admin:
+            where = 'status = %s'
+            args = (int(PCRStatus.APPROVAL))
+        else:
+            team_id = user.team.id
+            where = 'team_id = %s'
+            args = (team_id)
+        pcr_ids = db.get('pcr', ['id'], where=where, args=args)
+        pcrs = [PasswordChangeRequest.load(pcr_id) for pcr_id in pcr_ids]
+        domains = {d.id:d for d in wm.domains}
+        services = {s.id:s for s in wm.services}
+        return render_template('pcr_overview.html', pcrs=pcrs, services=services, domains=domains)
+    elif request.method == 'POST':
+        pcr_id = request.form['reqId']
+        pcr = PasswordChangeRequest.load(pcr_id)
+        if (not user.is_admin and user.team.id != pcr.team_id) or pcr.status == PCRStatus.COMPLETE:
+            pass # Show error?
+        else:
+            pcr.delete()
+        return redirect(url_for('pcr'))
 
 @app.route('/pcr_details', methods=['GET', 'POST'])
 def pcr_details():
