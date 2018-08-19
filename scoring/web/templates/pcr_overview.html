@@ -47,7 +47,7 @@
                 <a href="{{ url_for('pcr_details') }}?id={{pcr.id}}" class="btn btn-primary">
                     View
                 </a>
-                {% if pcr.status != 0 %}
+                {% if not current_user.is_admin and pcr.status != 0 %}
                     <input type="hidden" id="reqId" name="reqId" value="{{pcr.id}}"/>
                     <button type="submit" form="delete-{{pcr.id}}" class="btn btn-danger">
                         <i class="fas fa-trash"></i>
