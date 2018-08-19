@@ -2,6 +2,14 @@
 {% block pcr %}active{% endblock %}
 
 {% block content %}
+<script>
+    function clickDelete(id) {
+        idInput = document.getElementById('reqId');
+        idInput.value = id;
+        $('#confirmModal').modal('show');
+    }
+</script>
+
 <table class="table">
     <thead>
         <th>Submission Time</th>
@@ -43,20 +51,40 @@
             <td class="text-danger"><strong>Denied</strong></td>
             {% endif %}
             <td>
-                <form method="post" action="{{ url_for('pcr') }}" id="delete-{{pcr.id}}">
                 <a href="{{ url_for('pcr_details') }}?id={{pcr.id}}" class="btn btn-primary">
                     View
                 </a>
                 {% if not current_user.is_admin and pcr.status != 0 %}
-                    <input type="hidden" id="reqId" name="reqId" value="{{pcr.id}}"/>
-                    <button type="submit" form="delete-{{pcr.id}}" class="btn btn-danger">
+                    <button class="btn btn-danger" onclick='clickDelete({{pcr.id}})'>
                         <i class="fas fa-trash"></i>
                     </button>
                 {% endif %}
-                </form>
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmModalLabel">Confirm Deletion</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this password change request?
+      </div>
+      <div class="modal-footer">
+        <form method="post" action="{{ url_for('pcr') }}" id="delete-pcr">
+            <input type="hidden" id="reqId" name="reqId" value="0"/>
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
