@@ -91,7 +91,7 @@ class PasswordChangeRequest(object):
         Save this new password change request to the database.
         """
         columns = ['team_id', 'service_id', 'domain_id', 'submitted', 'completed', 'status', 'creds']
-        data = [self.team_id, self.service_id, self.domain_id, self.submitted, self.completed, self.status, json.dumps(self.creds)]
+        data = [self.team_id, self.service_id, self.domain_id, self.submitted, self.completed, int(self.status), json.dumps(self.creds)]
         self.id = db.insert('pcr', columns, data)
 
     def delete(self):
@@ -105,7 +105,7 @@ class PasswordChangeRequest(object):
         Is there an account conflict for requests submitted in the window of time before this request.
 
         Arguments:
-            window (timedelta): Window for flagging conflicting requests
+            window (int): Window for flagging conflicting requests in minutes
 
         Returns:
             bool: Does this request conflict with an earlier one?
@@ -117,9 +117,10 @@ class PasswordChangeRequest(object):
         else:
             where += 'AND service_id = %s AND domain_id is %s'
 
-        pcr_ids = db.get('pcr', ['id'], where=where, args=[self.id, self.team_id, PCRStatus.DENIED, self.service_id, self.domain_id])
+        pcr_ids = db.get('pcr', ['id'], where=where, args=[self.id, self.team_id, int(PCRStatus.DENIED), self.service_id, self.domain_id])
         pcrs = [PasswordChangeRequest.load(pcr_id) for pcr_id in pcr_ids]
         # Check list for conflicts
+        window = datetime.timedelta(minutes=window)
         users = [cred[0] for cred in self.creds]
         for pcr in pcrs:
             if pcr.submitted + window >= self.submitted:
