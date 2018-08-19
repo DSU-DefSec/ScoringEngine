@@ -122,7 +122,6 @@ def pcr_details():
         else:
             return redirect(url_for('pcr'))
     elif request.method == 'POST':
-        print(request.form)
         pcr_id = request.form.get('reqId')
         pcr = PasswordChangeRequest.load(pcr_id)
         if user.is_admin:
@@ -133,7 +132,10 @@ def pcr_details():
             comment = request.form['admin_comment']
             pcr.set_status(status)
             pcr.set_admin_comment(comment)
-        return redirect(url_for('pcr'))
+        elif user.team.id == pcr.team_id:
+            comment = request.form['team_comment']
+            pcr.set_team_comment(comment)
+        return redirect(url_for('pcr_details') + '?id={}'.format(pcr_id))
 
 @app.route('/new-pcr', methods=['GET', 'POST'])
 @login_required
