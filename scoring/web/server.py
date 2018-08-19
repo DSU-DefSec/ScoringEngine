@@ -13,6 +13,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required
 from .model import User, PasswordChangeRequest, PCRStatus
 from .decorators import *
 import db
+import re
 
 app = Flask(__name__)
 app.secret_key = 'this is a secret'
@@ -137,16 +138,20 @@ def pcr_details():
             pcr.set_team_comment(comment)
         return redirect(url_for('pcr_details') + '?id={}'.format(pcr_id))
 
-@app.route('/new-pcr', methods=['GET', 'POST'])
+@app.route('/new_pcr', methods=['GET', 'POST'])
 @login_required
 def new_pcr():
     """
     Render the password change request form.
     """
+    window = 60
+    pcr_id = 0
     form = PasswordChangeForm(wm)
+    conflict = False
     success = False
     if request.method == 'POST':
         if form.validate_on_submit():
+            success = True
             user = flask_login.current_user
             if user.is_admin:
                 team_id = form.team.data
@@ -157,9 +162,19 @@ def new_pcr():
             service_id = form.service.data
             pwchange = form.pwchange.data
 
-            wm.change_passwords(team_id, domain_id, service_id, pwchange)
-            success = True
-    return render_template('pcr_new.html', form=form, success=success)
+            pwchange = [line.split(':') for line in pwchange.split('\r\n')]
+            creds = []
+            for line in pwchange:
+                if len(line) >= 2:
+                    username = re.sub('\s+', '', line[0])
+                    password = re.sub('\s+', '', ':'.join(line[1:]))
+                    creds.append((username, password))
+            pcr = PasswordChangeRequest(team_id, PCRStatus.PENDING, creds, service_id=service_id, domain_id=domain_id)
+            conflict = pcr.conflicts(window)
+            if conflict:
+                pcr.set_status(PCRStatus.APPROVAL)
+            pcr_id = pcr.id
+    return render_template('pcr_new.html', form=form, window=window, pcr_id=pcr_id, success=success, conflict=conflict)
 
 @app.route('/result_log', methods=['GET'])
 @login_required
