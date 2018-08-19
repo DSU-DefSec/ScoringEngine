@@ -49,6 +49,9 @@ class DataModel(object):
         settings['jitter'] = int(settings['jitter'])
         settings['timeout'] = int(settings['timeout'])
         settings['running'] = int(settings['running'])
+        settings['pcr_approval_window'] = int(settings['pcr_approval_window'])
+        settings['pcr_service_window'] = int(settings['pcr_service_window'])
+        settings['pcr_service_jitter'] = int(settings['pcr_service_jitter'])
 
         self.settings = settings
     

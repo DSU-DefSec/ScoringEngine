@@ -11,6 +11,7 @@ from .. import validate
 import flask_login
 from flask_login import LoginManager, login_user, logout_user, login_required
 from .model import User, PasswordChangeRequest, PCRStatus
+from .pcr_servicer import PCRServicer
 from .decorators import *
 import db
 import re
@@ -23,6 +24,9 @@ wm.load_db()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+pcr_servicer = PCRServicer(wm)
+pcr_servicer.start()
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -144,7 +148,7 @@ def new_pcr():
     """
     Render the password change request form.
     """
-    window = 60
+    window = wm.settings['pcr_approval_window']
     pcr_id = 0
     form = PasswordChangeForm(wm)
     conflict = False
