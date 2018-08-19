@@ -111,13 +111,13 @@ class PasswordChangeRequest(object):
             bool: Does this request conflict with an earlier one?
         """
         # Load list of possible conflicting password change requests
-        where = 'id != %s AND team_id = %s '
+        where = 'id != %s AND team_id = %s AND status != %s '
         if self.service_id is None:
             where += 'AND service_id is %s AND domain_id = %s'
         else:
             where += 'AND service_id = %s AND domain_id is %s'
 
-        pcr_ids = db.get('pcr', ['id'], where=where, args=[self.id, self.team_id, self.service_id, self.domain_id])
+        pcr_ids = db.get('pcr', ['id'], where=where, args=[self.id, self.team_id, PCRStatus.DENIED, self.service_id, self.domain_id])
         pcrs = [PasswordChangeRequest.load(pcr_id) for pcr_id in pcr_ids]
         # Check list for conflicts
         users = [cred[0] for cred in self.creds]
