@@ -106,11 +106,34 @@ def pcr():
         return redirect(url_for('pcr'))
 
 @app.route('/pcr_details', methods=['GET', 'POST'])
+@login_required
 def pcr_details():
     """
     Render the password change request details page.
     """
-    return render_template('pcr_details.html')
+    user = flask_login.current_user
+    if request.method == 'GET':
+        pcr_id = request.args.get('id')
+        pcr = PasswordChangeRequest.load(pcr_id)
+        domains = {d.id:d for d in wm.domains}
+        services = {s.id:s for s in wm.services}
+        if user.is_admin or user.team.id == pcr.team_id:
+            return render_template('pcr_details.html', pcr=pcr, services=services, domains=domains)
+        else:
+            return redirect(url_for('pcr'))
+    elif request.method == 'POST':
+        print(request.form)
+        pcr_id = request.form.get('reqId')
+        pcr = PasswordChangeRequest.load(pcr_id)
+        if user.is_admin:
+            if request.form['approval'] == 'Approve':
+                status = PCRStatus.PENDING
+            else:
+                status = PCRStatus.DENIED
+            comment = request.form['admin_comment']
+            pcr.set_status(status)
+            pcr.set_admin_comment(comment)
+        return redirect(url_for('pcr'))
 
 @app.route('/new-pcr', methods=['GET', 'POST'])
 @login_required
