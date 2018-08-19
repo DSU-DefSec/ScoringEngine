@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h3 class="text-center">Password Change Request Details</h3>
+
+<div class="col-8 offset-2">
+    <div>
+        <span><strong>Status:</strong></span>
+        {% if pcr.status == 0 %}
+        <span class="text-success"><strong>Complete</strong></span>
+        {% elif pcr.status == 1 %}
+        <span class="text-primary"><strong>Pending</strong></span>
+        {% elif pcr.status == 2 %}
+        <span class="text-warning"><strong>Awaiting Approval</strong></span>
+        {% elif pcr.status == 3 %}
+        <span class="text-danger"><strong>Denied</strong></span>
+        {% endif %}
+    </div>
+    <div class="float-right">
+        <span><strong>Completion Time:</strong></span>
+        <span>
+        {% if pcr.completed is none %}
+        -
+        {% else %}
+        {{ pcr.completed }}
+        {% endif %}
+        </span>
+    </div>
+    <div>
+        <span><strong>Submission Time:</strong></span>
+        <span>{{ pcr.submitted }}</span>
+    </div>
+    <div>
+    <span><strong>Service/Domain:</strong></span>
+    {% if pcr.service_id is none %}
+    <span>{{ domains[pcr.domain_id] }}</span>
+    {% else %}
+    <span>
+    {% set s=services[pcr.service_id] %}
+    Host: {{ s.host }}, Port: {{ s.port }}
+    </span>
+    {% endif %}
+    </div>
+</div>
+
+<div class="col-8 offset-2 mt-2">
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <th class="col-4">Username</th>
+        <th class="col-4">New Password</th>
+    </thead>
+    <tbody>
+        {% for cred in pcr.creds %}
+        <tr>
+            <td>{{ cred[0] }}</td>
+            <td>{{ cred[1] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+<table>
+</div>
+
+<script>
+function textAreaAdjust(o) {
+  o.style.height = "1px";
+  o.style.height = (25+o.scrollHeight)+"px";
+}
+</script>
+
+<form method="post" action="pcr_details">
+<div class="border rounded comments">
+    <div class="float-right col-6 mt-1">
+        <span class=""><strong><u>Admin Comments</u></strong></span>
+        {% if current_user.is_admin %}
+        <textarea name="admin_comment" class="col-12" style="height:100%; resize:none;" onkeyup="textAreaAdjust(this)">{{ pcr.admin_comment }}</textarea>
+        {% else %}
+        <p class="">{{ pcr.admin_comment }}</p>
+        {% endif %}
+    </div>
+    
+    <div class="col-6 mt-1">
+        <span class=""><strong><u>Team Comments</u></strong></span>
+        {% if not current_user.is_admin %}
+        <textarea name="team_comment" class="col-12" style="height:100%; resize:none;" onkeyup="textAreaAdjust(this)">{{ pcr.team_comment }}</textarea>
+        {% else %}
+        <p class="">{{ pcr.team_comment }}</p>
+        {% endif %}
+    </div>
+</div>
+
+    <input type="hidden" id="reqId" name="reqId" value="{{pcr.id}}"/>
+    {% if current_user.is_admin %}
+    <div class="jusitfy-content-center">
+        <div class="col-6 float-right">
+            <input type="submit" name="approval" value="Deny" class="mt-1 mb-5 col-12 btn btn-danger"/>
+        </div>
+        <div class="col-6">
+            <input type="submit" name="approval" value="Approve" class="mt-1 mb-5 col-12 btn btn-success"/>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <input type="submit" value="Save Comments" class="col-12 btn btn-success"/>
+    </div>
+    {% endif %}
+</form>
+
+{% endblock %}

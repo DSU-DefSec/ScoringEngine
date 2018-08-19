@@ -2,7 +2,7 @@
 
 from .web_model import WebModel
 import flask
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 from urllib.parse import urlparse, urljoin
 from .forms import *
 #from . import plot
@@ -10,8 +10,11 @@ from . import score
 from .. import validate
 import flask_login
 from flask_login import LoginManager, login_user, logout_user, login_required
-from .model import User
+from .model import User, PasswordChangeRequest, PCRStatus
+from .pcr_servicer import PCRServicer
 from .decorators import *
+import db
+import re
 
 app = Flask(__name__)
 app.secret_key = 'this is a secret'
@@ -21,6 +24,9 @@ wm.load_db()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+pcr_servicer = PCRServicer(wm)
+pcr_servicer.start()
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -75,16 +81,81 @@ def credentials():
     credentials.sort(key= lambda c: (c.check_io.check.name, c.username))
     return render_template('credentials.html', credentials=credentials, team=team)
 
-@app.route('/bulk', methods=['GET', 'POST'])
+@app.route('/pcr', methods=['GET', 'POST'])
 @login_required
-def bulk():
+def pcr():
     """
-    Render the bulk password change request form.
+    Render the password change request overview page.
     """
+    user = flask_login.current_user
+    if request.method == 'GET':
+        if user.is_admin:
+            where = 'status = %s'
+            args = (int(PCRStatus.APPROVAL))
+        else:
+            team_id = user.team.id
+            where = 'team_id = %s'
+            args = (team_id)
+        pcr_ids = db.get('pcr', ['id'], where=where, args=args)
+        pcrs = [PasswordChangeRequest.load(pcr_id) for pcr_id in pcr_ids]
+        domains = {d.id:d for d in wm.domains}
+        services = {s.id:s for s in wm.services}
+        return render_template('pcr_overview.html', pcrs=pcrs, services=services, domains=domains)
+    elif request.method == 'POST':
+        pcr_id = request.form['reqId']
+        pcr = PasswordChangeRequest.load(pcr_id)
+        if (not user.is_admin and user.team.id != pcr.team_id) or pcr.status == PCRStatus.COMPLETE:
+            pass # Show error?
+        else:
+            pcr.delete()
+        return redirect(url_for('pcr'))
+
+@app.route('/pcr_details', methods=['GET', 'POST'])
+@login_required
+def pcr_details():
+    """
+    Render the password change request details page.
+    """
+    user = flask_login.current_user
+    if request.method == 'GET':
+        pcr_id = request.args.get('id')
+        pcr = PasswordChangeRequest.load(pcr_id)
+        domains = {d.id:d for d in wm.domains}
+        services = {s.id:s for s in wm.services}
+        if user.is_admin or user.team.id == pcr.team_id:
+            return render_template('pcr_details.html', pcr=pcr, services=services, domains=domains)
+        else:
+            return redirect(url_for('pcr'))
+    elif request.method == 'POST':
+        pcr_id = request.form.get('reqId')
+        pcr = PasswordChangeRequest.load(pcr_id)
+        if user.is_admin:
+            if request.form['approval'] == 'Approve':
+                status = PCRStatus.PENDING
+            else:
+                status = PCRStatus.DENIED
+            comment = request.form['admin_comment']
+            pcr.set_status(status)
+            pcr.set_admin_comment(comment)
+        elif user.team.id == pcr.team_id:
+            comment = request.form['team_comment']
+            pcr.set_team_comment(comment)
+        return redirect(url_for('pcr_details') + '?id={}'.format(pcr_id))
+
+@app.route('/new_pcr', methods=['GET', 'POST'])
+@login_required
+def new_pcr():
+    """
+    Render the password change request form.
+    """
+    window = wm.settings['pcr_approval_window']
+    pcr_id = 0
     form = PasswordChangeForm(wm)
+    conflict = False
     success = False
     if request.method == 'POST':
         if form.validate_on_submit():
+            success = True
             user = flask_login.current_user
             if user.is_admin:
                 team_id = form.team.data
@@ -95,9 +166,19 @@ def bulk():
             service_id = form.service.data
             pwchange = form.pwchange.data
 
-            wm.change_passwords(team_id, domain_id, service_id, pwchange)
-            success = True
-    return render_template('bulk.html', form=form, success=success)
+            pwchange = [line.split(':') for line in pwchange.split('\r\n')]
+            creds = []
+            for line in pwchange:
+                if len(line) >= 2:
+                    username = re.sub('\s+', '', line[0])
+                    password = re.sub('\s+', '', ':'.join(line[1:]))
+                    creds.append((username, password))
+            pcr = PasswordChangeRequest(team_id, PCRStatus.PENDING, creds, service_id=service_id, domain_id=domain_id)
+            conflict = pcr.conflicts(window)
+            if conflict:
+                pcr.set_status(PCRStatus.APPROVAL)
+            pcr_id = pcr.id
+    return render_template('pcr_new.html', form=form, window=window, pcr_id=pcr_id, success=success, conflict=conflict)
 
 @app.route('/result_log', methods=['GET'])
 @login_required
