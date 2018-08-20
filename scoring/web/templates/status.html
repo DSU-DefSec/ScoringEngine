@@ -21,13 +21,16 @@
     <td>{{ c.name }}</td>
     {% for t in teams %}
         {% if c.id in results[t.id] %}
-            {% if results[t.id][c.id].result is equalto 1 %}
-                <td class='pass clickable' data-href='/result_log?tid={{ t.id }}&cid={{ c.id }}'>
-                    Pass
+            {% set r = results[t.id][c.id] %}
+            {% if r.result is equalto 1 %}
+                <td class='pass clickable' style="padding:0px;" data-href='/result_log?tid={{ t.id }}&cid={{ c.id }}'>
+                        <span>Pass</span>
+                        <span style="font-size:10px; position:relative; top:13px; left:-5%;">{{ r.time }}</span>
                 </td>
             {% else %}
                 <td class='fail clickable' data-href='/result_log?tid={{ t.id }}&cid={{ c.id }}'>
-                    Fail
+                        <span>Fail</span>
+                        <span style="font-size:10px; position:relative; top:13px; left:-5%;">{{ r.time }}</span>
                 </td>
             {% endif %}
         {% else %}
