@@ -53,14 +53,16 @@ class Credential(object):
         team (Team): The team this credential applies to
         domain (Domain): The domain this credential applies to
         check_io (CheckIO): The input-output pair this credential is for
+        is_default (bool): Does the credential still have the default password?
     """
 
-    def __init__(self, id, username, password, team, domain):
+    def __init__(self, id, username, password, team, domain, is_default):
         self.id = int(id)
         self.username = username
         self.password = password
         self.team = team
         self.domain = domain
+        self.is_default = is_default
 
     def __str__(self):
         return "%s\\%s:%s:%s" % (self.domain, self.team.name, self.username, self.password)

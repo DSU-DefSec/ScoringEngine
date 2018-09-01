@@ -1,5 +1,4 @@
 *.pyc
-*.sql
 */__pycache__
 */__cache__
 scoring/checkfiles/*
