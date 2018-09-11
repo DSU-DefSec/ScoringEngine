@@ -19,26 +19,20 @@ class RdpPoller(Poller):
         username = poll_input.credentials.username
         password = poll_input.credentials.password
         domain = poll_input.credentials.domain
-        
-        if domain is None:
+        cmd = ['xfreerdp', '--ignore-certificate', '--authonly', '-u', username, '-p', password]
+        if not domain is None:
+            cmd.extend(['-d', domain])
             opt_str = '--ignore-certificate --authonly -u \'{}\' -p \'{}\' {}:{}'
-            options = opt_str.format(
-                    username, password,
-                    poll_input.server, poll_input.port)
-        else:
-            opt_str = '--ignore-certificate --authonly -d {} -u \'{}\' -p \'{}\' {}:{}'
-            options = opt_str.format(
-                    domain.domain, username, password,
-                    poll_input.server, poll_input.port)
+        cmd.append('{}:{}'.format(poll_input.server, poll_input.port))
 
         try:
-            output = subprocess.check_output('xfreerdp {}'.format(options), shell=True, stderr=subprocess.STDOUT)
+            output = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
             result = RdpPollResult(True)
             return result
         except Exception as e:
-            if ('connected to' in str(e.output) and 'Authentication failure' not in str(e.output)) or (e.returncode == 131 and 'negotiation' in str(e.output)):
-                result = RdpPollResult(True)
-                return result
-            print("{{{{%s}}}}" % e.output)
-            result = RdpPollResult(False, e)
+#            if e.returncode == 131 and 'negotiation' in str(e.output) and not 'Connection reset by peer' in str(e.output):
+#                result = RdpPollResult(True)
+#                return result
+            #print("{{{{%s}}}}" % e.output)
+            result = RdpPollResult(False, e.output)
             return result
