@@ -63,4 +63,4 @@ class FileManager(object):
         local_files = os.listdir(CHECK_FILES_PATH)
         for local_file in local_files:
             local_file = '%s/%s' % (CHECK_FILES_PATH, local_file)
-            subprocess.call(['rsync', '-a', local_file, remote])
+            subprocess.call(['rsync', '-rl', local_file, remote])

@@ -40,10 +40,10 @@ class SshPoller(Poller):
             cli.close()
             return result
         except (Exception, socket.error) as e:
-            result = SshPollResult(False, e)
+            result = SshPollResult(False, Exception(e.message))
             return result
         except SSHException as e:
-            result = SshPollResult(False, e)
+            result = SshPollResult(False, Exception(e.message))
             return result
         except:
             result = SshPollResult(False, Exception("SSH: Other exception"))
