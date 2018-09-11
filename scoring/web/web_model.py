@@ -133,7 +133,6 @@ class WebModel(DataModel):
                         last_ids.append(check_results[-1].id)
             last_id = -1
             if len(last_ids) != 0:
-                print(last_ids)
                 last_id = max(last_ids)
 
         rows = db.get('result', ['*'], where='id > %s',
