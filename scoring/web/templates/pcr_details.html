@@ -58,18 +58,24 @@
         </tr>
         {% endfor %}
     </tbody>
-<table>
+</table>
 </div>
 
 <script>
 function textAreaAdjust(o) {
   o.style.height = "1px";
   o.style.height = (25+o.scrollHeight)+"px";
+  document.getElementById('comment_container').style.height = o.style.height + 50 + "px";
+}
+
+window.onload = function () {
+    textAreaAdjust(document.getElementById('admin_comment');
+    textAreaAdjust(document.getElementById('team_comment');
 }
 </script>
 
 <form method="post" action="pcr_details">
-<div class="border rounded comments">
+<div class="border rounded comments" id="comment_container" style="height:145px">
     <div class="float-right col-6 mt-1">
         <span class=""><strong><u>Admin Comments</u></strong></span>
         {% if current_user.is_admin %}
