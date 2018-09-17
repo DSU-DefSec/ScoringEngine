@@ -95,8 +95,9 @@ def pcr():
         else:
             team_id = user.team.id
             where = 'team_id = %s'
+            orderby = 'submitted DESC'
             args = (team_id)
-        pcr_ids = db.get('pcr', ['id'], where=where, args=args)
+        pcr_ids = db.get('pcr', ['id'], where=where, orderby=orderby, args=args)
         pcrs = [PasswordChangeRequest.load(pcr_id) for pcr_id in pcr_ids]
         domains = {d.id:d for d in wm.domains}
         services = {s.id:s for s in wm.services}
@@ -194,9 +195,7 @@ def result_log():
     check_id = int(request.args.get('cid'))
     results = sorted(wm.results[team_id][check_id], key= lambda r: r.time, reverse=True)
 
-#    fname = plot.plot_results(results) # Results plot
     fname = ''
-    print([r.check_io.expected for r in results])
     return render_template('result_log.html', results=results, fname=fname)
 
 @app.route('/competition', methods=['GET', 'POST'])
