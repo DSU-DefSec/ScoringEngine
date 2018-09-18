@@ -52,21 +52,6 @@ def status():
     teams.sort(key=lambda t: t.name)
     return render_template('status.html', teams=teams, checks=checks, results=results)
 
-@app.route('/scores')
-@login_required
-@admin_required
-def scores():
-    """
-    Render a page showing scores for each team.
-    """
-    teams = wm.teams
-    checks = wm.checks
-    team_ids = [t.id for t in teams]
-    check_ids = [c.id for c in checks]
-    results = score.get_results_list(team_ids, check_ids)
-    uptime = score.uptime(results)
-    return render_template('scores.html', teams=teams, checks=checks, uptime=uptime, results=results, team_ids=team_ids, check_ids=check_ids)
-
 @app.route('/credentials', methods=['GET'])
 @login_required
 @admin_required
@@ -266,3 +251,27 @@ def pw_reset():
             wm.change_user_password(username, form.new_pw.data)
             success = True
     return render_template('pw_reset.html', success=success, form=form)
+
+@app.route('/reporting/score', methods=['GET'])
+@login_required
+def score():
+    """
+    Score information page
+    """
+    results = wm.results
+    simple_results = {}
+    for team,tresults in results.items():
+        simple_results[team] = {}
+        for check,cresults in tresults.items():
+            simple_results[team][check] = []
+            for res in cresults:
+                simple_results[team][check].append([res.time.strftime('%Y-%m-%d %H:%M:%S'), res.result])
+
+    teams = {}
+    for team in wm.teams:
+        teams[team.id] = team.name
+    checks = {}
+    for check in wm.checks:
+        checks[check.id] = check.name
+
+    return render_template('score.html', results=simple_results, teams=teams, checks=checks)
