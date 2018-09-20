@@ -64,22 +64,30 @@
 <script>
 function textAreaAdjust(o) {
   o.style.height = "1px";
-  o.style.height = (25+o.scrollHeight)+"px";
-  document.getElementById('comment_container').style.height = o.style.height + 50 + "px";
+  var sh = o.scrollHeight;
+  o.style.height = (sh+25) + "px";
+  var cont = document.getElementById('comment_container');
+  cont.style.height = (sh+75) + "px";
 }
 
 window.onload = function () {
-    textAreaAdjust(document.getElementById('admin_comment');
-    textAreaAdjust(document.getElementById('team_comment');
+    var elem = document.getElementById('admin_comment');
+    if (elem != null) {
+        textAreaAdjust(elem);
+    }
+    var elem = document.getElementById('team_comment');
+    if (elem != null) {
+        textAreaAdjust(elem);
+    }
 }
 </script>
 
 <form method="post" action="pcr_details">
-<div class="border rounded comments" id="comment_container" style="height:145px">
+<div class="border rounded" id="comment_container">
     <div class="float-right col-6 mt-1">
         <span class=""><strong><u>Admin Comments</u></strong></span>
         {% if current_user.is_admin %}
-        <textarea name="admin_comment" class="col-12" style="height:100%; resize:none;" onkeyup="textAreaAdjust(this)">{{ pcr.admin_comment }}</textarea>
+        <textarea name="admin_comment" id="admin_comment" class="col-12" style="height:100%; resize:none;" onkeyup="textAreaAdjust(this)">{{ pcr.admin_comment }}</textarea>
         {% else %}
         <p class="">{{ pcr.admin_comment }}</p>
         {% endif %}
@@ -88,7 +96,7 @@ window.onload = function () {
     <div class="col-6 mt-1">
         <span class=""><strong><u>Team Comments</u></strong></span>
         {% if not current_user.is_admin %}
-        <textarea name="team_comment" class="col-12" style="height:100%; resize:none;" onkeyup="textAreaAdjust(this)">{{ pcr.team_comment }}</textarea>
+        <textarea name="team_comment" id="team_comment" class="col-12" style="height:100%; resize:none;" onkeyup="textAreaAdjust(this)">{{ pcr.team_comment }}</textarea>
         {% else %}
         <p class="">{{ pcr.team_comment }}</p>
         {% endif %}
