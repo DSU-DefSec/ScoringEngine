@@ -2,6 +2,7 @@
 from engine.engine_model import EngineModel
 from engine.file_manager import FileManager
 from threading import Thread
+import db
 import time, datetime
 import random
 import sys
@@ -22,6 +23,7 @@ class ScoringEngine(object):
             jitter = self.em.settings['jitter']
 
             if running:
+                self.log_default_creds()
                 self.check()
             else:
                 print("Stopped")
@@ -43,6 +45,10 @@ class ScoringEngine(object):
             else:
                 service.check([self.em.teams[self.team_num]])
 
+    def log_default_creds(self):
+        cmd = ('INSERT INTO default_creds_log (team_id, perc_default) '
+                'SELECT team_id,AVG(is_default) FROM credential GROUP BY team_id')
+        db.execute(cmd)
 
 
 if __name__ == '__main__':
