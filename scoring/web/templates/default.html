@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block scores %}active{% endblock %}
+
+{% block content %}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+<script src="/static/js/default.js"></script>
+
+<div style="width:75%;margin: auto">
+    <canvas id="canvas"></canvas>
+</div>
+
+<table class="table" hidden="true">
+    <tbody>
+        {% for team_id in defaults.keys() %}
+        <tr>
+            <td id="def-{{team_id}}">
+                {{defaults[team_id]}}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+window.onload = function() {
+    {% set team_ids = defaults.keys()|list %}
+    var tids = {{team_ids}};
+    var teams = {{ teams|safe }};
+    window.data = load_datasets(tids, teams);
+
+    var ctx = document.getElementById('canvas').getContext('2d');
+    window.scoreChart = new Chart(ctx, config);
+}
+</script>
+{% endblock %}

@@ -5,7 +5,6 @@ import flask
 from flask import Flask, render_template, request, redirect, url_for
 from urllib.parse import urlparse, urljoin
 from .forms import *
-#from . import plot
 from . import score
 from .. import validate
 import flask_login
@@ -254,6 +253,7 @@ def pw_reset():
 
 @app.route('/reporting/score', methods=['GET'])
 @login_required
+@admin_required
 def score():
     """
     Score information page
@@ -275,3 +275,24 @@ def score():
         checks[check.id] = check.name
 
     return render_template('score.html', results=simple_results, teams=teams, checks=checks)
+
+@app.route('/reporting/default', methods=['GET'])
+@login_required
+@admin_required
+def default():
+    """
+    Default passwords information page.
+    """
+    teams = {}
+    for team in wm.teams:
+        teams[team.id] = team.name
+
+    defaults = {}
+    for team_id in teams.keys():
+        res = db.get('default_creds_log', ['time', 'perc_default'], where='team_id=%s', args=(team_id,))
+        res = list(res)
+        for i in range(len(res)):
+            res[i] = [res[i][0].strftime('%Y-%m-%d %H:%M:%S'), res[i][1]*100]
+        defaults[team_id] = res
+
+    return render_template('default.html', defaults=defaults, teams=teams)
