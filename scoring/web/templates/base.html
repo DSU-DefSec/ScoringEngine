@@ -29,6 +29,9 @@
     <li class="d-inline-block nav-item {% block scores %}{% endblock %}">
         <a class="nav-link" href="{{ url_for('score') }}">Scores</a>
     </li>
+    <li class="d-inline-block nav-item {% block defaults %}{% endblock %}">
+        <a class="nav-link" href="{{ url_for('default') }}">Default Creds</a>
+    </li>
     {% endif %}
 </ul>
 <ul class="navbar-nav navbar-right">
