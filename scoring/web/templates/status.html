@@ -10,7 +10,7 @@
 <tr>
 <th></th>
 {% for t in teams %}
-<th class='clickable' data-href='/credentials?tid={{ t.id }}'>{{ t.name }}</th>
+<th {% if current_user.is_authenticated and current_user.name == 'admin' %}class='clickable'{% endif %} data-href='/credentials?tid={{ t.id }}'>{{ t.name }}</th>
 {% endfor %}
 </tr>
 </thead>
@@ -23,12 +23,12 @@
         {% if c.id in results[t.id] %}
             {% set r = results[t.id][c.id] %}
             {% if r.result is equalto 1 %}
-                <td class='pass clickable' style="padding:0px;" data-href='/result_log?tid={{ t.id }}&cid={{ c.id }}'>
+                <td class='pass {% if current_user.is_authenticated and current_user.name == 'admin' %}clickable{% endif %}' style="padding:0px;" data-href='/result_log?tid={{ t.id }}&cid={{ c.id }}'>
                         <span>Pass</span>
                         <span style="font-size:10px; position:relative; top:13px; left:-5%;">{{ r.time }}</span>
                 </td>
             {% else %}
-                <td class='fail clickable' data-href='/result_log?tid={{ t.id }}&cid={{ c.id }}'>
+                <td class='fail {% if current_user.is_authenticated and current_user.name == 'admin' %}clickable{% endif %}' data-href='/result_log?tid={{ t.id }}&cid={{ c.id }}'>
                         <span>Fail</span>
                         <span style="font-size:10px; position:relative; top:13px; left:-5%;">{{ r.time }}</span>
                 </td>
