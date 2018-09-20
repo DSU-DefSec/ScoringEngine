@@ -54,6 +54,7 @@ CREATE TABLE `credential` (
     `team_id` INT NOT NULL,
     `service_id` INT NOT NULL,
     `domain_id` INT,
+    `is_default` BOOL DEFAULT TRUE,
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
        ON DELETE CASCADE,
     FOREIGN KEY (`service_id`) REFERENCES `service`(`id`)
@@ -103,3 +104,10 @@ CREATE TABLE `pcr` (
        ON DELETE CASCADE,
     FOREIGN KEY (`domain_id`) REFERENCES `domain`(`id`)
        ON DELETE CASCADE);
+
+CREATE TABLE `default_creds_log` (
+    `time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `team_id` INT NOT NULL,
+    `perc_default` DOUBLE NOT NULL,
+    FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
+        ON DELETE CASCADE);

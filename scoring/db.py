@@ -165,7 +165,7 @@ def set_credential_password(username, password, team_id, service_id=None, domain
     """
     if service_id is None and domain_id is None:
         raise Exception('service_id and domain_id cannot both be None.')
-    cmd = 'UPDATE credential SET password=%s WHERE username=%s AND team_id=%s'
+    cmd = 'UPDATE credential SET password=%s, is_default=0 WHERE username=%s AND team_id=%s'
     if service_id is not None:
         cmd += ' AND service_id=%s'
         execute(cmd, (password, username, team_id, service_id))

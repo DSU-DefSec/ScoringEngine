@@ -96,7 +96,7 @@ class DataModel(object):
         """
         creds = []
         cred_rows = db.getall('credential')
-        for cred_id, username, password, team_id, service_id, domain_id in cred_rows:
+        for cred_id, username, password, team_id, service_id, domain_id, is_default in cred_rows:
             team = next(filter(lambda t: t.id == team_id, teams))
             domain_lst = list(filter(lambda d: d.id == domain_id, domains))
             if len(domain_lst) == 0:
@@ -104,7 +104,7 @@ class DataModel(object):
             else:
                 domain = domain_lst[0]
 
-            cred = Credential(cred_id, username, password, team, domain)
+            cred = Credential(cred_id, username, password, team, domain, is_default)
             creds.append(cred)
         return creds
     
