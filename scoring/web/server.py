@@ -76,6 +76,7 @@ def pcr():
         if user.is_admin:
             where = 'status = %s'
             args = (int(PCRStatus.APPROVAL))
+            orderby = None
         else:
             team_id = user.team.id
             where = 'team_id = %s'
