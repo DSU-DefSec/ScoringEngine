@@ -87,7 +87,10 @@ def reset_table(table):
     Arguments:
         table (str): Table to delete all data from
     """
-    execute('TRUNCATE TABLE %s' % table)
+    try:
+        execute('TRUNCATE TABLE %s' % table)
+    except:
+        execute('DELETE FROM %s' % table)
 
 def reset_all_tables():
     """
