@@ -23,14 +23,12 @@
         {% if c.id in results[t.id] %}
             {% set r = results[t.id][c.id] %}
             {% if r.result is equalto 1 %}
-                <td class='pass {% if current_user.is_authenticated and current_user.name == 'admin' %}clickable{% endif %}' style="padding:0px;" data-href='/result_log?tid={{ t.id }}&cid={{ c.id }}'>
+                <td class='pass {% if current_user.is_authenticated and current_user.name == 'admin' %}clickable{% endif %}' data-href='/result_log?tid={{ t.id }}&cid={{ c.id }}'>
                         <span>Pass</span>
-                        <span style="font-size:10px; position:relative; top:13px; left:-5%;">{{ r.time }}</span>
                 </td>
             {% else %}
                 <td class='fail {% if current_user.is_authenticated and current_user.name == 'admin' %}clickable{% endif %}' data-href='/result_log?tid={{ t.id }}&cid={{ c.id }}'>
                         <span>Fail</span>
-                        <span style="font-size:10px; position:relative; top:13px; left:-5%;">{{ r.time }}</span>
                 </td>
             {% endif %}
         {% else %}
@@ -41,5 +39,6 @@
 {% endfor %}
 </tbody>
 </table>
+<span style="float:right">Last check completed at: {{ last_time }}</span>
 
 {% endblock %}
