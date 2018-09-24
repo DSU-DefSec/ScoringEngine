@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% block settings %}active{% endblock %}
 {% block content %}
 <h1>Competition Controls</h1>
 {% if running %}
@@ -8,7 +9,7 @@
 <h2>Status: <strong class="text-danger">Stopped</strong></h2>
 {% endif %}
 
-<form method="POST" action="{{ url_for('competition') }}">
+<form method="POST" action="{{ url_for('settings') }}">
     <div class="form-group">
     <label for="running">Start/Stop: </label>
     {% if running %}

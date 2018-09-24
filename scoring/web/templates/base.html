@@ -26,6 +26,9 @@
     </li>
     {% endif %}
     {% if current_user.is_authenticated and current_user.name == 'admin' %}
+    <li class="d-inline-block nav-item {% block settings %}{% endblock %}">
+        <a class="nav-link" href="{{ url_for('settings') }}">Settings</a>
+    </li>
     <li class="d-inline-block nav-item {% block scores %}{% endblock %}">
         <a class="nav-link" href="{{ url_for('score') }}">Scores</a>
     </li>
