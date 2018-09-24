@@ -159,7 +159,7 @@ class Check(object):
             poll_input (PollInput): The input to the poller
             expected (List or Dict): The expected output from the poller
         """
-        max_tries = 5 # TODO make this configurable
+        max_tries = 1 # TODO make this configurable
         tries = 0
         while tries < max_tries: 
             tries += 1
