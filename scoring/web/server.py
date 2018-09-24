@@ -49,7 +49,15 @@ def status():
     checks = wm.checks
     results = wm.latest_results()
     teams.sort(key=lambda t: t.name)
-    return render_template('status.html', teams=teams, checks=checks, results=results)
+    times = []
+    for team_id,team_results in results.items():
+        for check_id,result in team_results.items():
+            times.append(result.time.strftime('%H:%M:%S'))
+    if len(times) == 0:
+        last_time = ''
+    else:
+        last_time = max(times)
+    return render_template('status.html', teams=teams, checks=checks, results=results, last_time=last_time)
 
 @app.route('/credentials', methods=['GET'])
 @login_required
@@ -183,10 +191,10 @@ def result_log():
     fname = ''
     return render_template('result_log.html', results=results, fname=fname)
 
-@app.route('/competition', methods=['GET', 'POST'])
+@app.route('/settings', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def competition():
+def settings():
     """
     Render page with a button for starting and stopping the engine.
     """
