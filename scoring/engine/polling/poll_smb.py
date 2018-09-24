@@ -33,7 +33,7 @@ class SmbPoller(FilePoller):
         cmd = 'get {} {}'.format(poll_input.path, f.name)
         smbcli = ['smbclient', '-U', username, share, password, '-c', cmd]
         if not domain is None:
-            smbcli.extend(['-D', domain])
+            smbcli.extend(['-W', domain.domain])
         try:
             subprocess.check_output(smbcli, stderr=subprocess.STDOUT)
             result = SmbPollResult(f.name)
