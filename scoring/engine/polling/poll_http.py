@@ -31,7 +31,7 @@ class HttpPoller(FilePoller):
             r.raise_for_status()
 
             content = r.text
-#            content = re.sub(r'\?[^"]*', '', content)
+            content = re.sub(r'10.0.[0-9]', '', content)
 
             f = self.open_file('html')
             f.write(content.encode('utf-8'))
