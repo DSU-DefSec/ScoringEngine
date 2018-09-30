@@ -80,8 +80,8 @@ class Poller(object):
     def poll_timed(self, poll_input):
         try:
             poll_result = self.poll(poll_input)
-        except:
-            poll_result = PollResult(Exception("Check Timed Out"))
+        except Exception as e:
+            poll_result = PollResult(e)
         return poll_result
 
     @timeout(20)
