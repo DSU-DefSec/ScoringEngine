@@ -1,5 +1,5 @@
-from .. import db
-from ..data_model import *
+import db
+from data_model import *
 from .model import User
 import utils
 import json

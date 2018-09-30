@@ -6,6 +6,9 @@ install_common() {
     sudo apt-get install -y python3 python3-pip python-dev
     sudo pip3 install -U pip
     echo "Common files installed"
+    echo "Configuring logging to /var/log/scoring.log ..."
+    sudo cp install/scoring.syslog.conf /etc/rsyslog.d/
+    sudo systemctl restart rsyslog
 }
 
 install_engine() {
@@ -19,9 +22,6 @@ install_engine() {
     echo "Creating systemd service..."
     sudo cp install/scoring_engine.service /etc/systemd/system/
     sudo systemctl daemon-reload
-    echo "Configuring logging to /var/log/scoring.log ..."
-    sudo cp install/scoring.syslog.conf /etc/rsyslog.d/
-    sudo systemctl restart rsyslog
     echo 'Engine Installed! Run: `systemctl start scoring_engine` to start'
 }
 
@@ -35,9 +35,23 @@ install_web() {
     install_common
     install_engine
     echo "Installing Web..."
-    sudo apt-get install -y python3-tk
-    sudo pip3 install Flask flask-login flask-wtf bcrypt
-    echo "Web Installed!"
+    sudo apt-get install -y python3-tk nginx
+    sudo pip3 install Flask flask-login flask-wtf bcrypt uwsgi
+    echo "Creating web server systemd service..."
+    sudo cp install/scoring_web.service /etc/systemd/system/
+    sudo systemctl daemon-reload
+    sudo chown -R :www-data /opt/scoring/scoring/
+    sudo chmod -R g+w /opt/scoring/scoring/
+    echo "Creating rsync systemd service..."
+    sudo cp install/rsyncd.service /etc/systemd/system/
+    sudo systemctl daemon-reload
+    echo "Configuring nginx..."
+    sudo cp install/scoring.site /etc/nginx/sites-available/
+    sudo ln -s /etc/nginx/sites-available/scoring.site /etc/nginx/sites-enabled/
+    sudo rm /etc/nginx/sites-enabled/default
+    sudo nginx -t
+    sudo systemctl restart nginx
+    echo 'Web Installed! Run :`systemctl start scoring_web` to start'
 }
 
 role=$1

@@ -1,4 +1,4 @@
-from .. import db
+import db
 
 def get_results_list(team_ids, check_ids):
     """

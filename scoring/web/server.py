@@ -6,7 +6,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from urllib.parse import urlparse, urljoin
 from .forms import *
 from . import score
-from .. import validate
+import validate
 import flask_login
 from flask_login import LoginManager, login_user, logout_user, login_required
 from .model import User, PasswordChangeRequest, PCRStatus
