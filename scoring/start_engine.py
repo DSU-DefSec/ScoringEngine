@@ -27,6 +27,7 @@ class ScoringEngine(object):
                 self.check()
             else:
                 print("Stopped")
+                return
 
             wait = interval
             print("Interval: " + str(wait))

@@ -14,10 +14,12 @@ class FileManager(object):
         self.master_files = {}
 
     def manage_files(self):
-        while True:
+        running = int(db.get('settings', ['value'], where='skey=%s', args=['running'])[0][0])
+        while running:
             self.deduplicate_files()
             self.push_files()
             time.sleep(5)
+            running = int(db.get('settings', ['value'], where='skey=%s', args=['running'])[0][0])
 
     def get_files(self):
         paths = []
