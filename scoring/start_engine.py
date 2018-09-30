@@ -65,4 +65,5 @@ if __name__ == '__main__':
     file_manager_thread = Thread(target=file_manager.manage_files)
     file_manager_thread.start()
 
+    db.modify('settings', set='value=%s', where='skey=%s', args=(True, 'running'))
     engine.start()
