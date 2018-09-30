@@ -196,8 +196,8 @@ class Check(object):
         poll_input = json.dumps(poll_input, default=poll_input.serialize)
         try:
             poll_result = json.dumps(poll_result, default=poll_result.serialize)
-        except:
-            print("Dump failed")
+        except Exception as e:
+            print("Dump failed: {}".format(str(e)))
             print(poll_result.__class__.__name__)
             print(poll_result.__dict__)
             return
