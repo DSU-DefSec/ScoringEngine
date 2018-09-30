@@ -1,17 +1,18 @@
-DROP DATABASE IF EXISTS `scoring`;
-CREATE DATABASE `scoring`;
 USE `scoring`;
+DROP TABLE IF EXISTS `settings`;
 CREATE TABLE `settings` ( 
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `skey` VARCHAR(255) NOT NULL,
     `value` VARCHAR(255) NOT NULL);
 
-CREATE TABLE team (
+DROP TABLE IF EXISTS `team`;
+CREATE TABLE `team` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL UNIQUE,
     `subnet` VARCHAR(15) NOT NULL,
     `netmask` VARCHAR(15) NOT NULL);
         
+DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `username` VARCHAR(255),
@@ -21,11 +22,13 @@ CREATE TABLE `users` (
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
         ON DELETE CASCADE);
     
+DROP TABLE IF EXISTS `service`;
 CREATE TABLE `service` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `host` INT NOT NULL,
     `port` INT NOT NULL);
 
+DROP TABLE IF EXISTS `service_check`;
 CREATE TABLE `service_check` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL UNIQUE,
@@ -35,10 +38,12 @@ CREATE TABLE `service_check` (
     FOREIGN KEY (`service_id`) REFERENCES `service`(`id`)
         ON DELETE CASCADE);
 
+DROP TABLE IF EXISTS `domain`;
 CREATE TABLE `domain` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `fqdn` VARCHAR(256) NOT NULL UNIQUE);
 
+DROP TABLE IF EXISTS `check_io`;
 CREATE TABLE `check_io` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `input` VARCHAR(4095) NOT NULL,
@@ -47,6 +52,7 @@ CREATE TABLE `check_io` (
     FOREIGN KEY (`check_id`) REFERENCES `service_check`(`id`)
         ON DELETE CASCADE);
 
+DROP TABLE IF EXISTS `credential`;
 CREATE TABLE `credential` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `username` VARCHAR(255) NOT NULL,
@@ -62,6 +68,7 @@ CREATE TABLE `credential` (
     FOREIGN KEY (`domain_id`) REFERENCES `domain`(`id`)
        ON DELETE CASCADE);
 
+DROP TABLE IF EXISTS `cred_input`;
 CREATE TABLE `cred_input` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `cred_id` INT NOT NULL,
@@ -71,7 +78,8 @@ CREATE TABLE `cred_input` (
     FOREIGN KEY (`check_io_id`) REFERENCES `check_io`(`id`)
        ON DELETE CASCADE);
 
-CREATE TABLE result (
+DROP TABLE IF EXISTS `result`;
+CREATE TABLE `result` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `check_id` INT NOT NULL,
     `check_io_id` INT NOT NULL,
@@ -87,6 +95,7 @@ CREATE TABLE result (
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
        ON DELETE CASCADE);
 
+DROP TABLE IF EXISTS `pcr`;
 CREATE TABLE `pcr` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `team_id` INT NOT NULL,
@@ -105,6 +114,7 @@ CREATE TABLE `pcr` (
     FOREIGN KEY (`domain_id`) REFERENCES `domain`(`id`)
        ON DELETE CASCADE);
 
+DROP TABLE IF EXISTS `default_creds_log`;
 CREATE TABLE `default_creds_log` (
     `time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `team_id` INT NOT NULL,

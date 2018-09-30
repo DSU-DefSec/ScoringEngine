@@ -1,8 +1,8 @@
 import pymysql
 
-host='127.0.0.1'
-user='root'
-password='toor'
+host='192.168.2.3'
+user='scoring'
+password='Password1!'
 
 def connect():
     """
