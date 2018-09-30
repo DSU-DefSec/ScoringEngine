@@ -3,6 +3,8 @@ from requests.exceptions import *
 import re
 from .poller import PollInput, PollResult, Poller
 from .file_poller import FilePoller
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class HttpPollInput(PollInput):
