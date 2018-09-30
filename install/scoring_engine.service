@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 WorkingDirectory=/opt/scoring/scoring/
-ExecStart=/opt/scoring/scoring/start_engine.py
-ExecStop=/opt/scoring/scoring/stop_engine.py
+ExecStart=/usr/bin/python3 -u /opt/scoring/scoring/start_engine.py
+ExecStop=/usr/bin/python3 -u /opt/scoring/scoring/stop_engine.py
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=scoring
