@@ -23,7 +23,6 @@ class SshPoller(Poller):
     def poll(self, poll_input):
         username = poll_input.credentials.username
         password = poll_input.credentials.password
-    
         try:
             cli = client.SSHClient()
             cli.load_host_keys('/dev/null')
@@ -40,11 +39,5 @@ class SshPoller(Poller):
             cli.close()
             return result
         except (Exception, socket.error) as e:
-            result = SshPollResult(False, Exception(e.message))
-            return result
-        except SSHException as e:
-            result = SshPollResult(False, Exception(e.message))
-            return result
-        except:
-            result = SshPollResult(False, Exception("SSH: Other exception"))
+            result = SshPollResult(False, exceptions=Exception(str(e)))
             return result
