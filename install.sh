@@ -11,7 +11,7 @@ install_common() {
 install_engine() {
     install_common
     echo "Installing engine..."
-    sudo apt-get install -y freetds-dev libssl-dev libffi-dev libldap2-dev libsasl2-dev freerdp smbclient
+    sudo apt-get install -y freetds-dev libssl-dev libffi-dev libldap2-dev libsasl2-dev freerdp2-x11 smbclient
     sudo pip3 install dnspython paramiko pymysql pymssql pyldap requests
     echo "Engine Installed!"
 }
