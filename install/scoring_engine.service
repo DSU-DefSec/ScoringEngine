@@ -1,0 +1,14 @@
+[Unit]
+Description=Scoring Engine service
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/scoring/scoring/
+ExecStart=/opt/scoring/scoring/start_engine.py
+ExecStop=/opt/scoring/scoring/stop_engine.py
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=scoring
+
+[Install]
+WantedBy=multi-user.target

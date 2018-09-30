@@ -11,9 +11,18 @@ install_common() {
 install_engine() {
     install_common
     echo "Installing engine..."
+    echo "Installing dependencies..."
     sudo apt-get install -y freetds-dev libssl-dev libffi-dev libldap2-dev libsasl2-dev freerdp2-x11 smbclient
     sudo pip3 install dnspython paramiko pymysql pymssql pyldap requests
-    echo "Engine Installed!"
+    echo "Creating score user..."
+    sudo useradd -s /bin/bash score
+    echo "Creating systemd service..."
+    sudo cp install/scoring_engine.service /etc/systemd/system/
+    sudo systemctl daemon-reload
+    echo "Configuring logging to /var/log/scoring.log ..."
+    sudo cp install/scoring.syslog.conf /etc/rsyslog.d/
+    sudo systemctl restart rsyslog
+    echo 'Engine Installed! Run: `systemctl start scoring_engine` to start'
 }
 
 install_db() {
