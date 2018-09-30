@@ -47,6 +47,6 @@ class FtpPoller(FilePoller):
             result = FtpPollResult(f.name, None)
             return result
         except Exception as e:
-            t.close()
+            f.close()
             result = FtpPollResult(None, e)
             return result
