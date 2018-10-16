@@ -335,3 +335,16 @@ def systems():
                 db.insert('revert_log', ['team_id', 'system'], [tid, system])
     systems = wm.systems
     return render_template('systems.html', systems=systems, penalty=wm.settings['revert_penalty'], errors=errors)
+
+@app.route('/revert_log', methods=['GET'])
+@login_required
+def revert_log():
+    teams = {}
+    for team in wm.teams:
+        teams[team.id] = team.name
+
+    if current_user.name == 'admin':
+        reverts = db.getall('revert_log')
+    else:
+        reverts = db.get('revert_log', ['*'], where='team_id=%s', args=(current_user.team.id,))
+    return render_template('revert_log.html', teams=teams, reverts=reverts)

@@ -24,6 +24,12 @@
     <li class="d-inline-block nav-item {% block pcr %}{% endblock %}">
         <a class="nav-link" href="{{ url_for('pcr') }}">Password Change Requests</a>
     </li>
+    <li class="d-inline-block nav-item {% block systems %}{% endblock %}">
+        <a class="nav-link" href="{{ url_for('systems') }}">System Resets</a>
+    </li>
+    <li class="d-inline-block nav-item {% block revert_log %}{% endblock %}">
+        <a class="nav-link" href="{{ url_for('revert_log') }}">Revert Log</a>
+    </li>
     {% endif %}
     {% if current_user.is_authenticated and current_user.name == 'admin' %}
     <li class="d-inline-block nav-item {% block settings %}{% endblock %}">
