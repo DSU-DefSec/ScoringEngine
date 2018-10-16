@@ -246,6 +246,8 @@ function calc_scores(tids) {
         } else {
             var score = 0;
         }
-        score_td.innerHTML = Math.round(score);
+        var reset_penalty = document.getElementById("revert-" + tid).innerHTML;
+        console.log(reset_penalty)
+        score_td.innerHTML = Math.round(score - reset_penalty);
     }
 }
