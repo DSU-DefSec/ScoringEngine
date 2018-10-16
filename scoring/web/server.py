@@ -8,7 +8,7 @@ from .forms import *
 from . import score
 import validate
 import flask_login
-from flask_login import LoginManager, login_user, logout_user, login_required
+from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from .model import User, PasswordChangeRequest, PCRStatus
 from .pcr_servicer import PCRServicer
 from .decorators import *
@@ -312,20 +312,22 @@ def systems():
     """
     Page for powering on, powering off, restarting, and reverting systems.
     """
+    errors = None
     if request.method == 'POST':
-        tid = user.team.id
+        tid = current_user.team.id
         system = request.form['system']
         action = request.form['action']
         vapp = ''
 
         if request.form['action'] == 'power on':
-            ialab.power_on(vapp, system)
+            errors = ialab.power_on(vapp, system)
         elif request.form['action'] == 'power off':
-            ialab.power_off(vapp, system)
+            errors = ialab.power_off(vapp, system)
         elif request.form['action'] == 'restart':
-            ialab.restart(vapp, system)
+            errors = ialab.restart(vapp, system)
         elif request.form['action'] == 'revert':
-            ialab.revert(vapp, system)
+            errors = ialab.revert(vapp, system)
             db.insert('revert_log', ['team_id', 'system'], [tid, system])
     systems = ['MAIL', 'CEO Workstation', 'DC']
-    return render_template('systems.html', systems=systems, penalty=200)
+    print(errors)
+    return render_template('systems.html', systems=systems, penalty=200, errors=errors)
