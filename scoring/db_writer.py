@@ -11,6 +11,16 @@ def write_settings(settings):
     for key, value in settings.items():
         db.insert('settings', ['skey', 'value'], (key, value))
 
+def write_systems(systems):
+    """
+    Write system names to the databasae.
+
+    Arguments:
+        systems (List(str)): A list of system names
+    """
+    for system in systems:
+        db.insert('systems', ['system'], (system,))
+
 def write_teams(teams):
     """
     Write the given teams to the database.

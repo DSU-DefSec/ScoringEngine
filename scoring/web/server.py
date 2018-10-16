@@ -329,6 +329,6 @@ def systems():
         elif request.form['action'] == 'revert':
             errors = ialab.revert(vapp, system)
             db.insert('revert_log', ['team_id', 'system'], [tid, system])
-    systems = ['Client', 'CEO Workstation', 'DC']
+    systems = wm.systems
     print(errors)
     return render_template('systems.html', systems=systems, penalty=wm.settings['revert_penalty'], errors=errors)

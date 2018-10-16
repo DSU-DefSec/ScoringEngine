@@ -7,6 +7,10 @@ CREATE TABLE `settings` (
     `skey` VARCHAR(255) NOT NULL,
     `value` VARCHAR(255) NOT NULL);
 
+DROP TABLE IF EXISTS `systems`;
+CREATE TABLE `systems` (
+    `system` VARCHAR(255) NOT NULL PRIMARY KEY);
+
 DROP TABLE IF EXISTS `team`;
 CREATE TABLE `team` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,

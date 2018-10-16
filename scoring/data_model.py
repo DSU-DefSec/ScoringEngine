@@ -16,6 +16,7 @@ class DataModel(object):
         Load all data from the database.
         """
         self.load_settings()
+        self.load_systems()
         teams = self.load_teams()
         self.teams = list(teams.values())
         self.domains = self.load_domains()
@@ -54,6 +55,15 @@ class DataModel(object):
         settings['pcr_service_jitter'] = int(settings['pcr_service_jitter'])
 
         self.settings = settings
+
+    def load_systems(self):
+        """
+        Load systems from the database.
+        """
+        system_rows = db.getall('systems')
+        systems = [system_row[0] for system_row in system_rows]
+        print(systems)
+        self.systems = systems
     
     def load_teams(self):
         """
