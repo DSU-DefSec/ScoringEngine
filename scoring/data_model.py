@@ -64,8 +64,8 @@ class DataModel(object):
         """
         teams = {}
         rows = db.getall('team')
-        for team_id, name, subnet, netmask in rows:
-            team = Team(team_id, name, subnet, netmask)
+        for team_id, name, subnet, netmask, vapp in rows:
+            team = Team(team_id, name, subnet, netmask, vapp)
             teams[team_id] = team
         return teams
 

@@ -23,7 +23,7 @@ def write_teams(teams):
     """
     team_ids = {}
     for id, team in teams.items():
-        db_id = db.insert('team', ['name', 'subnet', 'netmask'], team)
+        db_id = db.insert('team', ['name', 'subnet', 'netmask', 'vapp'], team)
         team_ids[id] = db_id
     return team_ids
 

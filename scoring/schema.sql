@@ -1,4 +1,6 @@
 USE `scoring`;
+SET foreign_key_checks = 0;
+
 DROP TABLE IF EXISTS `settings`;
 CREATE TABLE `settings` ( 
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -10,7 +12,8 @@ CREATE TABLE `team` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL UNIQUE,
     `subnet` VARCHAR(15) NOT NULL,
-    `netmask` VARCHAR(15) NOT NULL);
+    `netmask` VARCHAR(15) NOT NULL,
+    `vapp` VARCHAR(255) NOT NULL UNIQUE);
         
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
@@ -121,3 +124,5 @@ CREATE TABLE `default_creds_log` (
     `perc_default` DOUBLE NOT NULL,
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
         ON DELETE CASCADE);
+
+SET foreign_key_checks = 1;

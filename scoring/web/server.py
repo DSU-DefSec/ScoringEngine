@@ -317,7 +317,8 @@ def systems():
         tid = current_user.team.id
         system = request.form['system']
         action = request.form['action']
-        vapp = ''
+        team = [t for t in wm.teams if t.id == tid][0]
+        vapp = team.vapp
 
         if request.form['action'] == 'power on':
             errors = ialab.power_on(vapp, system)
@@ -328,6 +329,6 @@ def systems():
         elif request.form['action'] == 'revert':
             errors = ialab.revert(vapp, system)
             db.insert('revert_log', ['team_id', 'system'], [tid, system])
-    systems = ['MAIL', 'CEO Workstation', 'DC']
+    systems = ['Client', 'CEO Workstation', 'DC']
     print(errors)
     return render_template('systems.html', systems=systems, penalty=200, errors=errors)
