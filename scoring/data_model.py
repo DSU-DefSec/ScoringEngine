@@ -53,6 +53,7 @@ class DataModel(object):
         settings['pcr_approval_window'] = int(settings['pcr_approval_window'])
         settings['pcr_service_window'] = int(settings['pcr_service_window'])
         settings['pcr_service_jitter'] = int(settings['pcr_service_jitter'])
+        settings['revert_penalty'] = int(settings['revert_penalty'])
 
         self.settings = settings
 
@@ -62,7 +63,6 @@ class DataModel(object):
         """
         system_rows = db.getall('systems')
         systems = [system_row[0] for system_row in system_rows]
-        print(systems)
         self.systems = systems
     
     def load_teams(self):
