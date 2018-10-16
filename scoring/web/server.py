@@ -283,7 +283,10 @@ def score():
     for check in wm.checks:
         checks[check.id] = check.name
 
-    return render_template('score.html', results=simple_results, teams=teams, checks=checks)
+    systems = wm.systems
+    reverts = wm.get_reverts()
+
+    return render_template('score.html', results=simple_results, teams=teams, checks=checks, systems=systems, reverts=reverts)
 
 @app.route('/reporting/default', methods=['GET'])
 @login_required
@@ -328,7 +331,7 @@ def systems():
             errors = ialab.restart(vapp, system)
         elif request.form['action'] == 'revert':
             errors = ialab.revert(vapp, system)
-            db.insert('revert_log', ['team_id', 'system'], [tid, system])
+            if errors == '':
+                db.insert('revert_log', ['team_id', 'system'], [tid, system])
     systems = wm.systems
-    print(errors)
     return render_template('systems.html', systems=systems, penalty=wm.settings['revert_penalty'], errors=errors)
