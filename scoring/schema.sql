@@ -125,4 +125,12 @@ CREATE TABLE `default_creds_log` (
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
         ON DELETE CASCADE);
 
+DROP TABLE IF EXISTS `revert_log`;
+CREATE TABLE `revert_log` (
+    `time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `team_id` INT NOT NULL,
+    `system` VARCHAR(255),
+    FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
+        ON DELETE CASCADE);
+
 SET foreign_key_checks = 1;
