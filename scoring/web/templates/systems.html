@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block pcr %}active{% endblock %}
+{% block systems %}active{% endblock %}
 
 {% block content %}
 <br/>
@@ -22,7 +22,7 @@
         modalBody = document.getElementById('confirm-body');
         dialog_str = `<p>Are you sure you want to <strong>${action}</strong> ${system}?`;
         if (action == 'revert') {
-            dialog_str += '<p>Reverting this system will cost <strong>{{ penalty }} points</strong>.'
+            dialog_str += '<p>Reverting this system to its original state will cost <strong>{{ penalty }} points</strong>.'
         }
         modalBody.innerHTML = dialog_str;
         $('#confirmModal').modal('show');
@@ -85,7 +85,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="confirmModalLabel">Confirm Deletion</h5>
+        <h5 class="modal-title" id="confirmModalLabel">Confirm Action</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
