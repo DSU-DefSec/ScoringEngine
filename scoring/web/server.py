@@ -331,4 +331,4 @@ def systems():
             db.insert('revert_log', ['team_id', 'system'], [tid, system])
     systems = ['Client', 'CEO Workstation', 'DC']
     print(errors)
-    return render_template('systems.html', systems=systems, penalty=200, errors=errors)
+    return render_template('systems.html', systems=systems, penalty=wm.settings['revert_penalty'], errors=errors)
