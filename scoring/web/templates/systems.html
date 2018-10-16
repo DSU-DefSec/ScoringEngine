@@ -3,6 +3,17 @@
 {% block head %}<meta http-equiv="refresh" content="30">{% endblock %}
 
 {% block content %}
+<br/>
+{% if not errors is none %}
+    <div class="alert alert-{% if errors == '' %}success{% else %}danger{% endif %}" role="alert">
+        {% if errors == '' %}
+            Success!
+        {% else %}
+            {{ errors }}
+        {% endif %}
+    </div>
+{% endif %}
+
 <script>
     function confirm_action(system, action) {
         systemInput = document.getElementById('system');
@@ -34,7 +45,6 @@
 }
 </style>
 
-<br/>
 <table class="table" id="system-table">
     <thead class="thead-dark">
         <th>System</th>

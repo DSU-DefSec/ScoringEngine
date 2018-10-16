@@ -22,6 +22,3 @@ def restart(vapp, vm):
 def revert(vapp, vm):
     resp = requests.post(url, data={'token': token, 'vapp':vapp, 'vm':vm, 'action': 'revert'}, verify=False)
     return resp.text
-
-
-print(power_on('MySQL-mine', 'Client'))
