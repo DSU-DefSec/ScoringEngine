@@ -8,3 +8,5 @@ scoring/web/static/imgs/*.png
 docs/_build/*
 docs/_static/*
 docs/_templates/*
+scoring/ialab.creds
+scoring/pyvcloud.log

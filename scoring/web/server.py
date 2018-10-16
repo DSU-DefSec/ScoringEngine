@@ -14,6 +14,7 @@ from .pcr_servicer import PCRServicer
 from .decorators import *
 import db
 import re
+import ialab
 
 app = Flask(__name__)
 app.secret_key = 'this is a secret'
@@ -304,3 +305,27 @@ def default():
         defaults[team_id] = res
 
     return render_template('default.html', defaults=defaults, teams=teams)
+
+@app.route('/systems', methods=['GET', 'POST'])
+@login_required
+def systems():
+    """
+    Page for powering on, powering off, restarting, and reverting systems.
+    """
+    if request.method == 'POST':
+        tid = user.team.id
+        system = request.form['system']
+        action = request.form['action']
+        vapp = ''
+
+        if request.form['action'] == 'power on':
+            ialab.power_on(vapp, system)
+        elif request.form['action'] == 'power off':
+            ialab.power_off(vapp, system)
+        elif request.form['action'] == 'restart':
+            ialab.restart(vapp, system)
+        elif request.form['action'] == 'revert':
+            ialab.revert(vapp, system)
+            db.insert('revert_log', ['team_id', 'system'], [tid, system])
+    systems = ['MAIL', 'CEO Workstation', 'DC']
+    return render_template('systems.html', systems=systems, penalty=200)
