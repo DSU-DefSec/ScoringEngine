@@ -13,12 +13,14 @@ class Team(object):
         name (str): Name of the team
         subnet (IP): Subnet of the team
         netmask (IP): Netmask of the subnet
+        vapp (str): Name of team vApp
     """
-    def __init__(self, id, name, subnet, netmask):
+    def __init__(self, id, name, subnet, netmask, vapp):
         self.id = int(id)
         self.name = name
         self.subnet = subnet
         self.netmask = netmask
+        self.vapp = vapp
 
     def __str__(self):
         return self.name

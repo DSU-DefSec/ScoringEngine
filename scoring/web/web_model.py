@@ -154,3 +154,23 @@ class WebModel(DataModel):
             res = Result(result_id, check, check_io, team, time, poll_input, poll_result, result)
 
             self.results[team_id][check_id].append(res)
+
+    def get_reverts(self):
+        revert_rows = db.getall('revert_log')
+        reverts = {}
+        for team in self.teams:
+            if team.id not in reverts:
+                reverts[team.id] = {}
+            for system in self.systems:
+                if system not in reverts[team.id]:
+                    reverts[team.id][system] = 0
+
+        penalty = self.settings['revert_penalty']
+        for timestamp, team_id, system in revert_rows:
+            reverts[team_id][system] += 1
+        for team_id in reverts.keys():
+            total = 0
+            for system in reverts[team_id].keys():
+                total += reverts[team_id][system] * penalty
+            reverts[team_id]['total'] = total
+        return reverts

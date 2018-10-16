@@ -16,6 +16,7 @@ class DataModel(object):
         Load all data from the database.
         """
         self.load_settings()
+        self.load_systems()
         teams = self.load_teams()
         self.teams = list(teams.values())
         self.domains = self.load_domains()
@@ -52,8 +53,17 @@ class DataModel(object):
         settings['pcr_approval_window'] = int(settings['pcr_approval_window'])
         settings['pcr_service_window'] = int(settings['pcr_service_window'])
         settings['pcr_service_jitter'] = int(settings['pcr_service_jitter'])
+        settings['revert_penalty'] = int(settings['revert_penalty'])
 
         self.settings = settings
+
+    def load_systems(self):
+        """
+        Load systems from the database.
+        """
+        system_rows = db.getall('systems')
+        systems = [system_row[0] for system_row in system_rows]
+        self.systems = systems
     
     def load_teams(self):
         """
@@ -64,8 +74,8 @@ class DataModel(object):
         """
         teams = {}
         rows = db.getall('team')
-        for team_id, name, subnet, netmask in rows:
-            team = Team(team_id, name, subnet, netmask)
+        for team_id, name, subnet, netmask, vapp in rows:
+            team = Team(team_id, name, subnet, netmask, vapp)
             teams[team_id] = team
         return teams
 

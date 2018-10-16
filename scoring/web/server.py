@@ -8,12 +8,13 @@ from .forms import *
 from . import score
 import validate
 import flask_login
-from flask_login import LoginManager, login_user, logout_user, login_required
+from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from .model import User, PasswordChangeRequest, PCRStatus
 from .pcr_servicer import PCRServicer
 from .decorators import *
 import db
 import re
+import ialab
 
 app = Flask(__name__)
 app.secret_key = 'this is a secret'
@@ -282,7 +283,10 @@ def score():
     for check in wm.checks:
         checks[check.id] = check.name
 
-    return render_template('score.html', results=simple_results, teams=teams, checks=checks)
+    systems = wm.systems
+    reverts = wm.get_reverts()
+
+    return render_template('score.html', results=simple_results, teams=teams, checks=checks, systems=systems, reverts=reverts)
 
 @app.route('/reporting/default', methods=['GET'])
 @login_required
@@ -304,3 +308,43 @@ def default():
         defaults[team_id] = res
 
     return render_template('default.html', defaults=defaults, teams=teams)
+
+@app.route('/systems', methods=['GET', 'POST'])
+@login_required
+def systems():
+    """
+    Page for powering on, powering off, restarting, and reverting systems.
+    """
+    errors = None
+    if request.method == 'POST':
+        tid = current_user.team.id
+        system = request.form['system']
+        action = request.form['action']
+        team = [t for t in wm.teams if t.id == tid][0]
+        vapp = team.vapp
+
+        if request.form['action'] == 'power on':
+            errors = ialab.power_on(vapp, system)
+        elif request.form['action'] == 'power off':
+            errors = ialab.power_off(vapp, system)
+        elif request.form['action'] == 'restart':
+            errors = ialab.restart(vapp, system)
+        elif request.form['action'] == 'revert':
+            errors = ialab.revert(vapp, system)
+            if errors == '':
+                db.insert('revert_log', ['team_id', 'system'], [tid, system])
+    systems = wm.systems
+    return render_template('systems.html', systems=systems, penalty=wm.settings['revert_penalty'], errors=errors)
+
+@app.route('/revert_log', methods=['GET'])
+@login_required
+def revert_log():
+    teams = {}
+    for team in wm.teams:
+        teams[team.id] = team.name
+
+    if current_user.name == 'admin':
+        reverts = db.getall('revert_log')
+    else:
+        reverts = db.get('revert_log', ['*'], where='team_id=%s', args=(current_user.team.id,))
+    return render_template('revert_log.html', teams=teams, reverts=reverts)

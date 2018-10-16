@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block revert_log %}active{% endblock %}
+
+{% block content %}
+<br/>
+
+<style>
+h2 {
+    text-align: center;
+}
+</style>
+
+<h2>Revert Log</h2>
+
+<table class="table table-striped" id="revert-table">
+    <thead class="thead-dark">
+        <th class="col-4">Time</th>
+        {% if current_user.name == 'admin' %}
+        <th class="col-4">Team</th>
+        {% endif %}
+        <th class="col-4">System</th>
+    </thead>
+    <tbody>
+        {% for revert in reverts %}
+        <tr>
+            <td>{{ revert[0] }}</td>
+            {% if current_user.name == 'admin' %}
+                <td>{{ teams[revert[1]] }}</td>
+            {% endif %}
+            <td>{{ revert[2] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

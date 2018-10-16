@@ -1,8 +1,8 @@
 import pymysql
 
-host='192.168.2.3'
-user='scoring'
-password='Password1!'
+host='127.0.0.1'
+user='root'
+password='toor'
 
 def connect():
     """
@@ -97,6 +97,7 @@ def reset_all_tables():
     Delete all data from all tables in the database.
     """
     reset_table('settings')
+    reset_table('systems')
     reset_table('team')
     reset_table('users')
     reset_table('domain')
@@ -106,6 +107,8 @@ def reset_all_tables():
     reset_table('credential')
     reset_table('result')
     reset_table('pcr')
+    reset_table('default_creds_log')
+    reset_table('revert_log')
 
 def insert(table, columns, args):
     """

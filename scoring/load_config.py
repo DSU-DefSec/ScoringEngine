@@ -12,6 +12,8 @@ def load_config(filename):
     contents = [line.strip() for line in f.readlines()]
     print("Parsing global settings...")
     settings = parse_global(contents)
+    print("Parsing systems...")
+    systems = parse_systems(contents)
     print("Parsing teams...")
     teams = parse_teams(contents)
     print(teams)
@@ -41,6 +43,8 @@ def load_config(filename):
     db.reset_all_tables()
     print("Writing global settings to DB...")
     db_writer.write_settings(settings)
+    print("Writing systems to DB...")
+    db_writer.write_systems(systems)
     print("Writing teams to DB...")
     team_ids = db_writer.write_teams(teams)
     print("Writing users to DB...")
@@ -65,6 +69,11 @@ def parse_global(contents):
         settings[key] = value
     return settings
 
+def parse_systems(contents):
+    systems = get_portion(contents, '[Systems]')[:-1]
+    return systems
+
+
 def parse_teams(contents):
     teams = {}
 
@@ -72,12 +81,12 @@ def parse_teams(contents):
     lines = parse_portion(portion)
     for id, args in lines:
         id = int(id)
-        name, subnet, netmask = args
+        name, subnet, netmask, vapp = args
 
         validate.ip(subnet)
         validate.ip(netmask)
 
-        teams[id] = (name, subnet, netmask)
+        teams[id] = (name, subnet, netmask, vapp)
     return teams
 
 def parse_users(contents, teams):

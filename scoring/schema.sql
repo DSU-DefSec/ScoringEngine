@@ -1,16 +1,23 @@
 USE `scoring`;
+SET foreign_key_checks = 0;
+
 DROP TABLE IF EXISTS `settings`;
 CREATE TABLE `settings` ( 
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `skey` VARCHAR(255) NOT NULL,
     `value` VARCHAR(255) NOT NULL);
 
+DROP TABLE IF EXISTS `systems`;
+CREATE TABLE `systems` (
+    `system` VARCHAR(255) NOT NULL PRIMARY KEY);
+
 DROP TABLE IF EXISTS `team`;
 CREATE TABLE `team` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL UNIQUE,
     `subnet` VARCHAR(15) NOT NULL,
-    `netmask` VARCHAR(15) NOT NULL);
+    `netmask` VARCHAR(15) NOT NULL,
+    `vapp` VARCHAR(255) NOT NULL UNIQUE);
         
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
@@ -121,3 +128,13 @@ CREATE TABLE `default_creds_log` (
     `perc_default` DOUBLE NOT NULL,
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
         ON DELETE CASCADE);
+
+DROP TABLE IF EXISTS `revert_log`;
+CREATE TABLE `revert_log` (
+    `time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `team_id` INT NOT NULL,
+    `system` VARCHAR(255),
+    FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
+        ON DELETE CASCADE);
+
+SET foreign_key_checks = 1;

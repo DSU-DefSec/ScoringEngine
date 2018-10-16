@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block systems %}active{% endblock %}
+
+{% block content %}
+<br/>
+{% if not errors is none %}
+    <div class="alert alert-{% if errors == '' %}success{% else %}danger{% endif %}" role="alert">
+        {% if errors == '' %}
+            Success!
+        {% else %}
+            {{ errors }}
+        {% endif %}
+    </div>
+{% endif %}
+
+<script>
+    function confirm_action(system, action) {
+        systemInput = document.getElementById('system');
+        systemInput.value = system;
+        actionInput = document.getElementById('action');
+        actionInput.value = action;
+        modalBody = document.getElementById('confirm-body');
+        dialog_str = `<p>Are you sure you want to <strong>${action}</strong> ${system}?`;
+        if (action == 'revert') {
+            dialog_str += '<p>Reverting this system to its original state will cost <strong>{{ penalty }} points</strong>.'
+        }
+        modalBody.innerHTML = dialog_str;
+        $('#confirmModal').modal('show');
+    }
+</script>
+
+<style>
+#system-table {
+    width:75%;
+    margin: auto;
+}
+
+#system-table td,th {
+    font-weight: bold;
+}
+
+#system-table button {
+    display: block;
+}
+</style>
+
+<table class="table" id="system-table">
+    <thead class="thead-dark">
+        <th>System</th>
+        <th>Power On</th>
+        <th>Power Off</th>
+        <th>Restart</th>
+        <th>Revert</th>
+    </thead>
+    <tbody>
+        {% for system in systems %}
+        <tr>
+            <td>{{ system }}</td>
+            <td>
+                <button class="btn btn-success" onclick='confirm_action("{{ system }}", "power on")'>
+                    Power On
+                </button>
+            </td>
+            <td>
+                <button class="btn btn-danger" onclick='confirm_action("{{ system }}", "power off")'>
+                    Power Off
+                </button>
+            </td>
+            <td>
+                <button class="btn btn-warning" onclick='confirm_action("{{ system }}", "restart")'>
+                    Restart
+                </button>
+            </td>
+            <td>
+                <button class="btn btn-primary" onclick='confirm_action("{{ system }}", "revert")'>
+                    Revert
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmModalLabel">Confirm Action</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="confirm-body">
+      </div>
+      <div class="modal-footer">
+        <form method="post" action="{{ url_for('systems') }}" id="delete-pcr">
+            <input type="hidden" id="system" name="system" value=""/>
+            <input type="hidden" id="action" name="action" value=""/>
+            <button type="submit" class="btn btn-success">Confirm</button>
+        </form>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
