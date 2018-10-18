@@ -9,10 +9,11 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class HttpPollInput(PollInput):
 
-    def __init__(self, proto, path, server=None, port=None):
+    def __init__(self, proto, path, host=None, server=None, port=None):
         super(HttpPollInput, self).__init__(server, port)
         self.proto = proto
         self.path = path
+        self.host = host
 
 class HttpPollResult(PollResult):
 
@@ -29,7 +30,10 @@ class HttpPoller(FilePoller):
             port = poll_input.port
             path = poll_input.path
             url = '{}://{}:{}/{}'.format(proto, server, port, path)
-            r = requests.get(url, verify=False)
+            if poll_input.host is None:
+                r = requests.get(url, verify=False)
+            else:
+                r = requests.get(url, headers={'Host': poll_input.host}, verify=False)
             r.raise_for_status()
 
             content = r.text
