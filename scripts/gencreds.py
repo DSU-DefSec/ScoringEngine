@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import random
 with open('users.txt', 'r') as f:
     users = [line.strip() for line in f.readlines()]
