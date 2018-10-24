@@ -21,7 +21,7 @@ class RdpPoller(Poller):
         domain = poll_input.credentials.domain
         cmd = ['xfreerdp', '--ignore-certificate', '--authonly', '-u', username, '-p', password]
         if not domain is None:
-            cmd.extend(['-d', domain])
+            cmd.extend(['-d', domain.domain])
             opt_str = '--ignore-certificate --authonly -u \'{}\' -p \'{}\' {}:{}'
         cmd.append('{}:{}'.format(poll_input.server, poll_input.port))
 
@@ -34,5 +34,5 @@ class RdpPoller(Poller):
 #                result = RdpPollResult(True)
 #                return result
             #print("{{{{%s}}}}" % e.output)
-            result = RdpPollResult(False, e.output)
+            result = RdpPollResult(False, e)
             return result

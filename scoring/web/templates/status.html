@@ -15,10 +15,16 @@
 </tr>
 </thead>
 
+<style>
+td.check-name {
+    text-align: right;
+}
+</style>
+
 <tbody>
 {% for c in checks %}
 <tr>
-    <td>{{ c.name }}</td>
+    <td class="check-name">{{ c.name }}</td>
     {% for t in teams %}
         {% if c.id in results[t.id] %}
             {% set r = results[t.id][c.id] %}

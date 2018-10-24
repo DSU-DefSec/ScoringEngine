@@ -94,7 +94,7 @@ function load_results(tid, cid, penalty) {
 }
 
 function load_all_results(tids, cids) {
-    var penalty = cids.length * 2;
+    var penalty = cids.length;
     var results = {};
     for (var i = 0; i < tids.length; i++) {
         var tid = tids[i];

@@ -48,6 +48,7 @@ def status():
     """
     teams = wm.teams
     checks = wm.checks
+    checks.sort(key=lambda c: c.name)
     results = wm.latest_results()
     teams.sort(key=lambda t: t.name)
     times = []
@@ -344,7 +345,7 @@ def revert_log():
         teams[team.id] = team.name
 
     if current_user.name == 'admin':
-        reverts = db.getall('revert_log')
+        reverts = db.getall('revert_log', orderby='time DESC')
     else:
-        reverts = db.get('revert_log', ['*'], where='team_id=%s', args=(current_user.team.id,))
+        reverts = db.get('revert_log', ['*'], where='team_id=%s', orderby='time DESC', args=(current_user.team.id,))
     return render_template('revert_log.html', teams=teams, reverts=reverts)

@@ -1,8 +1,12 @@
 import pymysql
 
-host='127.0.0.1'
-user='root'
-password='toor'
+def load_creds():
+    with open('db.creds', 'r') as f:
+        creds = f.read().split('\n')[:-1]
+    return creds
+
+host, user, password = load_creds()
+
 
 def connect():
     """
@@ -47,7 +51,7 @@ def get(table, columns, where=None, orderby=None, args=None):
     connection.close()
     return rows
 
-def getall(table):
+def getall(table, orderby=None):
     """
     Get all rows from the given table.
 
@@ -57,7 +61,7 @@ def getall(table):
     Returns:
         List(List(object)): List of all rows in the table
     """
-    rows = get(table, ['*'])
+    rows = get(table, ['*'], orderby=orderby)
     return rows
 
 def execute(cmd, args=None):
@@ -173,7 +177,7 @@ def set_credential_password(username, password, team_id, service_id=None, domain
         raise Exception('service_id and domain_id cannot both be None.')
     cmd = 'UPDATE credential SET password=%s, is_default=0 WHERE team_id=%s'
     args = [password, team_id]
-    if username != 'all':
+    if username.lower() != 'all':
         cmd += ' AND username=%s'
         args.append(username)
     if service_id is not None:

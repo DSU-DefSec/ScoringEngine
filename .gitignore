@@ -10,3 +10,4 @@ docs/_static/*
 docs/_templates/*
 scoring/ialab.token
 scoring/pyvcloud.log
+scoring/db.creds
