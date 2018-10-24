@@ -12,7 +12,7 @@ class MsSqlPollInput(PollInput):
 
 class MsSqlPollResult(PollResult):
 
-    def __init__(self, output, exceptions):
+    def __init__(self, output, exceptions=None):
         super(MsSqlPollResult, self).__init__(exceptions)
         self.output = output
 
@@ -23,8 +23,9 @@ class MsSqlPoller(Poller):
         password = poll_input.credentials.password
     
         try:
+            user = username
             conn = pymssql.connect(poll_input.server,
-                                   '{}\\{}'.format(poll_input.domain, username),
+                                   user,
                                    password, poll_input.db)
             cursor = conn.cursor()
             cursor.execute(poll_input.query)
