@@ -1,5 +1,5 @@
-#!/bin/python
-import utils 
+#!/usr/bin/python3
+import utils
 import json
 import re
 
