@@ -1,8 +1,12 @@
 import pymysql
 
-host='127.0.0.1'
-user='root'
-password='toor'
+def load_creds():
+    with open('db.creds', 'r') as f:
+        creds = f.read().split('\n')[:-1]
+    return creds
+
+host, user, password = load_creds()
+
 
 def connect():
     """
