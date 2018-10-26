@@ -113,6 +113,7 @@ def reset_all_tables():
     reset_table('pcr')
     reset_table('default_creds_log')
     reset_table('revert_log')
+    reset_table('check_log')
 
 def insert(table, columns, args):
     """

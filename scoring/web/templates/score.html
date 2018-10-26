@@ -6,6 +6,25 @@
 <script type="text/javascript" src="/static/js/Chart.bundle-2.7.2.min.js"></script>
 <script src="/static/js/score.js"></script>
 
+<form action="{{ url_for('score') }}" method="GET" style="margin-top: 20px; margin-left:12.5%;">
+<label for="start">Start Time:</label>
+<input type="time" id="start-time" name="start"/>
+
+<label for="end">End Time:</label>
+<input type="time" id="end-time" name="end"/>
+<input type="submit" value="Set Time Range" class="btn btn-dark"/>
+</form>
+
+<script>
+    var si = document.getElementById('start-time');
+    var ei = document.getElementById('end-time');
+    params = new URLSearchParams(window.location.search);
+    start = params.get('start');
+    end = params.get('end');
+    si.value = start;
+    ei.value = end;
+</script>
+
 <select id="st-select" class="col-3 form-control" style="margin-top: 20px; margin-left:12.5%;" onchange="graph_dataset(this.value)">
     <option value="0" selected>All Teams</option>
     {% for id,team in teams.items() %}

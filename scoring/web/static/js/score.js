@@ -247,7 +247,6 @@ function calc_scores(tids) {
             var score = 0;
         }
         var reset_penalty = document.getElementById("revert-" + tid).innerHTML;
-        console.log(reset_penalty)
         score_td.innerHTML = Math.round(score - reset_penalty);
     }
 }
