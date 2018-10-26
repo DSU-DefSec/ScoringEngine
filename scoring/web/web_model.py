@@ -139,7 +139,7 @@ class WebModel(DataModel):
                       orderby='time ASC', args=(last_id))
 
         # Gather the results
-        for result_id, check_id, check_io_id, team_id, time, poll_input, poll_result, result in rows:
+        for result_id, check_id, check_io_id, team_id, check_round, time, poll_input, poll_result, result in rows:
             # Construct the result from the database info
             check = [c for c in self.checks if c.id == check_id][0]
             check_io = [cio for cio in self.check_ios if cio.id == check_io_id][0]
@@ -151,7 +151,7 @@ class WebModel(DataModel):
 
             poll_result = json.loads(poll_result)[1]
 
-            res = Result(result_id, check, check_io, team, time, poll_input, poll_result, result)
+            res = Result(result_id, check, check_io, team, check_round, time, poll_input, poll_result, result)
 
             self.results[team_id][check_id].append(res)
 
