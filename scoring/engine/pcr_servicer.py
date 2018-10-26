@@ -3,7 +3,7 @@ import random
 import datetime
 import time
 import db
-from web.model import PasswordChangeRequest, PCRStatus
+from .model import PasswordChangeRequest, PCRStatus
 
 class PCRServicer(object):
 
