@@ -33,17 +33,14 @@ class HttpPoller(FilePoller):
             if poll_input.host is None:
                 r = requests.get(url, verify=False)
             else:
-                print(url)
                 r = requests.get(url, headers={'Host': poll_input.host}, verify=False, allow_redirects=False)
                 if 'Location' in r.headers:
                     url_parts = urllib3.util.parse_url(r.headers['Location'])
-                    print(url_parts)
                     url = ''
                     if not url_parts.scheme is None:
                         url += url_parts.scheme + '://'
                     url += poll_input.server
                     url += url_parts.path
-                    print(url)
                     r = requests.get(url, headers={'Host': url_parts.host}, verify=False)
 
             r.raise_for_status()
