@@ -10,7 +10,8 @@ from . import score
 import validate
 import flask_login
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
-from .model import User, PasswordChangeRequest, PCRStatus
+from .model import User
+from engine.model import PasswordChangeRequest, PCRStatus
 from .decorators import *
 import db
 import re
