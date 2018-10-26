@@ -85,12 +85,18 @@ CREATE TABLE `cred_input` (
     FOREIGN KEY (`check_io_id`) REFERENCES `check_io`(`id`)
        ON DELETE CASCADE);
 
+DROP TABLE IF EXISTS `check_log`;
+CREATE TABLE `check_log` (
+    `check_round` INT PRIMARY KEY AUTO_INCREMENT,
+    `time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+
 DROP TABLE IF EXISTS `result`;
 CREATE TABLE `result` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `check_id` INT NOT NULL,
     `check_io_id` INT NOT NULL,
     `team_id` INT NOT NULL,
+    `check_round` INT NOT NULL,
     `time` TIMESTAMP NOT NULL,
     `poll_input` VARCHAR(4095) NOT NULL,
     `poll_result` VARCHAR(4095) NOT NULL,
@@ -100,6 +106,8 @@ CREATE TABLE `result` (
     FOREIGN KEY (`check_io_id`) REFERENCES `check_io`(`id`)
        ON DELETE CASCADE,
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
+       ON DELETE CASCADE,
+    FOREIGN KEY (`check_round`) REFERENCES `check_log`(`check_round`)
        ON DELETE CASCADE);
 
 DROP TABLE IF EXISTS `pcr`;
