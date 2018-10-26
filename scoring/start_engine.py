@@ -63,6 +63,9 @@ if __name__ == '__main__':
         team_num = int(sys.argv[1]) - 1
         engine = ScoringEngine(team_num)
 
+    pcr_servicer = PCRServicer(engine.em)
+    pcr_servicer.start()
+
     file_manager = FileManager()
     file_manager_thread = Thread(target=file_manager.manage_files)
     file_manager_thread.start()
