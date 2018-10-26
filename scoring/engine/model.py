@@ -308,18 +308,20 @@ class Result(object):
         check (Check): The check this result resulted from
         check_io (CheckIO): The input-output pair used in the check
         team (Team): The team this result is for
+        check_round (int): The check round this result belongs to
         poll_input (PollInput): The specific poller input used in the check
         poll_result (PollResult): The specific poller output retrieved from
             the poller
         result (bool): The result of the check
     """
     
-    def __init__(self, id, check, check_io, team, 
+    def __init__(self, id, check, check_io, team, check_round,
                  time, poll_input, poll_result, result):
         self.id = int(id)
         self.check = check
         self.check_io = check_io
         self.team = team
+        self.check_round = check_round
         self.time = time
         self.poll_input = poll_input
         self.poll_result = poll_result
