@@ -87,16 +87,17 @@ class Service(object):
         self.port = port
         self.checks = checks
 
-    def check(self, teams):
+    def check(self, check_round, teams):
         """
         Conduct all checks on this service for every given team in parallel.
         
         Arguments:
+            check_round (int): The check round
             teams (List(Team)): The teams to run checks on
         """
         for check in self.checks:
             thread = Thread(target=check.check,
-                            args=(teams, self.host, self.port))
+                            args=(check_round, teams, self.host, self.port))
             thread.start()
 
     def get_ip(self, subnet):
@@ -135,12 +136,13 @@ class Check(object):
         self.check_ios = check_ios
         self.poller = poller
 
-    def check(self, teams, host, port):
+    def check(self, check_round, teams, host, port):
         """
         Select a random input-output pair and run a check against all
         teams in parallel.
 
         Arguments:
+            check_round (int): The check round
             teams (List(Team)): The list of teams to check
             host (int): The host in the team's subnet to check
             port (int): The port of the host to check
@@ -149,14 +151,15 @@ class Check(object):
         poll_inputs = check_io.get_poll_inputs(teams, host, port)
         for poll_input in poll_inputs:
             thread = Thread(target=self.check_single,
-                            args=(check_io.id, poll_input,check_io.expected))
+                            args=(check_round, check_io.id, poll_input,check_io.expected))
             thread.start()
 
-    def check_single(self, check_io_id, poll_input, expected):
+    def check_single(self, check_round, check_io_id, poll_input, expected):
         """
         Conduct a check against a single team and store the result.
         
         Arguments:
+            check_round (int): The check round
             check_io (CheckIO): The ID of the check input-output pair used in the check
             poll_input (PollInput): The input to the poller
             expected (List or Dict): The expected output from the poller
@@ -174,15 +177,16 @@ class Check(object):
         except:
             result = False
         team_id = poll_input.team.id
-        self.store_result(check_io_id, team_id, poll_input,
+        self.store_result(check_round, check_io_id, team_id, poll_input,
                           poll_result, result)
 
-    def store_result(self, check_io_id, team_id, poll_input,
+    def store_result(self, check_round, check_io_id, team_id, poll_input,
                      poll_result, result):
         """
         Store the result of a check in the database.
 
         Arguments:
+            check_round (int): The check round
             check_io_id (int): The ID of the check input-output pair
                 in the database
             team_id (int): The ID of the team checked in the database
@@ -193,8 +197,8 @@ class Check(object):
             result (bool): The result of the check
         """
         cmd = ("INSERT INTO result (check_id, check_io_id, team_id, "
-	       "time, poll_input, poll_result, result) "
-               "VALUES (%s, %s, %s, NOW(), %s, %s, %s)")
+	       "check_round, time, poll_input, poll_result, result) "
+               "VALUES (%s, %s, %s, %s, NOW(), %s, %s, %s)")
         poll_input = json.dumps(poll_input, default=poll_input.serialize)
         try:
             poll_result = json.dumps(poll_result, default=poll_result.serialize)
@@ -203,7 +207,7 @@ class Check(object):
             print(poll_result.__class__.__name__)
             print(poll_result.__dict__)
             return
-        db.execute(cmd, (self.id, check_io_id, team_id, 
+        db.execute(cmd, (self.id, check_io_id, team_id, check_round,
                          poll_input, poll_result, result))
 
 
