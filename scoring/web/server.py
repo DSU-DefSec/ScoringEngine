@@ -10,8 +10,8 @@ from . import score
 import validate
 import flask_login
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
-from .model import User, PasswordChangeRequest, PCRStatus
-from .pcr_servicer import PCRServicer
+from .model import User
+from engine.model import PasswordChangeRequest, PCRStatus
 from .decorators import *
 import db
 import re
@@ -25,9 +25,6 @@ wm.load_db()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-
-pcr_servicer = PCRServicer(wm)
-pcr_servicer.start()
 
 @login_manager.user_loader
 def load_user(user_id):

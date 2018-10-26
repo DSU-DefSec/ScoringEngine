@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from engine.engine_model import EngineModel
 from engine.file_manager import FileManager
+from engine.pcr_servicer import PCRServicer
 from threading import Thread
 import db
 import time, datetime
@@ -62,6 +63,9 @@ if __name__ == '__main__':
     if len(sys.argv) == 2:
         team_num = int(sys.argv[1]) - 1
         engine = ScoringEngine(team_num)
+
+    pcr_servicer = PCRServicer(engine.em)
+    pcr_servicer.start()
 
     file_manager = FileManager()
     file_manager_thread = Thread(target=file_manager.manage_files)

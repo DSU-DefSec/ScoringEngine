@@ -7,9 +7,9 @@ from .model import PasswordChangeRequest, PCRStatus
 
 class PCRServicer(object):
 
-    def __init__(self, wm):
-        self.window = wm.settings['pcr_service_window']
-        self.jitter = wm.settings['pcr_service_jitter']
+    def __init__(self, em):
+        self.window = em.settings['pcr_service_window']
+        self.jitter = em.settings['pcr_service_jitter']
 
     def start(self):
         thread = Thread(target=self.service_requests)
