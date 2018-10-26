@@ -291,7 +291,6 @@ def score():
         for check,cresults in tresults.items():
             simple_results[team][check] = []
             for res in cresults:
-                print(start, res.time)
                 if (start is None or res.time >= start) and (end is None or res.time <= end):
                     simple_results[team][check].append([res.time.strftime('%Y-%m-%d %H:%M:%S'), res.result])
 
