@@ -7,10 +7,6 @@ This is the [CCDC](http://nationalccdc.org) Scoring Engine used for DSU Defensiv
 
 ![](docs/imgs/arch.png)
 
-### Database ERD
-
-![](docs/imgs/erd.png)
-
 ## Installation & Setup
 
 The poller modules and web server require a number of dependencies.
