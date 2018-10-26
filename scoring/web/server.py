@@ -4,6 +4,7 @@ from .web_model import WebModel
 import flask
 from flask import Flask, render_template, request, redirect, url_for
 from urllib.parse import urlparse, urljoin
+import datetime
 from .forms import *
 from . import score
 import validate
@@ -268,6 +269,21 @@ def score():
     """
     Score information page
     """
+    start = request.args.get('start')
+    end = request.args.get('end')
+    today = datetime.datetime.today()
+    if start == '':
+        start = None
+    if end == '':
+        end = None
+    if not start is None:
+        start = datetime.datetime.strptime(start, '%H:%M')
+        start = start.replace(year=today.year, month=today.month, day=today.day)
+    if not end is None:
+        end = datetime.datetime.strptime(end, '%H:%M')
+        end = end.replace(year=today.year, month=today.month, day=today.day)
+
+    wm.load_results()
     results = wm.results
     simple_results = {}
     for team,tresults in results.items():
@@ -275,7 +291,9 @@ def score():
         for check,cresults in tresults.items():
             simple_results[team][check] = []
             for res in cresults:
-                simple_results[team][check].append([res.time.strftime('%Y-%m-%d %H:%M:%S'), res.result])
+                print(start, res.time)
+                if (start is None or res.time >= start) and (end is None or res.time <= end):
+                    simple_results[team][check].append([res.time.strftime('%Y-%m-%d %H:%M:%S'), res.result])
 
     teams = {}
     for team in wm.teams:
