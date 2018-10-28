@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import sys
+import yaml
 import json
 from engine.model import *
 import db
@@ -8,36 +9,15 @@ import utils
 import validate
 
 def load_config(filename):
-    f = open(filename, 'r')
-    contents = [line.strip() for line in f.readlines()]
-    print("Parsing global settings...")
-    settings = parse_global(contents)
-    print("Parsing systems...")
-    systems = parse_systems(contents)
-    print("Parsing teams...")
-    teams = parse_teams(contents)
-    print(teams)
-    print("Parsing users...")
-    users = parse_users(contents, teams)
-    print(users)
-    print("Parsing domains...")
-    domains = parse_domains(contents)
-    print(domains)
-    print("Parsing services...")
-    services = parse_services(contents)
-    print(services)
-    print("Parsing checks...")
-    checks = parse_checks(contents, services)
-    print(checks)
-    print("Parsing poll inputs...")
-    poll_inputs = parse_poll_inputs(contents)
-    print(poll_inputs)
-    print("Parsing checkIOs...")
-    check_ios = parse_check_ios(contents, poll_inputs, checks)
-    print(check_ios)
-    print("Parsing credentials...")
-    credentials = parse_credentials(contents, domains, check_ios)
-    print(credentials)
+    print("Loading config...")
+    with open(filename, 'r') as f:
+        config = yaml.load(f)
+
+    settings = flatten_settings(config['settings'])
+    systems = config['systems']
+    teams = config['teams']
+    admins = config['web_admins']
+    credentials = config['credentials']
 
     print("Emptying existing database...")
     db.reset_all_tables()
@@ -48,29 +28,33 @@ def load_config(filename):
     print("Writing teams to DB...")
     team_ids = db_writer.write_teams(teams)
     print("Writing users to DB...")
-    user_ids = db_writer.write_web_users(users, team_ids)
+    user_ids = db_writer.write_web_users(admins, teams, team_ids)
     print("Writing domains to DB...")
-    domain_ids = db_writer.write_domains(domains)
-    print("Writing services to DB...")
-    service_ids = db_writer.write_services(services)
+    domain_ids = db_writer.write_domains(credentials['domain'].keys())
     print("Writing checks to DB...")
-    check_ids = db_writer.write_checks(checks, service_ids)
+    check_ids = db_writer.write_checks(systems)
     print("Writing checkIOs to DB...")
-    check_io_ids = db_writer.write_check_ios(check_ios, poll_inputs, check_ids)
+    check_io_ids = db_writer.write_check_ios(systems, check_ids)
     print("Writing credentials to DB...")
     credential_ids = db_writer.write_credentials(credentials, team_ids, domain_ids, check_io_ids)
+    return
 
-def parse_global(contents):
+def flatten_settings(config_settings):
     settings = {}
+    for key, value in config_settings.items():
+        if isinstance(value, dict):
+            for subkey, subvalue in value.items():
+                key_name = '{}_{}'.format(key, subkey)
+                settings[key_name] = subvalue
+        else:
+            settings[key] = value
 
-    portion = get_portion(contents, '[Global]')
-    lines = parse_portion(portion)
-    for key, value in lines:
-        settings[key] = value
     return settings
 
-def parse_systems(contents):
-    systems = get_portion(contents, '[Systems]')[:-1]
+def load_systems(config_systems):
+    systems = {}
+    for key, value in config_systems.items():
+        systems[key] = value['host']
     return systems
 
 

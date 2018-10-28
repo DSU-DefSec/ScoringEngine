@@ -1,5 +1,36 @@
 import db
 import bcrypt
+import json
+
+def get_poller(check_type):
+    poller_fmt = 'engine.polling.poll_{}.{}Poller'
+    poller = poller_fmt.format(check_type, check_type.title())
+    return poller
+
+def get_poll_input(check_type):
+    poller_fmt = 'engine.polling.poll_{}.{}PollInput'
+    poller = poller_fmt.format(check_type, check_type.title())
+    return poller
+
+def get_checker(check_type, check_function):
+    check_modules = {
+        'ssh':   'ssh_check',
+        'http':  'file_check',
+        'ftp':   'file_check',
+        'smb':   'file_check',
+        'mysql': 'sql_check',
+        'mssql': 'sql_check',
+        'smtp':  'smtp_check',
+        'ldap':  'ldap_check',
+        'dns':   'dns_check',
+    }
+    if check_function == 'authenticated':
+        check_module = 'auth_check'
+    else:
+        check_module = check_modules[check_type]
+
+    checker = 'engine.checker.{}.{}'.format(check_module, check_function)
+    return checker
 
 def write_settings(settings):
     """
@@ -18,8 +49,9 @@ def write_systems(systems):
     Arguments:
         systems (List(str)): A list of system names
     """
-    for system in systems:
-        db.insert('systems', ['system'], (system,))
+    for system in systems.keys():
+        host = systems[system]['host']
+        db.insert('system', ['system', 'host'], (system, host,))
 
 def write_teams(teams):
     """
@@ -32,34 +64,39 @@ def write_teams(teams):
         Dict(int->int): A mapping of team config IDs to team database IDs
     """
     team_ids = {}
-    for id, team in teams.items():
-        db_id = db.insert('team', ['name', 'subnet', 'netmask', 'vapp'], team)
-        team_ids[id] = db_id
+    for name, team_data in teams.items():
+        subnet = team_data['subnet']
+        netmask = team_data['netmask']
+        vapp = team_data['vapp']
+        db_id = db.insert('team', ['name', 'subnet', 'netmask', 'vapp'], (name, subnet, netmask, vapp))
+        team_ids[name] = db_id
     return team_ids
 
-def write_web_users(users, teams):
+def write_web_users(admins, teams, team_ids):
     """
     Write the given users to the database, hashing their passwords.
 
     Arguments:
-        users (Dict(int->User args)): A mapping of user config IDs to user initialization arguments
-        teams (Dict(int->int)): A mapping of team config IDs to team database IDs
+        team_ids (Dict(str->int)): A mapping of team names to team database IDs
 
-    Returns:
-        Dict(int->int): A mapping of user config IDs to user database IDs
     """
-    user_ids = {}
-    for id, user_args in users.items():
-        ptid, username, password, is_admin = user_args
-        tid = teams[ptid] if ptid in teams else None
+    for username, password in admins.items():
+        password = password.encode('utf-8')
+        pwhash = bcrypt.hashpw(password, bcrypt.gensalt())
+        db.insert('users',
+            ['username', 'password', 'team_id', 'is_admin'],
+            (username, pwhash, None, True))
+
+    for team_name, data in teams.items():
+        tid = team_ids[team_name]
+        username = data['user']['username']
+        password = data['user']['password']
         password = password.encode('utf-8')
         pwhash = bcrypt.hashpw(password, bcrypt.gensalt())
 
-        db_id = db.insert('users',
+        db.insert('users',
             ['username', 'password', 'team_id', 'is_admin'],
-            (username, pwhash, tid, is_admin))
-        user_ids[id] = db_id
-    return user_ids
+            (username, pwhash, tid, False))
 
 def write_domains(domains):
     """
@@ -72,28 +109,12 @@ def write_domains(domains):
         Dict(int->int): A mapping of domain config IDs to domain database IDs
     """
     domain_ids = {}
-    for id, domain in domains.items():
-        db_id = db.insert('domain', ['fqdn'], domain)
-        domain_ids[id] = db_id
+    for domain in domains:
+        db_id = db.insert('domain', ['fqdn'], (domain,))
+        domain_ids[domain] = db_id
     return domain_ids
 
-def write_services(services):
-    """
-    Write the given services to the database.
-
-    Arguments:
-        services (Dict(int->Service args)): A mapping of service config IDs to service initialization arguments
-
-    Returns:
-        Dict(int->int): A mapping of service config IDs to service database IDs
-    """
-    service_ids = {}
-    for id, service in services.items():
-        db_id = db.insert('service', ['host', 'port'], service)
-        service_ids[id] = db_id
-    return service_ids
-
-def write_checks(checks, service_ids):
+def write_checks(systems):
     """
     Write the given checks to the database.
 
@@ -105,17 +126,24 @@ def write_checks(checks, service_ids):
         Dict(int->int): A mapping of check config IDs to check database IDs
     """
     check_ids = {}
-    for id, check in checks.items():
-        name, check_func, poller, psid = check
-        sid = service_ids[psid]
-
-        db_id = db.insert('service_check',
-            ['name', 'check_function', 'poller', 'service_id'],
-            (name, check_func, poller, sid))
-        check_ids[id] = db_id
+    for system, system_data in systems.items():
+        if 'checks' in system_data:
+            checks = system_data['checks']
+            for name, check_data in checks.items():
+                check_type = check_data['type']
+                port = check_data['port']
+                checker = check_data['checker']
+    
+                poller = get_poller(check_type)
+                checker = get_checker(check_type, checker)
+        
+                db_id = db.insert('service_check',
+                    ['name', 'port', 'check_function', 'poller', 'system'],
+                    (name, port, checker, poller, system))
+                check_ids[name] = db_id
     return check_ids
 
-def write_check_ios(check_ios, poll_inputs, check_ids):
+def write_check_ios(systems, check_ids):
     """
     Write the given input-output pairs to the database.
 
@@ -128,15 +156,21 @@ def write_check_ios(check_ios, poll_inputs, check_ids):
         Dict(int->int): A mapping of check input-output pair config IDs to check input-output pair database IDs
     """
     check_io_ids = {}
-    for id, check_io in check_ios.items():
-        piid, expected, pcid = check_io
-        poll_input = poll_inputs[piid]
-        cid = check_ids[pcid]
-
-        db_id = db.insert('check_io',
-            ['input', 'expected', 'check_id'],
-            (poll_input, expected, cid))
-        check_io_ids[id] = db_id
+    for system, system_data in systems.items():
+        if 'checks' in system_data:
+            for check, check_data in system_data['checks'].items():
+                for check_io_name, check_io_data in check_data['ios'].items():
+                    poll_input_class = get_poll_input(check_data['type'])
+                    poll_input = [poll_input_class, check_io_data['input']]
+                    poll_input = json.dumps(poll_input)
+                    expected = check_io_data['output']
+                    expected = json.dumps(expected)
+                    cid = check_ids[check]
+            
+                    db_id = db.insert('check_io',
+                        ['input', 'expected', 'check_id'],
+                        (poll_input, expected, cid))
+                    check_io_ids[check_io_name] = db_id
     return check_io_ids
 
 def write_credentials(credentials, team_ids, domain_ids, check_io_ids):
@@ -152,44 +186,54 @@ def write_credentials(credentials, team_ids, domain_ids, check_io_ids):
         check_io_ids (Dict(int->int)): A mapping of check input-output pair
             config IDs to check input-output pair database IDs
     """
-    for id, credential in credentials.items():
-        user, passwd, pdomain_id, pcio_ids = credential
+    default_pass = credentials['default_password']
+    local_creds = credentials['local']
+    domain_creds = credentials['domain']
+    for team_id in team_ids.values():
+        write_cred_set(local_creds, default_pass, team_id, check_io_ids)
+        for domain, dcreds in domain_creds.items():
+            domain_id = domain_ids[domain]
+            write_cred_set(dcreds, default_pass, team_id, check_io_ids, domain_id)
+
+def write_cred_set(creds, default_pass, team_id, check_io_ids, domain_id=None):
+    for user, cred_data in creds.items():
+        if 'password' in cred_data:
+            passwd = cred_data['password']
+        else:
+            passwd = default_pass
+        cio_names = cred_data['ios']
 
         # Gather all of the check IOs this credential belongs to
-        cio_ids = [check_io_ids[pcio_id] for pcio_id in pcio_ids]
-        for team_id in team_ids.values():
-            cred_input = {}   # cred_id -> List(checkio_id)
-            cred_service = {} # service_id -> cred_id
+        cio_ids = [check_io_ids[cio_name] for cio_name in cio_names]
+        cred_input = {}   # cred_id -> List(checkio_id)
+        cred_check = {}   # check_id -> cred_id
 
-            for cio_id in cio_ids:
-                # Get the check and service this check IO belongs to
-                check_id = db.get('check_io', ['check_id'],
-                                  where='id=%s', args=(cio_id))[0]
-                service_id = db.get('service_check', ['service_id'],
-                                    where='id=%s', args=(check_id))[0]
+        for cio_id in cio_ids:
+            # Get the check and service this check IO belongs to
+            check_id = db.get('check_io', ['check_id'],
+                              where='id=%s', args=(cio_id))[0]
 
-                if service_id in cred_service:
-                    # The credential has already been inserted into the table
-                    cred_input[cred_service[service_id]].append(cio_id)
+            if check_id in cred_check:
+                # The credential has already been inserted into the table
+                cred_input[cred_check[check_id]].append(cio_id)
+            else:
+                # Insert the credential into the credential table
+                if domain_id is None:
+                    cred_id = db.insert('credential',
+                                        ['username', 'password', 'team_id',
+                                         'check_id'],
+                                        (user, passwd, team_id, check_id))
                 else:
-                    # Insert the credential into the credential table
-                    if pdomain_id is None:
-                        cred_id = db.insert('credential',
-                                            ['username', 'password', 'team_id',
-                                             'service_id'],
-                                            (user, passwd, team_id, service_id))
-                    else:
-                        domain_id = domain_ids[pdomain_id]
-                        cred_id = db.insert('credential',
-                                            ['username', 'password', 'team_id',
-                                             'service_id', 'domain_id'],
-                                            (user, passwd, team_id,
-                                             service_id, domain_id))
-                    cred_service[service_id] = cred_id
-                    cred_input[cred_id] = [cio_id]
+                    cred_id = db.insert('credential',
+                                        ['username', 'password', 'team_id',
+                                         'check_id', 'domain_id'],
+                                        (user, passwd, team_id,
+                                         check_id, domain_id))
+                cred_check[check_id] = cred_id
+                cred_input[cred_id] = [cio_id]
 
-            # Insert relations into the cred-input table
-            for cred_id, io_ids in cred_input.items():
-                for io_id in io_ids:
-                    db.insert('cred_input', ['cred_id', 'check_io_id'],
-                              (cred_id, io_id))
+        # Insert relations into the cred-input table
+        for cred_id, io_ids in cred_input.items():
+            for io_id in io_ids:
+                db.insert('cred_input', ['cred_id', 'check_io_id'],
+                          (cred_id, io_id))
