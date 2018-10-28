@@ -162,7 +162,7 @@ def delete(table, args, where=None):
         cmd += ' WHERE %s' % where
     execute(cmd, args)
 
-def set_credential_password(username, password, team_id, service_id=None, domain_id=None):
+def set_credential_password(username, password, team_id, check_id=None, domain_id=None):
     """
     Set the password for the credentials matching the given criteria.
 
@@ -170,19 +170,19 @@ def set_credential_password(username, password, team_id, service_id=None, domain
         username (str): The username of the credentials
         password (str): The password to change to
         team_id (str): The ID of the team of the credentials
-        service_id (str): Optional, the ID of the service of the credentials. service_id and domain_id cannot both be None
-        domain_id (str): Optional, the ID of the domain of the credentials. service_id and domain_id cannot both be None
+        check_id (str): Optional, the ID of the check of the credentials. check_id and domain_id cannot both be None
+        domain_id (str): Optional, the ID of the domain of the credentials. check_id and domain_id cannot both be None
     """
-    if service_id is None and domain_id is None:
-        raise Exception('service_id and domain_id cannot both be None.')
+    if check_id is None and domain_id is None:
+        raise Exception('check_id and domain_id cannot both be None.')
     cmd = 'UPDATE credential SET password=%s, is_default=0 WHERE team_id=%s'
     args = [password, team_id]
     if username.lower() != 'all':
         cmd += ' AND username=%s'
         args.append(username)
-    if service_id is not None:
-        cmd += ' AND service_id=%s'
-        args.append(service_id)
+    if check_id is not None:
+        cmd += ' AND check_id=%s'
+        args.append(check_id)
     else:
         cmd += ' AND domain_id=%s'
         args.append(domain_id)

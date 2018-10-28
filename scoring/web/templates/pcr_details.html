@@ -37,8 +37,8 @@
     <span>{{ domains[pcr.domain_id] }}</span>
     {% else %}
     <span>
-    {% set s=services[pcr.service_id] %}
-    Host: {{ s.host }}, Port: {{ s.port }}
+    {% set c=checks[pcr.check_id] %}
+    {{ c.name }}
     </span>
     {% endif %}
     </div>

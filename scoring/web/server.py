@@ -93,8 +93,8 @@ def pcr():
         pcr_ids = db.get('pcr', ['id'], where=where, orderby=orderby, args=args)
         pcrs = [PasswordChangeRequest.load(pcr_id) for pcr_id in pcr_ids]
         domains = {d.id:d for d in wm.domains}
-        systems = {s.name:s for s in wm.systems}
-        return render_template('pcr_overview.html', pcrs=pcrs, systems=systems, domains=domains)
+        checks = {c.id:c for c in wm.checks}
+        return render_template('pcr_overview.html', pcrs=pcrs, checks=checks, domains=domains)
     elif request.method == 'POST':
         pcr_id = request.form['reqId']
         pcr = PasswordChangeRequest.load(pcr_id)
@@ -115,9 +115,9 @@ def pcr_details():
         pcr_id = request.args.get('id')
         pcr = PasswordChangeRequest.load(pcr_id)
         domains = {d.id:d for d in wm.domains}
-        services = {s.id:s for s in wm.services}
+        checks = {c.id:c for c in wm.checks}
         if user.is_admin or user.team.id == pcr.team_id:
-            return render_template('pcr_details.html', pcr=pcr, services=services, domains=domains)
+            return render_template('pcr_details.html', pcr=pcr, checks=checks, domains=domains)
         else:
             return redirect(url_for('pcr'))
     elif request.method == 'POST':
@@ -157,7 +157,7 @@ def new_pcr():
                 team_id = user.team.id
 
             domain_id = form.domain.data
-            service_id = form.service.data
+            check_id = form.check.data
             pwchange = form.pwchange.data
 
             pwchange = [line.split(':') for line in pwchange.split('\r\n')]
@@ -167,7 +167,7 @@ def new_pcr():
                     username = re.sub('\s+', '', line[0])
                     password = re.sub('\s+', '', ':'.join(line[1:]))
                     creds.append((username, password))
-            pcr = PasswordChangeRequest(team_id, PCRStatus.PENDING, creds, service_id=service_id, domain_id=domain_id)
+            pcr = PasswordChangeRequest(team_id, PCRStatus.PENDING, creds, check_id=check_id, domain_id=domain_id)
             conflict = pcr.conflicts(window)
             if conflict:
                 pcr.set_status(PCRStatus.APPROVAL)
