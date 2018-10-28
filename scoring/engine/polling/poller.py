@@ -35,6 +35,8 @@ class PollInput(object):
     def deserialize(input_class, args, teams, credentials):
         team = None
         creds = None
+        if args is None:
+            args = {}
         if 'team' in args:
             id = args['team']
             del args['team']
