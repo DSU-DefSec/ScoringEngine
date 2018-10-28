@@ -30,8 +30,8 @@ class MysqlPoller(Poller):
             output = cursor.fetchone()[0]
             conn.close()
     
-            result = MySqlPollResult(output)
+            result = MysqlPollResult(output)
             return result
         except Exception as e:
-            result = MySqlPollResult(None, e)
+            result = MysqlPollResult(None, e)
             return result

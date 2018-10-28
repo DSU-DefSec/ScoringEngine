@@ -31,8 +31,8 @@ class MssqlPoller(Poller):
             cursor.execute(poll_input.query)
             output = ' '.join([str(row[0]) for row in cursor.fetchall()])
             
-            result = MsSqlPollResult(output)
+            result = MssqlPollResult(output)
             return result
         except Exception as e:
-            result = MsSqlPollResult(None, e)
+            result = MssqlPollResult(None, e)
             return result
