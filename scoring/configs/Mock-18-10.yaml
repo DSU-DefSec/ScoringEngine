@@ -11,9 +11,7 @@ settings:
         service_jitter: 1
 
 web_admins:
-    -
-        username: admin
-        password: SpeakAndSpell
+        admin: SpeakAndSpell
 
 teams:
     Team1:
@@ -223,7 +221,7 @@ systems:
                             db: staff
                             query: SELECT dob FROM staff WHERE emp_id=85
                         output:
-                            output: 1980-04-26
+                            output: "1980-04-26"
     Moodle:
         host: 100
         checks:
