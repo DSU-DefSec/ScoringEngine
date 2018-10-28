@@ -101,7 +101,7 @@ def reset_all_tables():
     Delete all data from all tables in the database.
     """
     reset_table('settings')
-    reset_table('systems')
+    reset_table('system')
     reset_table('team')
     reset_table('users')
     reset_table('domain')
