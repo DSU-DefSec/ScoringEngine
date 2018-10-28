@@ -110,7 +110,7 @@ DROP TABLE IF EXISTS `pcr`;
 CREATE TABLE `pcr` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `team_id` INT NOT NULL,
-    `service_id` INT,
+    `check_id` INT,
     `domain_id` INT,
     `submitted` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `completed` TIMESTAMP NULL,
@@ -120,7 +120,7 @@ CREATE TABLE `pcr` (
     `admin_comment` VARCHAR(4095) DEFAULT '',
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
        ON DELETE CASCADE,
-    FOREIGN KEY (`service_id`) REFERENCES `service`(`id`)
+    FOREIGN KEY (`check_id`) REFERENCES `service_check`(`id`)
        ON DELETE CASCADE,
     FOREIGN KEY (`domain_id`) REFERENCES `domain`(`id`)
        ON DELETE CASCADE);
