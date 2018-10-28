@@ -1,6 +1,7 @@
 settings:
     running: 1
     revert_penalty: 350
+    webserver_ip: 10.1.0.4
     polling:
         interval: 180
         jitter: 30
@@ -108,7 +109,7 @@ systems:
                 ios:
                     mail-smtp:
                         input:
-                            fqnd: goats.lan
+                            fqdn: goats.lan
                             users:
                                 - bertha.compton
                                 - veronica.rowe
