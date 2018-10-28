@@ -7,8 +7,8 @@ CREATE TABLE `settings` (
     `skey` VARCHAR(255) NOT NULL,
     `value` VARCHAR(255) NOT NULL);
 
-DROP TABLE IF EXISTS `systems`;
-CREATE TABLE `systems` (
+DROP TABLE IF EXISTS `system`;
+CREATE TABLE `system` (
     `system` VARCHAR(255) NOT NULL PRIMARY KEY,
     `host` INT NOT NULL);
 
@@ -38,7 +38,7 @@ CREATE TABLE `service_check` (
     `port` INT NOT NULL,
     `check_function` VARCHAR(255) NOT NULL,
     `poller` VARCHAR(255) NOT NULL,
-    FOREIGN KEY (`system`) REFERENCES `systems`(`system`)
+    FOREIGN KEY (`system`) REFERENCES `system`(`system`)
         ON DELETE CASCADE);
 
 DROP TABLE IF EXISTS `domain`;
