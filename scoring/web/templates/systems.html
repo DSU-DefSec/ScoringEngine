@@ -55,24 +55,24 @@
     <tbody>
         {% for system in systems %}
         <tr>
-            <td>{{ system }}</td>
+            <td>{{ system.name }}</td>
             <td>
-                <button class="btn btn-success" onclick='confirm_action("{{ system }}", "power on")'>
+                <button class="btn btn-success" onclick='confirm_action("{{ system.name }}", "power on")'>
                     Power On
                 </button>
             </td>
             <td>
-                <button class="btn btn-danger" onclick='confirm_action("{{ system }}", "power off")'>
+                <button class="btn btn-danger" onclick='confirm_action("{{ system.name }}", "power off")'>
                     Power Off
                 </button>
             </td>
             <td>
-                <button class="btn btn-warning" onclick='confirm_action("{{ system }}", "restart")'>
+                <button class="btn btn-warning" onclick='confirm_action("{{ system.name }}", "restart")'>
                     Restart
                 </button>
             </td>
             <td>
-                <button class="btn btn-primary" onclick='confirm_action("{{ system }}", "revert")'>
+                <button class="btn btn-primary" onclick='confirm_action("{{ system.name }}", "revert")'>
                     Revert
                 </button>
             </td>

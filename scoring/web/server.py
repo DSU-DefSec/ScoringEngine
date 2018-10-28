@@ -93,8 +93,8 @@ def pcr():
         pcr_ids = db.get('pcr', ['id'], where=where, orderby=orderby, args=args)
         pcrs = [PasswordChangeRequest.load(pcr_id) for pcr_id in pcr_ids]
         domains = {d.id:d for d in wm.domains}
-        services = {s.id:s for s in wm.services}
-        return render_template('pcr_overview.html', pcrs=pcrs, services=services, domains=domains)
+        systems = {s.name:s for s in wm.systems}
+        return render_template('pcr_overview.html', pcrs=pcrs, systems=systems, domains=domains)
     elif request.method == 'POST':
         pcr_id = request.form['reqId']
         pcr = PasswordChangeRequest.load(pcr_id)

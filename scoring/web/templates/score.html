@@ -78,9 +78,9 @@
         <tbody>
             {% for system in systems %}
             <tr>
-                <td>{{ system }}</td>
+                <td>{{ system.name }}</td>
                 {% for team_id in teams.keys() %}
-                    <td id="revert-{{ team_id }}-{{ system }}">
+                    <td id="revert-{{ team_id }}-{{ system.name }}">
                         {{ reverts[team_id][system] }}
                     </td>
                 {% endfor %}

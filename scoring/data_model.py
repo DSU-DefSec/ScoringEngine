@@ -16,7 +16,6 @@ class DataModel(object):
         Load all data from the database.
         """
         self.load_settings()
-        self.load_systems()
         teams = self.load_teams()
         self.teams = list(teams.values())
         self.domains = self.load_domains()
@@ -31,7 +30,7 @@ class DataModel(object):
         checks = self.load_checks(check_ios)
         self.checks = [check[0] for check in checks]
 
-        self.services = self.load_services(checks)
+        self.systems = self.load_systems(checks)
         self.results = None
 
     def load_settings(self):
@@ -46,25 +45,17 @@ class DataModel(object):
             settings[key] = value
 
         # Cast to correct data types
-        settings['interval'] = int(settings['interval'])
-        settings['jitter'] = int(settings['jitter'])
-        settings['timeout'] = int(settings['timeout'])
+        settings['interval'] = int(settings['polling_interval'])
+        settings['jitter'] = int(settings['polling_jitter'])
+        settings['timeout'] = int(settings['polling_timeout'])
         settings['running'] = int(settings['running'])
         settings['pcr_approval_window'] = int(settings['pcr_approval_window'])
-        settings['pcr_service_window'] = int(settings['pcr_service_window'])
+        settings['pcr_service_window'] = int(settings['pcr_service_interval'])
         settings['pcr_service_jitter'] = int(settings['pcr_service_jitter'])
         settings['revert_penalty'] = int(settings['revert_penalty'])
 
         self.settings = settings
 
-    def load_systems(self):
-        """
-        Load systems from the database.
-        """
-        system_rows = db.getall('systems')
-        systems = [system_row[0] for system_row in system_rows]
-        self.systems = systems
-    
     def load_teams(self):
         """
         Load teams from the database.
@@ -169,49 +160,51 @@ class DataModel(object):
         """
         checks = []
         check_rows = db.getall('service_check')
-        for check_id, name, check_string, \
-            poller_string, service_id in check_rows:
+        print(check_rows[0])
+        for check_id, name, system, port, check_string, \
+            poller_string in check_rows:
 
             # Build check
             ios = check_ios[check_id]
+            print(check_string)
             check_function = load_module(check_string)
             poller_class = load_module(poller_string)
             poller = poller_class()
-            check = Check(check_id, name, check_function,
+            check = Check(check_id, name, port, check_function,
                           ios, poller)
 
             # Update link from check IOs to this check
             for check_io in ios:
                 check_io.check = check
 
-            checks.append((check, service_id))
+            checks.append((check, system))
         return checks
     
-    def load_services(self, checks):
+    def load_systems(self, checks):
         """
-        Load services from the database.
+        Load systems from the database.
 
         Arguments:
-            checks (List(Check,int)): List of pairs of service IDs and the
-                check to associate a service with
+            checks (List(Check,int)): List of pairs of systems and the
+                check to associate a system with
 
         Returns:
-            List(Service): A list of services
+            List(Service): A list of systems
         """
-        services = []
-        service_rows = db.getall('service')
-        for service_id, host, port in service_rows:
+        systems = []
+        system_rows = db.getall('system')
+        for system_name, host in system_rows:
             schecks = []
             for check, sid in checks:
-                if sid == service_id:
+                if sid == system_name:
                     schecks.append(check)
 
-            service = Service(service_id, host, port, schecks)
-            # Update link from checks to this service
+            system = System(system_name, host, schecks)
+            # Update link from checks to this system
             for check in schecks:
-               check.service = service
-            services.append(service)
-        return services
+               check.system = system
+            systems.append(system)
+        return systems
 
     def reload_credentials(self):
         """

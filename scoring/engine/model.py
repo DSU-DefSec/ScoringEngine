@@ -72,21 +72,19 @@ class Credential(object):
         return "%s\\%s:%s:%s" % (self.domain, self.team.name, self.username, self.password)
 
 
-class Service(object):
+class System(object):
     """
     A Service to be checked.
 
     Attributes:
-        id (int): The ID of the service in the database
-        host (int): The host number of the service
-        port (int): The port of the service
-        checks (Check): A list of checks to be run on the service
+        name (str): The name of the system in the database
+        host (int): The host number of the system
+        checks (Check): A list of checks to be run on the system
     """
 
-    def __init__(self, id, host, port, checks):
-        self.id = int(id)
+    def __init__(self, name, host, checks):
+        self.name = name
         self.host = host
-        self.port = port
         self.checks = checks
 
     def check(self, check_round, teams):
@@ -99,7 +97,7 @@ class Service(object):
         """
         for check in self.checks:
             thread = Thread(target=check.check,
-                            args=(check_round, teams, self.host, self.port))
+                            args=(check_round, teams, self.host))
             thread.start()
 
     def get_ip(self, subnet):
@@ -115,7 +113,7 @@ class Service(object):
         return ip
 
     def __str__(self):
-        return "%s:%s" % (self.host, self.port)
+        return self.name
 
 
 class Check(object):
@@ -131,14 +129,15 @@ class Check(object):
         service (Service): The service this check is for
     """
 
-    def __init__(self, id, name, check_function, check_ios, poller):
+    def __init__(self, id, name, port, check_function, check_ios, poller):
         self.id = int(id)
         self.name = name
+        self.port = port
         self.check_function = check_function
         self.check_ios = check_ios
         self.poller = poller
 
-    def check(self, check_round, teams, host, port):
+    def check(self, check_round, teams, host):
         """
         Select a random input-output pair and run a check against all
         teams in parallel.
@@ -150,7 +149,7 @@ class Check(object):
             port (int): The port of the host to check
         """
         check_io = random.choice(self.check_ios)
-        poll_inputs = check_io.get_poll_inputs(teams, host, port)
+        poll_inputs = check_io.get_poll_inputs(teams, host, self.port)
         for poll_input in poll_inputs:
             thread = Thread(target=self.check_single,
                             args=(check_round, check_io.id, poll_input,check_io.expected))
@@ -294,7 +293,7 @@ class CheckIO(object):
             port (int): The port of the host to check
         """
         poll_input = copy.copy(self.poll_input)
-        server = self.check.service.get_ip(team.subnet)
+        server = self.check.system.get_ip(team.subnet)
         poll_input.server = server
         poll_input.port = port
         poll_input.team = team
