@@ -9,7 +9,8 @@ CREATE TABLE `settings` (
 
 DROP TABLE IF EXISTS `systems`;
 CREATE TABLE `systems` (
-    `system` VARCHAR(255) NOT NULL PRIMARY KEY);
+    `system` VARCHAR(255) NOT NULL PRIMARY KEY,
+    `host` INT NOT NULL);
 
 DROP TABLE IF EXISTS `team`;
 CREATE TABLE `team` (
@@ -29,20 +30,15 @@ CREATE TABLE `users` (
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
         ON DELETE CASCADE);
     
-DROP TABLE IF EXISTS `service`;
-CREATE TABLE `service` (
-    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `host` INT NOT NULL,
-    `port` INT NOT NULL);
-
 DROP TABLE IF EXISTS `service_check`;
 CREATE TABLE `service_check` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL UNIQUE,
+    `system` VARCHAR(255) NOT NULL,
+    `port` INT NOT NULL,
     `check_function` VARCHAR(255) NOT NULL,
     `poller` VARCHAR(255) NOT NULL,
-    `service_id` INT NOT NULL,
-    FOREIGN KEY (`service_id`) REFERENCES `service`(`id`)
+    FOREIGN KEY (`system`) REFERENCES `systems`(`system`)
         ON DELETE CASCADE);
 
 DROP TABLE IF EXISTS `domain`;
@@ -65,12 +61,12 @@ CREATE TABLE `credential` (
     `username` VARCHAR(255) NOT NULL,
     `password` VARCHAR(255) NOT NULL,
     `team_id` INT NOT NULL,
-    `service_id` INT NOT NULL,
+    `check_id` INT NOT NULL,
     `domain_id` INT,
     `is_default` BOOL DEFAULT TRUE,
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
        ON DELETE CASCADE,
-    FOREIGN KEY (`service_id`) REFERENCES `service`(`id`)
+    FOREIGN KEY (`check_id`) REFERENCES `service_check`(`id`)
        ON DELETE CASCADE,
     FOREIGN KEY (`domain_id`) REFERENCES `domain`(`id`)
        ON DELETE CASCADE);
