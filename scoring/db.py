@@ -105,7 +105,6 @@ def reset_all_tables():
     reset_table('team')
     reset_table('users')
     reset_table('domain')
-    reset_table('service')
     reset_table('service_check')
     reset_table('check_io')
     reset_table('credential')
