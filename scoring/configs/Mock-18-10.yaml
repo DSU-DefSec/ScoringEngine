@@ -3,8 +3,8 @@ settings:
     revert_penalty: 350
     webserver_ip: 10.1.0.4
     polling:
-        interval: 180
-        jitter: 30
+        interval: 30
+        jitter: 0
         timeout: 20
     pcr:
         approval_window: 0
@@ -19,7 +19,7 @@ teams:
         user:
             username: team1
             password: FightingFish
-        subnet: 10.0.1.0
+        subnet: 10.2.100.0
         netmask: 255.255.255.0
         vapp: Team1_Mock2_2018-10-21
     Team2:
@@ -168,9 +168,9 @@ systems:
                         input:
                             base: cn=Users,dc=GOATS,dc=LAN
                             filter: (sAMAccountName=dwayne.avery)
-                            attributes: objectGUID
+                            attributes: [objectGUID]
                         output:
-                            objectGUID: UG2mgvq9G06Ca6bNtAnINg==
+                            objectGUID: [UG2mgvq9G06Ca6bNtAnINg==]
             DC01-dns:
                 type: dns
                 port: 53
@@ -181,19 +181,19 @@ systems:
                             record_type: A
                             query: www.goats.lan
                         output:
-                            answer: 20
+                            answer: [20]
                     dns-owncloud:
                         input:
                             record_type: A
                             query: owncloud.goats.lan
                         output:
-                            answer: 50
+                            answer: [50]
                     dns-moodle:
                         input:
                             record_type: A
                             query: moodle.goats.lan
                         output:
-                            answer: 100
+                            answer: [100]
     DC02:
         host: 80
         checks:
@@ -206,9 +206,9 @@ systems:
                         input:
                             base: cn=Users,dc=GOATS,dc=LAN
                             filter: (sAMAccountName=brent.head)
-                            attributes: objectGUID
+                            attributes: [objectGUID]
                         output:
-                            objectGUID: SjMmjuiQA02/lRXxeISH6A==
+                            objectGUID: [SjMmjuiQA02/lRXxeISH6A==]
     MSSQL:
         host: 90
         checks:
@@ -276,7 +276,6 @@ credentials:
         bertha.compton:
             ios: [mail-imap]
         tricia.rogers:
-            password: Password2@
             ios: [mail-imap, lab02-ftp]
         dbuser:
             ios: [mysql, mssql]
