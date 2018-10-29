@@ -21,7 +21,7 @@ class LdapPoller(Poller):
     def poll(self, poll_input):
         username = poll_input.credentials.username
         password = poll_input.credentials.password
-        domain = poll_input.domain.fqdn
+        domain = poll_input.credentials.domain.fqdn
     
         dn = '{}@{}'.format(username, domain)
         base = poll_input.base
