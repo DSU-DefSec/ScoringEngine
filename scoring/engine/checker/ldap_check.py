@@ -12,5 +12,4 @@ def match_ldap_output(poll_result, expected):
                 output[key][i] = val.decode('utf8')
             except:
                 output[key][i] = b64encode(val).decode('utf8')
-
     return output == expected

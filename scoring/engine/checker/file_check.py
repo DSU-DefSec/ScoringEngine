@@ -22,7 +22,8 @@ def hash_match(poll_result, expected):
     sha1.update(content)
     hex_hash = sha1.hexdigest()
 
-    return expected[0] == hex_hash
+    exp_hash = expected['hash']
+    return hex_hash == exp_hash
 
 def diff_match(poll_result, expected):
     if poll_result.file_name is None:

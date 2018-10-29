@@ -12,4 +12,5 @@ def output_check(poll_result, expected):
 
 
     output = poll_result.output[0].strip()
-    return output == expected[0]
+    expected = expected['output']
+    return output == expected
