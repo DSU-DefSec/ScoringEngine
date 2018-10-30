@@ -35,11 +35,11 @@
             {% endif %}
             </td>
             <td>
-            {% if pcr.service_id is none %}
+            {% if pcr.check_id is none %}
                 {{ domains[pcr.domain_id] }}
             {% else %}
-                {% set s = services[pcr.service_id] %}
-                Host: {{ s.host }}, Port: {{ s.port }}
+                {% set c = checks[pcr.check_id] %}
+                {{ c.name }}
             {% endif %}
             </td>
             {% if pcr.status == 0 %}

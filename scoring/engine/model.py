@@ -72,21 +72,19 @@ class Credential(object):
         return "%s\\%s:%s:%s" % (self.domain, self.team.name, self.username, self.password)
 
 
-class Service(object):
+class System(object):
     """
     A Service to be checked.
 
     Attributes:
-        id (int): The ID of the service in the database
-        host (int): The host number of the service
-        port (int): The port of the service
-        checks (Check): A list of checks to be run on the service
+        name (str): The name of the system in the database
+        host (int): The host number of the system
+        checks (Check): A list of checks to be run on the system
     """
 
-    def __init__(self, id, host, port, checks):
-        self.id = int(id)
+    def __init__(self, name, host, checks):
+        self.name = name
         self.host = host
-        self.port = port
         self.checks = checks
 
     def check(self, check_round, teams):
@@ -99,7 +97,7 @@ class Service(object):
         """
         for check in self.checks:
             thread = Thread(target=check.check,
-                            args=(check_round, teams, self.host, self.port))
+                            args=(check_round, teams, self.host))
             thread.start()
 
     def get_ip(self, subnet):
@@ -115,7 +113,7 @@ class Service(object):
         return ip
 
     def __str__(self):
-        return "%s:%s" % (self.host, self.port)
+        return self.name
 
 
 class Check(object):
@@ -131,14 +129,15 @@ class Check(object):
         service (Service): The service this check is for
     """
 
-    def __init__(self, id, name, check_function, check_ios, poller):
+    def __init__(self, id, name, port, check_function, check_ios, poller):
         self.id = int(id)
         self.name = name
+        self.port = port
         self.check_function = check_function
         self.check_ios = check_ios
         self.poller = poller
 
-    def check(self, check_round, teams, host, port):
+    def check(self, check_round, teams, host):
         """
         Select a random input-output pair and run a check against all
         teams in parallel.
@@ -150,7 +149,7 @@ class Check(object):
             port (int): The port of the host to check
         """
         check_io = random.choice(self.check_ios)
-        poll_inputs = check_io.get_poll_inputs(teams, host, port)
+        poll_inputs = check_io.get_poll_inputs(teams, host, self.port)
         for poll_input in poll_inputs:
             thread = Thread(target=self.check_single,
                             args=(check_round, check_io.id, poll_input,check_io.expected))
@@ -294,7 +293,7 @@ class CheckIO(object):
             port (int): The port of the host to check
         """
         poll_input = copy.copy(self.poll_input)
-        server = self.check.service.get_ip(team.subnet)
+        server = self.check.system.get_ip(team.subnet)
         poll_input.server = server
         poll_input.port = port
         poll_input.team = team
@@ -345,16 +344,16 @@ class PasswordChangeRequest(object):
         team_id (int): ID of the team to change passwords for
         status (PCRStatus): The status of the request
         creds (List(str,str)): List of tuples (username, new_password)
-        service_id (int): ID of the service to change passwords for
+        check_id (int): ID of the service to change passwords for
         domain_id (int): ID of the domain to change passwords for
         submitted (datetime): Submission time for the request
         completed (datetime): Completition time for the request
         id (int): ID of the request
     """
-    def __init__(self, team_id, status, creds, id=None, service_id=None, domain_id=None, submitted=None, completed=None, team_comment='', admin_comment=''):
+    def __init__(self, team_id, status, creds, id=None, check_id=None, domain_id=None, submitted=None, completed=None, team_comment='', admin_comment=''):
         self.id = id
         self.team_id = team_id
-        self.service_id = service_id
+        self.check_id = check_id
         self.domain_id = domain_id
         if submitted is None:
             submitted = datetime.datetime.now()
@@ -379,17 +378,17 @@ class PasswordChangeRequest(object):
             PasswordChangeRequest: The password change request with the given ID
         """
         pcr_data = db.get('pcr', ['*'], where='id=%s', args=[pcr_id])[0]
-        id, team_id, service_id, domain_id, submitted, completed, status, creds, team_comment, admin_comment = pcr_data
+        id, team_id, check_id, domain_id, submitted, completed, status, creds, team_comment, admin_comment = pcr_data
         creds = json.loads(creds)
-        pcr = PasswordChangeRequest(team_id, status, creds, id, service_id, domain_id, submitted, completed, team_comment, admin_comment)
+        pcr = PasswordChangeRequest(team_id, status, creds, id, check_id, domain_id, submitted, completed, team_comment, admin_comment)
         return pcr
 
     def save(self):
         """
         Save this new password change request to the database.
         """
-        columns = ['team_id', 'service_id', 'domain_id', 'submitted', 'completed', 'status', 'creds']
-        data = [self.team_id, self.service_id, self.domain_id, self.submitted, self.completed, int(self.status), json.dumps(self.creds)]
+        columns = ['team_id', 'check_id', 'domain_id', 'submitted', 'completed', 'status', 'creds']
+        data = [self.team_id, self.check_id, self.domain_id, self.submitted, self.completed, int(self.status), json.dumps(self.creds)]
         self.id = db.insert('pcr', columns, data)
 
     def delete(self):
@@ -410,12 +409,12 @@ class PasswordChangeRequest(object):
         """
         # Load list of possible conflicting password change requests
         where = 'id != %s AND team_id = %s AND status != %s '
-        if self.service_id is None:
-            where += 'AND service_id is %s AND domain_id = %s'
+        if self.check_id is None:
+            where += 'AND check_id is %s AND domain_id = %s'
         else:
-            where += 'AND service_id = %s AND domain_id is %s'
+            where += 'AND check_id = %s AND domain_id is %s'
 
-        pcr_ids = db.get('pcr', ['id'], where=where, args=[self.id, self.team_id, int(PCRStatus.DENIED), self.service_id, self.domain_id])
+        pcr_ids = db.get('pcr', ['id'], where=where, args=[self.id, self.team_id, int(PCRStatus.DENIED), self.check_id, self.domain_id])
         pcrs = [PasswordChangeRequest.load(pcr_id) for pcr_id in pcr_ids]
         # Check list for conflicts
         window = datetime.timedelta(minutes=window)
@@ -463,7 +462,7 @@ class PasswordChangeRequest(object):
         """
         for cred in self.creds:
             username, password = cred
-            db.set_credential_password(username, password, self.team_id, self.service_id, self.domain_id)
+            db.set_credential_password(username, password, self.team_id, self.check_id, self.domain_id)
         self.completed = datetime.datetime.now()
         db.modify('pcr', 'completed=%s', (self.completed, self.id), where='id=%s')
         self.set_status(PCRStatus.COMPLETE)

@@ -43,11 +43,11 @@ class ScoringEngine(object):
         self.em.reload_credentials()
 
         check_round = db.execute('INSERT INTO check_log () VALUES ()')
-        for service in self.em.services:
+        for system in self.em.systems:
             if self.team_num is None:
-                service.check(check_round, self.em.teams)
+                system.check(check_round, self.em.teams)
             else:
-                service.check(check_round, [self.em.teams[self.team_num]])
+                system.check(check_round, [self.em.teams[self.team_num]])
 
     def log_default_creds(self):
         cmd = ('INSERT INTO default_creds_log (team_id, perc_default) '

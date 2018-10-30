@@ -52,7 +52,7 @@ class PasswordChangeForm(FlaskForm):
     team = SelectField('Team', coerce=int)
     ctype = SelectField('Credential Type')
     domain = SelectField('Domain', coerce=int)
-    service = SelectField('Service', coerce=int)
+    check = SelectField('Service', coerce=int)
     pwchange = TextAreaField('Password Changes')
 
     def __init__(self, wm):
@@ -69,8 +69,8 @@ class PasswordChangeForm(FlaskForm):
         self.domain.choices=[(d.id, d.fqdn) for d in wm.domains]
         self.domain.validators=[Optional()]
 
-        self.service.choices=[(s.id, 'Host: %d, Port: %d' % (s.host, s.port)) for s in wm.services]
-        self.service.validators=[Optional()]
+        self.check.choices=[(c.id, c.name) for c in wm.checks]
+        self.check.validators=[Optional()]
 
         # Regex validator: "user:pass\r\nuser2:pass2"
         self.pwchange.validators=[InputRequired(),

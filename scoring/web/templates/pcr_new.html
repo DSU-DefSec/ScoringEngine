@@ -62,18 +62,18 @@
             {% endif %}
             {{ form.domain(class_="form-control") }}
         </div>
-        <div class="form-group" id="service-form" hidden="">
-            {{ form.service.label }}
-            {% if form.errors[form.service.id] %}
+        <div class="form-group" id="check-form" hidden="">
+            {{ form.check.label }}
+            {% if form.errors[form.check.id] %}
             <div class="alert alert-danger">
                 <ul>
-                    {% for error in form.errors[form.service.id] %}
+                    {% for error in form.errors[form.check.id] %}
                         <li><strong>{{ error }}</strong></li>
                     {% endfor %}
                 </ul>
             </div>
             {% endif %}
-            {{ form.service(class_="form-control", disabled="") }}
+            {{ form.check(class_="form-control", disabled="") }}
         </div>
         <div class="form-group">
             {{ form.pwchange.label }}
@@ -94,7 +94,7 @@
 
 <script type="text/javascript">
     function credtype_change() {
-        var toHide = document.getElementById('service-form');
+        var toHide = document.getElementById('check-form');
         var toShow = document.getElementById('domain-form');
 
         var type = document.getElementById('ctype').value;

@@ -4,9 +4,8 @@ from .poller import PollInput, PollResult, Poller
 
 class LdapPollInput(PollInput):
 
-    def __init__(self, dn, base, filter, attributes, server=None, port=None):
+    def __init__(self, base, filter, attributes, server=None, port=None):
         super(LdapPollInput, self).__init__(server, port)
-        self.dn = dn
         self.base = base
         self.filter = filter
         self.attributes = attributes
@@ -22,8 +21,9 @@ class LdapPoller(Poller):
     def poll(self, poll_input):
         username = poll_input.credentials.username
         password = poll_input.credentials.password
+        domain = poll_input.credentials.domain.fqdn
     
-        dn = poll_input.dn.format(username)
+        dn = '{}@{}'.format(username, domain)
         base = poll_input.base
         scope = ldap.SCOPE_SUBTREE
         filt = poll_input.filter

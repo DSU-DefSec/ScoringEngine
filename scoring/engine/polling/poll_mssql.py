@@ -3,20 +3,20 @@ import socket
 
 from .poller import PollInput, PollResult, Poller
 
-class MsSqlPollInput(PollInput):
+class MssqlPollInput(PollInput):
 
     def __init__(self, db, query, server=None, port=None):
-        super(MsSqlPollInput, self).__init__(server, port)
+        super(MssqlPollInput, self).__init__(server, port)
         self.db = db
         self.query = query
 
-class MsSqlPollResult(PollResult):
+class MssqlPollResult(PollResult):
 
     def __init__(self, output, exceptions=None):
-        super(MsSqlPollResult, self).__init__(exceptions)
+        super(MssqlPollResult, self).__init__(exceptions)
         self.output = output
 
-class MsSqlPoller(Poller):
+class MssqlPoller(Poller):
 
     def poll(self, poll_input):
         username = poll_input.credentials.username
@@ -31,8 +31,8 @@ class MsSqlPoller(Poller):
             cursor.execute(poll_input.query)
             output = ' '.join([str(row[0]) for row in cursor.fetchall()])
             
-            result = MsSqlPollResult(output)
+            result = MssqlPollResult(output)
             return result
         except Exception as e:
-            result = MsSqlPollResult(None, e)
+            result = MssqlPollResult(None, e)
             return result

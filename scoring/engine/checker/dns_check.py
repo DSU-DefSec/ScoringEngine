@@ -4,4 +4,7 @@ def any_match(poll_result, expected):
         return False
 
     host = poll_result.answer.split('.')[3]
-    return host in expected
+    host = int(host)
+    ans = expected['answer']
+    print(host, ans)
+    return host in ans
