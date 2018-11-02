@@ -269,21 +269,197 @@ systems:
 credentials:
     default_password: Password1!
     local:
-        cindy.tran:
-            ios: [lab01-ssh]
-        catherine.hays:
-            ios: [lab02-ssh]
-        bertha.compton:
-            ios: [mail-imap]
+        monique.cooper:
+            ios: ['lab01-ssh', 'lab02-ssh']
+        geneva.sweeney:
+            ios: ['lab01-ssh', 'mail-imap']
+        lawrence.branch:
+            ios: ['lab01-ssh', 'lab02-ftp', 'lab02-ssh']
+        tricia.zamora:
+            ios: ['lab01-ssh', 'lab02-ftp', 'mail-imap']
+        cora.pittman:
+            ios: ['lab01-ssh']
+        wanda.cleveland:
+            ios: ['lab01-ssh', 'lab02-ftp']
+        cesar.singleton:
+            ios: ['lab01-ssh', 'mail-imap']
+        rose.moses:
+            ios: ['lab01-ssh']
         tricia.rogers:
-            ios: [mail-imap, lab02-ftp]
-        dbuser:
-            ios: [mysql, mssql]
+            ios: ['lab01-ssh', 'lab02-ftp', 'lab02-ssh']
+        ashley.porter:
+            ios: ['lab01-ssh', 'lab02-ftp', 'lab02-ssh', 'mail-imap']
+        jeanette.owens:
+            ios: ['lab01-ssh', 'mail-imap']
+        richard.tyler:
+            ios: ['lab01-ssh', 'lab02-ssh', 'mail-imap']
+        cindy.tran:
+            ios: ['lab01-ssh', 'lab02-ssh', 'mail-imap']
+        brent.head:
+            ios: ['lab01-ssh', 'mail-imap']
+        lance.blanchard:
+            ios: ['lab01-ssh', 'lab02-ftp', 'lab02-ssh', 'mail-imap']
+        bertha.compton:
+            ios: ['lab01-ssh', 'lab02-ftp', 'lab02-ssh']
+        perry.holt:
+            ios: ['lab01-ssh', 'mail-imap']
+        cristina.christensen:
+            ios: ['lab01-ssh', 'lab02-ftp']
+        lawrence.henderson:
+            ios: ['lab01-ssh', 'lab02-ftp', 'lab02-ssh']
+        erick.houston:
+            ios: ['lab01-ssh', 'lab02-ftp', 'lab02-ssh']
+        mae.gaines:
+            ios: ['lab01-ssh']
+        jody.sutton:
+            ios: ['lab01-ssh', 'lab02-ssh']
+        monique.foreman:
+            ios: ['lab01-ssh', 'lab02-ssh']
+        brett.howard:
+            ios: ['lab01-ssh', 'lab02-ftp', 'lab02-ssh', 'mail-imap']
+        sophia.norton:
+            ios: ['lab01-ssh', 'lab02-ssh']
+        catherine.hays:
+            ios: ['lab02-ftp', 'mail-imap']
+        dean.blackburn:
+            ios: ['lab02-ftp', 'mail-imap']
+        veronica.rowe:
+            ios: ['lab02-ftp', 'mail-imap']
+        bonita.velasquez:
+            ios: ['lab02-ftp', 'mail-imap']
+        benny.hopper:
+            ios: ['lab02-ftp', 'mail-imap']
+        shelly.henderson:
+            ios: ['lab02-ftp']
+        anne.reese:
+            ios: ['lab02-ftp']
+        ed.solomon:
+            ios: ['lab02-ftp', 'mail-imap']
+        viola.schroeder:
+            ios: ['lab02-ftp', 'mail-imap']
+        rachael.tillman:
+            ios: ['lab02-ftp', 'lab02-ssh']
+        julie.fuller:
+            ios: ['lab02-ftp', 'mail-imap']
+        calvin.charles:
+            ios: ['lab02-ftp', 'lab02-ssh', 'mail-imap']
+        ruby.singleton:
+            ios: ['lab02-ftp', 'lab02-ssh', 'mail-imap']
+        elsie.sykes:
+            ios: ['lab02-ftp']
+        antonio.le:
+            ios: ['lab02-ssh']
+        roberto.simon:
+            ios: ['lab02-ssh']
+        jenna.chambers:
+            ios: ['lab02-ssh']
+        owen.patrick:
+            ios: ['lab02-ssh', 'mail-imap']
+        heather.nolan:
+            ios: ['lab02-ssh']
+        richard.franks:
+            ios: ['lab02-ssh', 'mail-imap']
+        dwayne.avery:
+            ios: ['lab02-ssh', 'mail-imap']
+        lesley.russell:
+            ios: ['lab02-ssh']
+        toni.mosley:
+            ios: ['mail-imap']
     domain:
         GOATS.LAN:
-            jody.sutton:
-                ios: [win7-rdp]
+            cristina.christensen:
+                ios: ['dc01-ldap', 'share-smb', 'win7-rdp']
+            lance.blanchard:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb', 'win7-rdp']
+            heather.nolan:
+                ios: ['dc01-ldap', 'share-smb', 'win7-rdp']
+            monique.cooper:
+                ios: ['dc01-ldap', 'dc02-ldap', 'win7-rdp']
+            richard.tyler:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb', 'win7-rdp']
+            antonio.le:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb', 'win7-rdp']
+            anne.reese:
+                ios: ['dc01-ldap']
+            wanda.cleveland:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb', 'win7-rdp']
+            rachael.tillman:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb', 'win7-rdp']
+            perry.holt:
+                ios: ['dc01-ldap']
+            owen.patrick:
+                ios: ['dc01-ldap', 'share-smb']
+            roberto.simon:
+                ios: ['dc01-ldap', 'share-smb', 'win7-rdp']
+            cesar.singleton:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            jenna.chambers:
+                ios: ['dc01-ldap', 'share-smb']
+            ruby.singleton:
+                ios: ['dc01-ldap', 'dc02-ldap', 'win7-rdp']
+            cora.pittman:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            veronica.rowe:
+                ios: ['dc01-ldap']
+            geneva.sweeney:
+                ios: ['dc01-ldap']
+            cindy.tran:
+                ios: ['dc01-ldap', 'win7-rdp']
+            lesley.russell:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            richard.franks:
+                ios: ['dc01-ldap', 'dc02-ldap']
             lawrence.branch:
-                ios: [dc02-ldap, share-smb]
+                ios: ['dc01-ldap']
+            monique.foreman:
+                ios: ['dc01-ldap', 'win7-rdp']
+            erick.houston:
+                ios: ['dc01-ldap', 'share-smb', 'win7-rdp']
+            melvin.lopez:
+                ios: ['dc01-ldap', 'share-smb']
+            tricia.zamora:
+                ios: ['dc02-ldap']
             toni.mosley:
-                ios: [dc01-ldap]
+                ios: ['dc02-ldap', 'share-smb']
+            viola.schroeder:
+                ios: ['dc02-ldap', 'share-smb']
+            julie.fuller:
+                ios: ['dc02-ldap', 'share-smb', 'win7-rdp']
+            dean.blackburn:
+                ios: ['dc02-ldap']
+            dwayne.avery:
+                ios: ['dc02-ldap']
+            jeanette.owens:
+                ios: ['dc02-ldap', 'share-smb', 'win7-rdp']
+            sophia.norton:
+                ios: ['dc02-ldap', 'share-smb', 'win7-rdp']
+            rose.moses:
+                ios: ['dc02-ldap']
+            ed.solomon:
+                ios: ['dc02-ldap', 'share-smb', 'win7-rdp']
+            lawrence.henderson:
+                ios: ['dc02-ldap', 'share-smb']
+            tricia.rogers:
+                ios: ['dc02-ldap', 'win7-rdp']
+            mae.gaines:
+                ios: ['dc02-ldap', 'share-smb']
+            benny.hopper:
+                ios: ['dc02-ldap', 'win7-rdp']
+            jody.sutton:
+                ios: ['share-smb']
+            catherine.hays:
+                ios: ['share-smb', 'win7-rdp']
+            emma.hensley:
+                ios: ['share-smb']
+            brent.head:
+                ios: ['share-smb']
+            bonita.velasquez:
+                ios: ['share-smb', 'win7-rdp']
+            elsie.sykes:
+                ios: ['win7-rdp']
+            calvin.charles:
+                ios: ['win7-rdp']
+            bertha.compton:
+                ios: ['win7-rdp']
+            brett.howard:
+                ios: ['win7-rdp']
