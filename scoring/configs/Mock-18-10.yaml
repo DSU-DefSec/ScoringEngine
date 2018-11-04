@@ -16,36 +16,30 @@ web_admins:
 
 teams:
     Team1:
+        team_num: 1
         user:
             username: team1
             password: FightingFish
-        team_num: 1
-        netmask: 255.255.255.0
     Team2:
+        team_num: 2
         user:
             username: team2
             password: KeepAlive
-        team_num: 2
-        netmask: 255.255.255.0
-        vapp: Team2_Mock2_2018-10-21
     Team3:
+        team_num: 3
         user:
             username: team3
             password: DropOver
-        team_num: 3
-        netmask: 255.255.255.0
-        vapp: Team3_Mock2_2018-10-21
     Team4:
+        team_num: 4
         user:
             username: team4
             password: WaterTight
-        team_num: 4
-        netmask: 255.255.255.0
-        vapp: Team4_Mock2_2018-10-21
 
 vapps:
     Mock2_2018-10-21:
         subnet: "10.0.{}.0"
+        netmask: 255.255.255.0
         systems:
             pfSense:
                 host: 1
