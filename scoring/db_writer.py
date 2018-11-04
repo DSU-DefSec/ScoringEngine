@@ -42,16 +42,20 @@ def write_settings(settings):
     for key, value in settings.items():
         db.insert('settings', ['skey', 'value'], (key, value))
 
-def write_systems(systems):
+def write_vapps(vapps):
+    for base_name,vapp_data in vapps.items():
+        subnet = vapp_data['subnet']
+        netmask = vapp_data['netmask']
+        db.insert('vapp', ['base_name', 'subnet', 'netmask'], (base_name, subnet, netmask,))
+
+def write_systems(vapps):
     """
     Write system names to the databasae.
-
-    Arguments:
-        systems (List(str)): A list of system names
     """
-    for system in systems.keys():
-        host = systems[system]['host']
-        db.insert('system', ['system', 'host'], (system, host,))
+    for base_name, vapp_data in vapps.items():
+        for system,system_data in vapp_data['systems'].items():
+            host = system_data['host']
+            db.insert('system', ['system', 'vapp', 'host'], (system, base_name, host,))
 
 def write_teams(teams):
     """
@@ -65,10 +69,8 @@ def write_teams(teams):
     """
     team_ids = {}
     for name, team_data in teams.items():
-        subnet = team_data['subnet']
-        netmask = team_data['netmask']
-        vapp = team_data['vapp']
-        db_id = db.insert('team', ['name', 'subnet', 'netmask', 'vapp'], (name, subnet, netmask, vapp))
+        team_num = team_data['team_num']
+        db_id = db.insert('team', ['name', 'team_num'], (name, team_num,))
         team_ids[name] = db_id
     return team_ids
 
@@ -114,7 +116,7 @@ def write_domains(domains):
         domain_ids[domain] = db_id
     return domain_ids
 
-def write_checks(systems):
+def write_checks(vapps):
     """
     Write the given checks to the database.
 
@@ -126,24 +128,25 @@ def write_checks(systems):
         Dict(int->int): A mapping of check config IDs to check database IDs
     """
     check_ids = {}
-    for system, system_data in systems.items():
-        if 'checks' in system_data:
-            checks = system_data['checks']
-            for name, check_data in checks.items():
-                check_type = check_data['type']
-                port = check_data['port']
-                checker = check_data['checker']
-    
-                poller = get_poller(check_type)
-                checker = get_checker(check_type, checker)
+    for vapp, vapp_data in vapps.items():
+        for system, system_data in vapp_data['systems'].items():
+            if 'checks' in system_data:
+                checks = system_data['checks']
+                for name, check_data in checks.items():
+                    check_type = check_data['type']
+                    port = check_data['port']
+                    checker = check_data['checker']
         
-                db_id = db.insert('service_check',
-                    ['name', 'port', 'check_function', 'poller', 'system'],
-                    (name, port, checker, poller, system))
-                check_ids[name] = db_id
+                    poller = get_poller(check_type)
+                    checker = get_checker(check_type, checker)
+            
+                    db_id = db.insert('service_check',
+                        ['name', 'port', 'check_function', 'poller', 'system'],
+                        (name, port, checker, poller, system))
+                    check_ids[name] = db_id
     return check_ids
 
-def write_check_ios(systems, check_ids):
+def write_check_ios(vapps, check_ids):
     """
     Write the given input-output pairs to the database.
 
@@ -156,21 +159,23 @@ def write_check_ios(systems, check_ids):
         Dict(int->int): A mapping of check input-output pair config IDs to check input-output pair database IDs
     """
     check_io_ids = {}
-    for system, system_data in systems.items():
-        if 'checks' in system_data:
-            for check, check_data in system_data['checks'].items():
-                for check_io_name, check_io_data in check_data['ios'].items():
-                    poll_input_class = get_poll_input(check_data['type'])
-                    poll_input = [poll_input_class, check_io_data['input']]
-                    poll_input = json.dumps(poll_input)
-                    expected = check_io_data['output']
-                    expected = json.dumps(expected)
-                    cid = check_ids[check]
-            
-                    db_id = db.insert('check_io',
-                        ['input', 'expected', 'check_id'],
-                        (poll_input, expected, cid))
-                    check_io_ids[check_io_name] = db_id
+
+    for vapp, vapp_data in vapps.items():
+        for system, system_data in vapp_data['systems'].items():
+            if 'checks' in system_data:
+                for check, check_data in system_data['checks'].items():
+                    for check_io_name, check_io_data in check_data['ios'].items():
+                        poll_input_class = get_poll_input(check_data['type'])
+                        poll_input = [poll_input_class, check_io_data['input']]
+                        poll_input = json.dumps(poll_input)
+                        expected = check_io_data['output']
+                        expected = json.dumps(expected)
+                        cid = check_ids[check]
+                
+                        db_id = db.insert('check_io',
+                            ['input', 'expected', 'check_id'],
+                            (poll_input, expected, cid))
+                        check_io_ids[check_io_name] = db_id
     return check_io_ids
 
 def write_credentials(credentials, team_ids, domain_ids, check_io_ids):
