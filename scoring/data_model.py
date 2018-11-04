@@ -30,7 +30,9 @@ class DataModel(object):
         checks = self.load_checks(check_ios)
         self.checks = [check[0] for check in checks]
 
-        self.systems = self.load_systems(checks)
+        vapps = self.load_vapps()
+        self.vapps = [vapp for vapp in vapps.values()]
+        self.systems = self.load_systems(vapps, checks)
         self.results = None
 
     def load_settings(self):
@@ -65,8 +67,8 @@ class DataModel(object):
         """
         teams = {}
         rows = db.getall('team')
-        for team_id, name, subnet, netmask, vapp in rows:
-            team = Team(team_id, name, subnet, netmask, vapp)
+        for team_id, name, team_num in rows:
+            team = Team(team_id, name, team_num)
             teams[team_id] = team
         return teams
 
@@ -160,13 +162,11 @@ class DataModel(object):
         """
         checks = []
         check_rows = db.getall('service_check')
-        print(check_rows[0])
         for check_id, name, system, port, check_string, \
             poller_string in check_rows:
 
             # Build check
             ios = check_ios[check_id]
-            print(check_string)
             check_function = load_module(check_string)
             poller_class = load_module(poller_string)
             poller = poller_class()
@@ -180,7 +180,7 @@ class DataModel(object):
             checks.append((check, system))
         return checks
     
-    def load_systems(self, checks):
+    def load_systems(self, vapps, checks):
         """
         Load systems from the database.
 
@@ -193,18 +193,28 @@ class DataModel(object):
         """
         systems = []
         system_rows = db.getall('system')
-        for system_name, host in system_rows:
+        for system_name, vapp_name, host in system_rows:
             schecks = []
             for check, sid in checks:
                 if sid == system_name:
                     schecks.append(check)
 
-            system = System(system_name, host, schecks)
+            vapp = vapps[vapp_name]
+            system = System(system_name, vapp, host, schecks)
+            vapp.systems.append(system)
             # Update link from checks to this system
             for check in schecks:
                check.system = system
             systems.append(system)
         return systems
+
+    def load_vapps(self):
+        vapps = {}
+        vapp_rows = db.getall('vapp')
+        for base_name, subnet, netmask in vapp_rows:
+            vapp = Vapp(base_name, subnet, netmask)
+            vapps[base_name] = vapp
+        return vapps
 
     def reload_credentials(self):
         """

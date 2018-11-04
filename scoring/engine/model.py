@@ -17,12 +17,10 @@ class Team(object):
         netmask (IP): Netmask of the subnet
         vapp (str): Name of team vApp
     """
-    def __init__(self, id, name, subnet, netmask, vapp):
+    def __init__(self, id, name, team_num):
         self.id = int(id)
         self.name = name
-        self.subnet = subnet
-        self.netmask = netmask
-        self.vapp = vapp
+        self.team_num = team_num
 
     def __str__(self):
         return self.name
@@ -71,6 +69,20 @@ class Credential(object):
     def __str__(self):
         return "%s\\%s:%s:%s" % (self.domain, self.team.name, self.username, self.password)
 
+class Vapp(object):
+    """
+    A vApp.
+
+    Attributes:
+        base_name (str): The base name for the vApp
+        subnet (str): A format string for the subnet of the vApp
+        netmask (str): The netmask for the vApp's subnet
+    """
+    def __init__(self, base_name, subnet, netmask):
+        self.base_name = base_name
+        self.subnet = subnet
+        self.netmask = netmask
+        self.systems = []
 
 class System(object):
     """
@@ -78,12 +90,14 @@ class System(object):
 
     Attributes:
         name (str): The name of the system in the database
+        vapp (Vapp): The vApp containing the system
         host (int): The host number of the system
         checks (Check): A list of checks to be run on the system
     """
 
-    def __init__(self, name, host, checks):
+    def __init__(self, name, vapp, host, checks):
         self.name = name
+        self.vapp = vapp
         self.host = host
         self.checks = checks
 
@@ -97,16 +111,17 @@ class System(object):
         """
         for check in self.checks:
             thread = Thread(target=check.check,
-                            args=(check_round, teams, self.host))
+                            args=(check_round, teams))
             thread.start()
 
-    def get_ip(self, subnet):
+    def get_ip(self, team_num):
         """
-        Calculate an IP from the given subnet and this service's host number.
+        Calculate an IP from the given subnet and this system's host number.
 
         Arguments:
-            subnet (IP): The subnet used to calculate the IP
+            team_num (int): The team number to calculate an IP for
         """
+        subnet = self.vapp.subnet.format(team_num)
         octets = subnet.split('.')
         octets[3] = str(self.host)
         ip = '.'.join(octets)
@@ -137,7 +152,7 @@ class Check(object):
         self.check_ios = check_ios
         self.poller = poller
 
-    def check(self, check_round, teams, host):
+    def check(self, check_round, teams):
         """
         Select a random input-output pair and run a check against all
         teams in parallel.
@@ -145,11 +160,9 @@ class Check(object):
         Arguments:
             check_round (int): The check round
             teams (List(Team)): The list of teams to check
-            host (int): The host in the team's subnet to check
-            port (int): The port of the host to check
         """
         check_io = random.choice(self.check_ios)
-        poll_inputs = check_io.get_poll_inputs(teams, host, self.port)
+        poll_inputs = check_io.get_poll_inputs(teams)
         for poll_input in poll_inputs:
             thread = Thread(target=self.check_single,
                             args=(check_round, check_io.id, poll_input,check_io.expected))
@@ -230,45 +243,39 @@ class CheckIO(object):
         self.expected = expected
         self.credentials = credentials
 
-    def get_poll_inputs(self, teams, host, port):
+    def get_poll_inputs(self, teams):
         """
         Generate team-specific poll inputs from this input-output pair.
 
         Arguments:
             teams (List(Team)): The teams to generate inputs for
-            host (int): The host in the team's subnet to check
-            port (int): The port of the host to check
         """
         if len(self.credentials) == 0:
-            return self.get_poll_inputs_no_creds(teams, host, port)
+            return self.get_poll_inputs_no_creds(teams)
         else:
-            return self.get_poll_inputs_creds(teams, host, port)
+            return self.get_poll_inputs_creds(teams)
 
-    def get_poll_inputs_no_creds(self, teams, host, port):
+    def get_poll_inputs_no_creds(self, teams):
         """
         Generate team-specific poll inputs from this input-output pair
         which don't use credentials.
 
         Arguments:
             teams (List(Team)): The teams to generate inputs for
-            host (int): The host in the team's subnet to check
-            port (int): The port of the host to check
         """
         poll_inputs = []
         for team in teams:
-            poll_input = self.make_poll_input(team, host, port)
+            poll_input = self.make_poll_input(team)
             poll_inputs.append(poll_input)
         return poll_inputs
 
-    def get_poll_inputs_creds(self, teams, host, port):
+    def get_poll_inputs_creds(self, teams):
         """
         Generate team-specific poll inputs from this input-output pair
         which use credentials.
 
         Arguments:
             teams (List(Team)): The teams to generate inputs for
-            host (int): The host in the team's subnet to check
-            port (int): The port of the host to check
         """
         poll_inputs = []
         credential = random.choice(self.credentials)
@@ -277,25 +284,23 @@ class CheckIO(object):
         for c in creds:
             team = c.team
             if team in teams:
-                poll_input = self.make_poll_input(team, host, port)
+                poll_input = self.make_poll_input(team)
                 poll_input.credentials = c
                 poll_inputs.append(poll_input)
         return poll_inputs
 
-    def make_poll_input(self, team, host, port):
+    def make_poll_input(self, team):
         """
         Create a team-specific poll input from the general one in this
         input-output pair
 
         Arguments:
             team (Team): The team to generate an input for
-            host (int): The host in the team's subnet to check
-            port (int): The port of the host to check
         """
         poll_input = copy.copy(self.poll_input)
-        server = self.check.system.get_ip(team.subnet)
+        server = self.check.system.get_ip(team.team_num)
         poll_input.server = server
-        poll_input.port = port
+        poll_input.port = self.check.port
         poll_input.team = team
         return poll_input
 
