@@ -19,252 +19,254 @@ teams:
         user:
             username: team1
             password: FightingFish
-        subnet: 10.2.100.0
+        team_num: 1
         netmask: 255.255.255.0
-        vapp: Team1_Mock2_2018-10-21
     Team2:
         user:
             username: team2
             password: KeepAlive
-        subnet: 10.0.2.0
+        team_num: 2
         netmask: 255.255.255.0
         vapp: Team2_Mock2_2018-10-21
     Team3:
         user:
             username: team3
             password: DropOver
-        subnet: 10.0.3.0
+        team_num: 3
         netmask: 255.255.255.0
         vapp: Team3_Mock2_2018-10-21
     Team4:
         user:
             username: team4
             password: WaterTight
-        subnet: 10.0.4.0
+        team_num: 4
         netmask: 255.255.255.0
         vapp: Team4_Mock2_2018-10-21
 
-systems:
-    pfSense:
-        host: 1
-    Lab01:
-        host: 10
-        checks:
-            Lab01-ssh:
-                type: ssh
-                port: 22
-                checker: output_check
-                ios:
-                    lab01-ssh:
-                        input:
-                            task: dirname `pwd`
-                        output: 
-                            output: /home
-    WWW:
-        host: 20
-        checks:
-            WWW-http:
-                type: http
-                port: 80
-                checker: diff_match
-                ios:
-                    www-http:
-                        input:
-                            proto: http
-                            path: ""
-                            host: www.goats.lan
-                        output:
-                            tolerance: 0.05
-                            file: www.html
-    MySQL:
-        host: 30
-        checks:
-            MySQL-mysql:
-                type: mysql
-                port: 3306
-                checker: match_sql_output
-                ios:
-                    mysql:
-                        input:
-                            db: students
-                            query: SELECT phone FROM students WHERE student_id=96
-                        output:
-                            output: 962-849-6753
-    Mail:
-        host: 40
-        checks:
-            Mail-imap:
-                type: imap
-                port: 143
-                checker: authenticated
-                ios:
-                    mail-imap:
-                        input:
-                            starttls: True
-                        output:
-            Mail-smtp:
-                type: smtp
-                port: 25
-                checker: sent_successfully
-                ios:
-                    mail-smtp:
-                        input:
-                            fqdn: goats.lan
-                            users:
-                                - bertha.compton
-                                - veronica.rowe
-                                - richard.tyler
-                                - julie.fuller
-                            message: Hey there
-                        output:
-    OwnCloud:
-        host: 50
-        checks:
-            OwnCloud-http:
-                type: http
-                port: 80
-                checker: diff_match
-                ios:
-                    owncloud-http:
-                        input:
-                            proto: http
-                            path: index.php/login
-                            host: owncloud.goats.lan
-                        output:
-                            tolerance: 0.05
-                            file: owncloud.html
-    Lab02:
-        host: 60
-        checks:
-            Lab02-ftp:
-                type: ftp
-                port: 21
-                checker: hash_match
-                ios:
-                    lab02-ftp:
-                        input:
-                            filepath: Syllabi/English12.pdf
-                        output:
-                            hash: 61e85643cd4b4c977444909f6de11e5b0643dcdf
-            Lab02-ssh:
-                type: ssh
-                port: 22
-                checker: output_check
-                ios:
-                    lab02-ssh:
-                        input:
-                            task: dirname `pwd`
-                        output:
-                            output: /home
-    DC01:
-        host: 70
-        checks:
-            DC01-ldap:
-                type: ldap
-                port: 389
-                checker: match_ldap_output
-                ios:
-                    dc01-ldap:
-                        input:
-                            base: cn=Users,dc=GOATS,dc=LAN
-                            filter: (sAMAccountName=dwayne.avery)
-                            attributes: [objectGUID]
-                        output:
-                            objectGUID: [UG2mgvq9G06Ca6bNtAnINg==]
-            DC01-dns:
-                type: dns
-                port: 53
-                checker: any_match
-                ios:
-                    dns-www:
-                        input:
-                            record_type: A
-                            query: www.goats.lan
-                        output:
-                            answer: [20]
-                    dns-owncloud:
-                        input:
-                            record_type: A
-                            query: owncloud.goats.lan
-                        output:
-                            answer: [50]
-                    dns-moodle:
-                        input:
-                            record_type: A
-                            query: moodle.goats.lan
-                        output:
-                            answer: [100]
-    DC02:
-        host: 80
-        checks:
-            DC02-ldap:
-                type: ldap
-                port: 389
-                checker: match_ldap_output
-                ios:
-                    dc02-ldap:
-                        input:
-                            base: cn=Users,dc=GOATS,dc=LAN
-                            filter: (sAMAccountName=brent.head)
-                            attributes: [objectGUID]
-                        output:
-                            objectGUID: [SjMmjuiQA02/lRXxeISH6A==]
-    MSSQL:
-        host: 90
-        checks:
-            MSSQL-mssql:
-                type: mssql
-                port: 1433
-                checker: match_sql_output
-                ios:
-                    mssql:
-                        input:
-                            db: staff
-                            query: SELECT dob FROM staff WHERE emp_id=85
-                        output:
-                            output: "1980-04-26"
-    Moodle:
-        host: 100
-        checks:
-            Moodle-http:
-                type: http
-                port: 80
-                checker: diff_match
-                ios:
-                    moodle-http:
-                        input:
-                            proto: http
-                            path: ""
-                            host: moodle.goats.lan
-                        output:
-                            tolerance: 0.05
-                            file: moodle.html
-    Share:
-        host: 110
-        checks:
-            Share-smb:
-                type: smb
-                port: 445
-                checker: hash_match
-                ios:
-                    share-smb:
-                        input:
-                            hostname: Share
-                            sharename: share
-                            path: 18-19newsletter.pdf
-                        output:
-                            hash: 933520ae6fbafecb65c16763838491376c4299a8
-    Win7:
-        host: 120
-        checks:
-            Win7-rdp:
-                type: rdp
-                port: 3389
-                checker: authenticated
-                ios:
-                    win7-rdp:
-                        input:
-                        output:
+vapps:
+    Mock2_2018-10-21:
+        subnet: "10.0.{}.0"
+        systems:
+            pfSense:
+                host: 1
+            Lab01:
+                host: 10
+                checks:
+                    Lab01-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            lab01-ssh:
+                                input:
+                                    task: dirname `pwd`
+                                output: 
+                                    output: /home
+            WWW:
+                host: 20
+                checks:
+                    WWW-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            www-http:
+                                input:
+                                    proto: http
+                                    path: ""
+                                    host: www.goats.lan
+                                output:
+                                    tolerance: 0.05
+                                    file: www.html
+            MySQL:
+                host: 30
+                checks:
+                    MySQL-mysql:
+                        type: mysql
+                        port: 3306
+                        checker: match_sql_output
+                        ios:
+                            mysql:
+                                input:
+                                    db: students
+                                    query: SELECT phone FROM students WHERE student_id=96
+                                output:
+                                    output: 962-849-6753
+            Mail:
+                host: 40
+                checks:
+                    Mail-imap:
+                        type: imap
+                        port: 143
+                        checker: authenticated
+                        ios:
+                            mail-imap:
+                                input:
+                                    starttls: True
+                                output:
+                    Mail-smtp:
+                        type: smtp
+                        port: 25
+                        checker: sent_successfully
+                        ios:
+                            mail-smtp:
+                                input:
+                                    fqdn: goats.lan
+                                    users:
+                                        - bertha.compton
+                                        - veronica.rowe
+                                        - richard.tyler
+                                        - julie.fuller
+                                    message: Hey there
+                                output:
+            OwnCloud:
+                host: 50
+                checks:
+                    OwnCloud-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            owncloud-http:
+                                input:
+                                    proto: http
+                                    path: index.php/login
+                                    host: owncloud.goats.lan
+                                output:
+                                    tolerance: 0.05
+                                    file: owncloud.html
+            Lab02:
+                host: 60
+                checks:
+                    Lab02-ftp:
+                        type: ftp
+                        port: 21
+                        checker: hash_match
+                        ios:
+                            lab02-ftp:
+                                input:
+                                    filepath: Syllabi/English12.pdf
+                                output:
+                                    hash: 61e85643cd4b4c977444909f6de11e5b0643dcdf
+                    Lab02-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            lab02-ssh:
+                                input:
+                                    task: dirname `pwd`
+                                output:
+                                    output: /home
+            DC01:
+                host: 70
+                checks:
+                    DC01-ldap:
+                        type: ldap
+                        port: 389
+                        checker: match_ldap_output
+                        ios:
+                            dc01-ldap:
+                                input:
+                                    base: cn=Users,dc=GOATS,dc=LAN
+                                    filter: (sAMAccountName=dwayne.avery)
+                                    attributes: [objectGUID]
+                                output:
+                                    objectGUID: [UG2mgvq9G06Ca6bNtAnINg==]
+                    DC01-dns:
+                        type: dns
+                        port: 53
+                        checker: any_match
+                        ios:
+                            dns-www:
+                                input:
+                                    record_type: A
+                                    query: www.goats.lan
+                                output:
+                                    answer: [20]
+                            dns-owncloud:
+                                input:
+                                    record_type: A
+                                    query: owncloud.goats.lan
+                                output:
+                                    answer: [50]
+                            dns-moodle:
+                                input:
+                                    record_type: A
+                                    query: moodle.goats.lan
+                                output:
+                                    answer: [100]
+            DC02:
+                host: 80
+                checks:
+                    DC02-ldap:
+                        type: ldap
+                        port: 389
+                        checker: match_ldap_output
+                        ios:
+                            dc02-ldap:
+                                input:
+                                    base: cn=Users,dc=GOATS,dc=LAN
+                                    filter: (sAMAccountName=brent.head)
+                                    attributes: [objectGUID]
+                                output:
+                                    objectGUID: [SjMmjuiQA02/lRXxeISH6A==]
+            MSSQL:
+                host: 90
+                checks:
+                    MSSQL-mssql:
+                        type: mssql
+                        port: 1433
+                        checker: match_sql_output
+                        ios:
+                            mssql:
+                                input:
+                                    db: staff
+                                    query: SELECT dob FROM staff WHERE emp_id=85
+                                output:
+                                    output: "1980-04-26"
+            Moodle:
+                host: 100
+                checks:
+                    Moodle-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            moodle-http:
+                                input:
+                                    proto: http
+                                    path: ""
+                                    host: moodle.goats.lan
+                                output:
+                                    tolerance: 0.05
+                                    file: moodle.html
+            Share:
+                host: 110
+                checks:
+                    Share-smb:
+                        type: smb
+                        port: 445
+                        checker: hash_match
+                        ios:
+                            share-smb:
+                                input:
+                                    hostname: Share
+                                    sharename: share
+                                    path: 18-19newsletter.pdf
+                                output:
+                                    hash: 933520ae6fbafecb65c16763838491376c4299a8
+            Win7:
+                host: 120
+                checks:
+                    Win7-rdp:
+                        type: rdp
+                        port: 3389
+                        checker: authenticated
+                        ios:
+                            win7-rdp:
+                                input:
+                                output:
 
 credentials:
     default_password: Password1!
