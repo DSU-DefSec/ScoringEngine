@@ -149,4 +149,23 @@ CREATE TABLE `revert_log` (
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
         ON DELETE CASCADE);
 
+DROP TABLE IF EXISTS `persistence_log`;
+CREATE TABLE `persistence_log` (
+    `time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `defender` INT NOT NULL,
+    `attacker` INT NOT NULL,
+    `system` VARCHAR(255),
+    FOREIGN KEY (`defender`) REFERENCES `team`(`team_num`)
+        ON DELETE CASCADE,
+    FOREIGN KEY (`defender`) REFERENCES `team`(`team_num`)
+        ON DELETE CASCADE,
+    FOREIGN KEY (`system`) REFERENCES `system`(`system`)
+        ON DELETE CASCADE);
+
+CREATE TABLE `score` (
+    `team_num` INT PRIMARY KEY,
+    `score` INT DEFAULT 0,
+    FOREIGN KEY (`team_num`) REFERENCES `team`(`team_num`)
+        ON DELETE CASCADE);
+
 SET foreign_key_checks = 1;
