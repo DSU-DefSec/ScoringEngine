@@ -14,7 +14,7 @@ def load_config(filename):
         config = yaml.load(f)
 
     settings = flatten_settings(config['settings'])
-    systems = config['systems']
+    vapps = config['vapps']
     teams = config['teams']
     admins = config['web_admins']
     credentials = config['credentials']
@@ -23,8 +23,10 @@ def load_config(filename):
     db.reset_all_tables()
     print("Writing global settings to DB...")
     db_writer.write_settings(settings)
+    print("Writing vapps to DB...")
+    db_writer.write_vapps(vapps)
     print("Writing systems to DB...")
-    db_writer.write_systems(systems)
+    db_writer.write_systems(vapps)
     print("Writing teams to DB...")
     team_ids = db_writer.write_teams(teams)
     print("Writing users to DB...")
@@ -32,9 +34,9 @@ def load_config(filename):
     print("Writing domains to DB...")
     domain_ids = db_writer.write_domains(credentials['domain'].keys())
     print("Writing checks to DB...")
-    check_ids = db_writer.write_checks(systems)
+    check_ids = db_writer.write_checks(vapps)
     print("Writing checkIOs to DB...")
-    check_io_ids = db_writer.write_check_ios(systems, check_ids)
+    check_io_ids = db_writer.write_check_ios(vapps, check_ids)
     print("Writing credentials to DB...")
     credential_ids = db_writer.write_credentials(credentials, team_ids, domain_ids, check_io_ids)
     return

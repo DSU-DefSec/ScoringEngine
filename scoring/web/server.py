@@ -336,18 +336,21 @@ def systems():
         system = request.form['system']
         action = request.form['action']
         team = [t for t in wm.teams if t.id == tid][0]
-        vapp = team.vapp
+        system = [s for s in wm.systems if s.name == system][0]
+        vapp = system.vapp.base_name
+        vapp = '{}_{}'.format(team.name, vapp)
+        print(vapp, system.name)
 
         if request.form['action'] == 'power on':
-            errors = ialab.power_on(vapp, system)
+            errors = ialab.power_on(vapp, system.name)
         elif request.form['action'] == 'power off':
-            errors = ialab.power_off(vapp, system)
+            errors = ialab.power_off(vapp, system.name)
         elif request.form['action'] == 'restart':
-            errors = ialab.restart(vapp, system)
+            errors = ialab.restart(vapp, system.name)
         elif request.form['action'] == 'revert':
-            errors = ialab.revert(vapp, system)
+            errors = ialab.revert(vapp, system.name)
             if errors == '':
-                db.insert('revert_log', ['team_id', 'system'], [tid, system])
+                db.insert('revert_log', ['team_id', 'system'], [tid, system.name])
     systems = wm.systems
     return render_template('systems.html', systems=systems, penalty=wm.settings['revert_penalty'], errors=errors)
 

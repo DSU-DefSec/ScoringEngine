@@ -7,18 +7,26 @@ CREATE TABLE `settings` (
     `skey` VARCHAR(255) NOT NULL,
     `value` VARCHAR(255) NOT NULL);
 
+DROP TABLE IF EXISTS `vapp`;
+CREATE TABLE `vapp` (
+    `base_name` VARCHAR(255) PRIMARY KEY,
+    `subnet` VARCHAR(15) NOT NULL,
+    `netmask` VARCHAR(15) NOT NULL);
+
 DROP TABLE IF EXISTS `system`;
 CREATE TABLE `system` (
-    `system` VARCHAR(255) NOT NULL PRIMARY KEY,
-    `host` INT NOT NULL);
+    `system` VARCHAR(255) PRIMARY KEY,
+    `vapp` VARCHAR(255) NOT NULL,
+    `host` INT NOT NULL,
+    FOREIGN KEY (`vapp`) REFERENCES `vapp`(`base_name`)
+        ON DELETE CASCADE);
 
 DROP TABLE IF EXISTS `team`;
 CREATE TABLE `team` (
-    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
     `name` VARCHAR(255) NOT NULL UNIQUE,
-    `subnet` VARCHAR(15) NOT NULL,
-    `netmask` VARCHAR(15) NOT NULL,
-    `vapp` VARCHAR(255) NOT NULL UNIQUE);
+    `team_num` INT NOT NULL UNIQUE
+    );
         
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
