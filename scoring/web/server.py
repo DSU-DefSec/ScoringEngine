@@ -52,7 +52,7 @@ def status():
     times = []
     for team_id,team_results in results.items():
         for check_id,result in team_results.items():
-            times.append(result.time.strftime('%H:%M:%S'))
+            times.append(result.time.strftime('%Y-%m-%d %I:%M %p'))
     if len(times) == 0:
         last_time = ''
     else:
@@ -172,6 +172,7 @@ def new_pcr():
             if conflict:
                 pcr.set_status(PCRStatus.APPROVAL)
             pcr_id = pcr.id
+            return redirect(url_for('pcr'))
     return render_template('pcr_new.html', form=form, window=window, pcr_id=pcr_id, success=success, conflict=conflict)
 
 @app.route('/result_log', methods=['GET'])
