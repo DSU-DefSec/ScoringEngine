@@ -191,8 +191,10 @@ class Check(object):
         except:
             result = False
         team_id = poll_input.team.id
-        self.store_result(check_round, check_io_id, team_id, poll_input,
-                          poll_result, result)
+        res_id = self.store_result(check_round, check_io_id, team_id, poll_input,
+                                   poll_result, result)
+        if res_id != -1:
+            self.update_scores(res_id)
 
     def store_result(self, check_round, check_io_id, team_id, poll_input,
                      poll_result, result):
@@ -220,9 +222,34 @@ class Check(object):
             print("Dump failed: {}".format(str(e)))
             print(poll_result.__class__.__name__)
             print(poll_result.__dict__)
+            return -1
+        res_id = db.execute(cmd, (self.id, check_io_id, team_id, check_round,
+                                  poll_input, poll_result, result))
+        return res_id
+
+    def update_scores(res_id):
+        # Gather relevant data from DB
+        defender,check_round,end_time,result = db.get('result', ['team_id','check_round','time','result'] 
+                                                where='id=%s', args=[res_id])
+        if not result: # Check failed, no change in scores
             return
-        db.execute(cmd, (self.id, check_io_id, team_id, check_round,
-                         poll_input, poll_result, result))
+
+        start_time, = db.get('result', ['time'], where='check_round=%s AND check_id=%s', args=[check_round-1, self.id])
+        system = self.system.name
+
+        # Find attackers with persistence on the system since last check
+        where = 'defender=%s AND time > %s AND time < %s AND system=%s'
+        groupby = 'attacker'
+        attackers = db.get('persistence_log', ['attacker'], where=where, groupby=groupby, args=[defender, start_time, end_time, system])
+
+        # Calculate point split
+        teams = attackers + [defender]
+        split = len(teams) * len(self.system.checks)
+        points = 100 / split
+
+        # Update scores
+        for team in teams:
+            db.modify('score', 'score=score+%s', where='team_num=%s', args=[points, team])
 
 
 class CheckIO(object):
