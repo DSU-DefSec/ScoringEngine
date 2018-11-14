@@ -1,0 +1,426 @@
+settings:
+    running: 1
+    revert_penalty: 350
+    webserver_ip: 10.1.0.4
+    polling:
+        interval: 180
+        jitter: 30
+        timeout: 20
+    pcr:
+        approval_window: 0
+        service_interval: 0
+        service_jitter: 0
+
+web_admins:
+    admin: LongLong
+
+teams:
+    Team1:
+        team_num: 1
+        user:
+            username: team1
+            password: DropMini
+    Team2:
+        team_num: 2
+        user:
+            username: team2
+            password: BangAlive
+    Team3:
+        team_num: 3
+        user:
+            username: team3
+            password: TheyBrake
+
+vapps:
+    Mock3_Local:
+        subnet: "10.0.{}.0"
+        netmask: 255.255.255.0
+        systems:
+            pfSense_Local:
+                host: 1
+            MySQL:
+                host: 80
+            Client01:
+                host: 90
+            Client02:
+                host: 100
+            DC01:
+                host: 10
+                checks:
+                    DC01-ldap:
+                        type: ldap
+                        port: 389
+                        checker: match_ldap_output
+                        ios:
+                            dc01-ldap:
+                                input:
+                                    base: cn=Users,dc=CRONINN,dc=LAN
+                                    filter: (sAMAccountName=hubert.chen)
+                                    attributes: [objectGUID]
+                                output:
+                                    objectGUID: [0sSe4kmNlEWlx2JHicE7Eg==]
+            DC02:
+                host: 20
+                checks:
+                    DC02-ldap:
+                        type: ldap
+                        port: 389
+                        checker: match_ldap_output
+                        ios:
+                            dc02-ldap:
+                                input:
+                                    base: cn=Users,dc=CRONINN,dc=LAN
+                                    filter: (sAMAccountName=geoffrey.glover)
+                                    attributes: [objectGUID]
+                                output:
+                                    objectGUID: [cxHlRSkH8UiF1sDdvPJbag==]
+            HR01:
+                host: 30
+                checks:
+                    HR01-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            www-http:
+                                input:
+                                    proto: http
+                                    path: ""
+                                    host: hr01.croninn.lan
+                                output:
+                                    tolerance: 0.05
+                                    file: hr01.html
+            Share:
+                host: 40
+                checks:
+                    Share-smb:
+                        type: smb
+                        port: 445
+                        checker: hash_match
+                        ios:
+                            share-smb:
+                                input:
+                                    hostname: Share
+                                    sharename: share
+                                    path: Guest-Environmental-Information-Booklet.pdf
+                                output:
+                                    hash: 3744f61de2ac9441be4c106ba72dd8436219601e
+                    Share-ftp:
+                        type: ftp
+                        port: 21
+                        checker: hash_match
+                        ios:
+                            share-ftp:
+                                input:
+                                    filepath: brest-travel-guide.pdf
+                                output:
+                                    hash: 4b768a2351003283af839f4eab0a25da47af4d83
+            NS01:
+                host: 50
+                checks:
+                    NS01-dns:
+                        type: dns
+                        port: 53
+                        checker: any_match
+                        ios:
+                            dns-info:
+                                input:
+                                    record_type: A
+                                    query: info.croninn.com
+                                output:
+                                    answer: [40]
+                            dns-shop:
+                                input:
+                                    record_type: A
+                                    query: shop.croninn.com
+                                output:
+                                    answer: [10]
+                            dns-www:
+                                input:
+                                    record_type: A
+                                    query: www.croninn.com
+                                output:
+                                    answer: [30]
+            Webmail:
+                host: 60
+                checks:
+                    Webmail-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            webmail-http:
+                                input:
+                                    proto: http
+                                    path: "src/login.php"
+                                    host: webmail.croninn.com
+                                output:
+                                    tolerance: 0.05
+                                    file: webmail.html
+            Mail:
+                host: 70
+                checks:
+                    Mail-imap:
+                        type: imap
+                        port: 143
+                        checker: authenticated
+                        ios:
+                            mail-imap:
+                                input:
+                                    starttls: True
+                                output:
+                    Mail-smtp:
+                        type: smtp
+                        port: 25
+                        checker: sent_successfully
+                        ios:
+                            mail-smtp:
+                                input:
+                                    fqdn: croninn.com
+                                    users:
+                                        - silvia.rosario
+                                        - olga.kirkland
+                                        - anna.keller
+                                        - tammie.cline
+                                    message: Hey there
+                                output:
+    Mock3_Remote:
+        subnet: "10.100.{}.0"
+        netmask: 255.255.255.0
+        systems:
+            pfSense_Remote:
+                host: 1
+            Shop:
+                host: 10
+                checks:
+                    Shop-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            shop-http:
+                                input:
+                                    proto: http
+                                    path: /store/?model_number=SKU6515
+                                    host: shop.croninn.com
+                                output:
+                                    tolerance: 0.05
+                                    file: shop.html
+            HelpDesk:
+                host: 20
+                checks:
+                    Helpdesk-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            helpdesk-http:
+                                input:
+                                    proto: http
+                                    path: "osticket/view.php"
+                                    host: help.croninn.com
+                                output:
+                                    tolerance: 0.05
+                                    file: help.html
+            Reservations:
+                host: 30
+                checks:
+                    Reservations-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            hoteldruid-http:
+                                input:
+                                    proto: http
+                                    path: "punto_vendita.php"
+                                    host: www.croninn.com
+                                output:
+                                    tolerance: 0.05
+                                    file: www.html
+            InfoPortal:
+                host: 40
+                checks:
+                    InfoPortal-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            info-http:
+                                input:
+                                    proto: http
+                                    path: "info.php?name=Johnson&resid=1"
+                                    host: info.croninn.com
+                                output:
+                                    tolerance: 0.05
+                                    file: info.html
+
+credentials:
+    default_password: Password1!
+    local:
+        katie.hensley:
+            ios: ['share-ftp', 'mail-imap']
+        fern.logan:
+            ios: ['share-ftp']
+        marian.olsen:
+            ios: ['share-ftp']
+        elsa.hernandez:
+            ios: ['share-ftp', 'mail-imap']
+        wendy.parsons:
+            ios: ['share-ftp']
+        tammie.cline:
+            ios: ['share-ftp', 'mail-imap']
+        delores.mcclure:
+            ios: ['share-ftp', 'mail-imap']
+        jewel.nichols:
+            ios: ['share-ftp']
+        della.jordan:
+            ios: ['share-ftp']
+        george.ferrell:
+            ios: ['share-ftp']
+        annie.bryant:
+            ios: ['share-ftp']
+        carole.mcintyre:
+            ios: ['share-ftp', 'mail-imap']
+        rafael.pierce:
+            ios: ['share-ftp']
+        ramon.mcdonald:
+            ios: ['share-ftp']
+        wilson.branch:
+            ios: ['share-ftp', 'mail-imap']
+        janet.valenzuela:
+            ios: ['share-ftp']
+        kurt.huffman:
+            ios: ['share-ftp']
+        olga.kirkland:
+            ios: ['share-ftp', 'mail-imap']
+        yvette.myers:
+            ios: ['share-ftp', 'mail-imap']
+        rosemarie.bailey:
+            ios: ['share-ftp', 'mail-imap']
+        penny.spencer:
+            ios: ['share-ftp', 'mail-imap']
+        marian.mays:
+            ios: ['share-ftp']
+        hubert.chen:
+            ios: ['share-ftp', 'mail-imap']
+        christopher.english:
+            ios: ['share-ftp']
+        rufus.stark:
+            ios: ['share-ftp']
+        marissa.baldwin:
+            ios: ['mail-imap']
+        jeanette.bates:
+            ios: ['mail-imap']
+        anna.keller:
+            ios: ['mail-imap']
+        leonard.stanley:
+            ios: ['mail-imap']
+        sandy.shepard:
+            ios: ['mail-imap']
+        juana.clements:
+            ios: ['mail-imap']
+        david.potter:
+            ios: ['mail-imap']
+        barry.ward:
+            ios: ['mail-imap']
+        abraham.cain:
+            ios: ['mail-imap']
+        willie.crawford:
+            ios: ['mail-imap']
+        geoffrey.glover:
+            ios: ['mail-imap']
+        joan.gamble:
+            ios: ['mail-imap']
+        barry.cunningham:
+            ios: ['mail-imap']
+        archie.montoya:
+            ios: ['mail-imap']
+    domain:
+        CRONINN.LAN:
+            christopher.english:
+                ios: ['dc01-ldap']
+            brandi.bruce:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb']
+            della.jordan:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb']
+            yvette.myers:
+                ios: ['dc01-ldap', 'share-smb']
+            katie.hensley:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb']
+            delores.mcclure:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            rafael.pierce:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            janet.valenzuela:
+                ios: ['dc01-ldap']
+            rosemarie.bailey:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            archie.montoya:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            wendy.parsons:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            yvette.duran:
+                ios: ['dc01-ldap', 'share-smb']
+            wendell.fischer:
+                ios: ['dc01-ldap', 'share-smb']
+            leonard.stanley:
+                ios: ['dc01-ldap', 'share-smb']
+            carole.mcintyre:
+                ios: ['dc01-ldap', 'share-smb']
+            silvia.rosario:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            ken.reyes:
+                ios: ['dc01-ldap']
+            george.ferrell:
+                ios: ['dc01-ldap']
+            elsa.hernandez:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb']
+            sandy.shepard:
+                ios: ['dc01-ldap']
+            marissa.baldwin:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb']
+            jewel.nichols:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb']
+            marian.mays:
+                ios: ['dc01-ldap', 'share-smb']
+            penny.spencer:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb']
+            june.mathis:
+                ios: ['dc01-ldap']
+            dave.rowland:
+                ios: ['dc02-ldap']
+            barry.cunningham:
+                ios: ['dc02-ldap']
+            geoffrey.glover:
+                ios: ['dc02-ldap']
+            anne.maynard:
+                ios: ['dc02-ldap', 'share-smb']
+            hubert.chen:
+                ios: ['dc02-ldap', 'share-smb']
+            willie.crawford:
+                ios: ['dc02-ldap', 'share-smb']
+            ramon.mcdonald:
+                ios: ['dc02-ldap']
+            marissa.walters:
+                ios: ['dc02-ldap']
+            barry.ward:
+                ios: ['dc02-ldap']
+            jeanette.bates:
+                ios: ['dc02-ldap', 'share-smb']
+            kurt.huffman:
+                ios: ['dc02-ldap', 'share-smb']
+            rachel.torres:
+                ios: ['dc02-ldap', 'share-smb']
+            fern.logan:
+                ios: ['share-smb']
+            wilson.branch:
+                ios: ['share-smb']
+            abraham.cain:
+                ios: ['share-smb']
+            marian.olsen:
+                ios: ['share-smb']
+            wilbur.alford:
+                ios: ['share-smb']
+            annie.bryant:
+                ios: ['share-smb']

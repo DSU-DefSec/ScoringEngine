@@ -163,7 +163,7 @@ class WebModel(DataModel):
                 reverts[team.id] = {}
             for system in self.systems:
                 if system not in reverts[team.id]:
-                    reverts[team.id][system] = 0
+                    reverts[team.id][system.name] = 0
 
         penalty = self.settings['revert_penalty']
         for timestamp, team_id, system in revert_rows:
