@@ -239,7 +239,6 @@ function calc_uptime(tids, cids) {
 function calc_scores(tids) {
     for (var i = 0; i < tids.length; i++) {
         var tid = tids[i];
-        var score_td = document.getElementById("score-" + tid);
         var data = window.data[tid][0].data;
         if (data.length > 0) {
             var score = data[data.length - 1].y;
@@ -247,6 +246,7 @@ function calc_scores(tids) {
             var score = 0;
         }
         var reset_penalty = document.getElementById("revert-" + tid).innerHTML;
-        score_td.innerHTML = Math.round(score - reset_penalty);
+        var score_td = document.getElementById("score-" + tid);
+        score_td.innerHTML = Math.round(score);
     }
 }
