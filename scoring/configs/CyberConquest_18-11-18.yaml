@@ -1,0 +1,86 @@
+settings:
+    running: 1
+    revert_penalty: 0
+    webserver_ip: 10.1.0.4
+    polling:
+        interval: 30
+        jitter: 0
+        timeout: 20
+    pcr:
+        approval_window: 0
+        service_interval: 0
+        service_jitter: 0
+
+web_admins:
+    admin: LongLong
+
+teams:
+    Team1:
+        team_num: 1
+        user:
+            username: team1
+            password: DropMini
+    Team2:
+        team_num: 2
+        user:
+            username: team2
+            password: BangAlive
+    Team3:
+        team_num: 3
+        user:
+            username: team3
+            password: TheyBrake
+
+vapps:
+    CyberConquest:
+        subnet: "10.0.{}.0"
+        netmask: 255.255.255.0
+        systems:
+            test1:
+                host: 1
+            test2:
+                host: 80
+            test3:
+                host: 90
+            test4:
+                host: 100
+            test5:
+                host: 10
+                checks:
+                    DC01-ldap:
+                        type: ldap
+                        port: 389
+                        checker: match_ldap_output
+                        ios:
+                            dc01-ldap:
+                                input:
+                                    base: cn=Users,dc=CRONINN,dc=LAN
+                                    filter: (sAMAccountName=hubert.chen)
+                                    attributes: [objectGUID]
+                                output:
+                                    objectGUID: [0sSe4kmNlEWlx2JHicE7Eg==]
+            test6:
+                host: 20
+                checks:
+                    DC02-ldap:
+                        type: ldap
+                        port: 389
+                        checker: match_ldap_output
+                        ios:
+                            dc02-ldap:
+                                input:
+                                    base: cn=Users,dc=CRONINN,dc=LAN
+                                    filter: (sAMAccountName=geoffrey.glover)
+                                    attributes: [objectGUID]
+                                output:
+                                    objectGUID: [cxHlRSkH8UiF1sDdvPJbag==]
+
+credentials:
+    default_password: Password1!
+    local:
+        a:
+            ios: []
+    domain:
+        TEST.LAN:
+            a:
+                ios: []
