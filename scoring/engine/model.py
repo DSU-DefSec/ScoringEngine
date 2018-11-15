@@ -17,10 +17,9 @@ class Team(object):
         netmask (IP): Netmask of the subnet
         vapp (str): Name of team vApp
     """
-    def __init__(self, id, name, team_num):
+    def __init__(self, id, name):
         self.id = int(id)
         self.name = name
-        self.team_num = team_num
 
     def __str__(self):
         return self.name
@@ -227,14 +226,14 @@ class Check(object):
                                   poll_input, poll_result, result))
         return res_id
 
-    def update_scores(res_id):
+    def update_scores(self, res_id):
         # Gather relevant data from DB
-        defender,check_round,end_time,result = db.get('result', ['team_id','check_round','time','result'] 
-                                                where='id=%s', args=[res_id])
+        last_res = db.get('result', ['team_id','check_round','time','result'], where='id=%s', args=[res_id])
+        defender,check_round,end_time,result = last_res[0]
         if not result: # Check failed, no change in scores
             return
 
-        start_time, = db.get('result', ['time'], where='check_round=%s AND check_id=%s', args=[check_round-1, self.id])
+        start_time, = db.get('result', ['time'], where='check_round=%s AND check_id=%s', args=[check_round-1, self.id])[0]
         system = self.system.name
 
         # Find attackers with persistence on the system since last check
@@ -243,13 +242,13 @@ class Check(object):
         attackers = db.get('persistence_log', ['attacker'], where=where, groupby=groupby, args=[defender, start_time, end_time, system])
 
         # Calculate point split
-        teams = attackers + [defender]
+        teams = list(attackers) + [defender]
         split = len(teams) * len(self.system.checks)
         points = 100 / split
 
         # Update scores
         for team in teams:
-            db.modify('score', 'score=score+%s', where='team_num=%s', args=[points, team])
+            db.modify('score', 'score=score+%s', where='team_id=%s', args=[points, team])
 
 
 class CheckIO(object):
@@ -325,7 +324,7 @@ class CheckIO(object):
             team (Team): The team to generate an input for
         """
         poll_input = copy.copy(self.poll_input)
-        server = self.check.system.get_ip(team.team_num)
+        server = self.check.system.get_ip(team.id)
         poll_input.server = server
         poll_input.port = self.check.port
         poll_input.team = team
