@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Scoring Engine</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="status2.css"/>
+</head>
+<body>
+<br/>
+<div class="container-fluid">
+    <table class="table table-bordered">
+        <thead class="thead-dark">
+            <th></th>
+            <th colspan="2">System 1</th>
+            <th colspan="2">System 2</th>
+            <th colspan="2">System 3</th>
+            <th colspan="2">System 4</th>
+            <th colspan="2">System 5</th>
+            <th colspan="2">System 6</th>
+        </thead>
+        <tbody>
+            <tr>
+                <td rowspan="2" class="team-name">
+                    <img class="team1" src="circle.png">
+                    <span class="team-name">Team 1</span>
+                </td>
+                <td colspan="2" class="persistence">
+                    <img src="nothing.png"/>
+                    <img class="team2" src="redskull.png"/>
+                    <img class="team3" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                    <img src="nothing.png"/>
+                    <img src="nothing.png"/>
+                </td>
+                <td colspan="2" class="persistence">
+                    <img src="nothing.png"/>
+                    <img class="team2" src="redskull.png"/>
+                    <img class="team3" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                    <img src="nothing.png"/>
+                    <img src="nothing.png"/>
+                </td>
+                <td colspan="2" class="persistence">
+                    <img src="nothing.png"/>
+                    <img class="team2" src="redskull.png"/>
+                    <img class="team3" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                    <img src="nothing.png"/>
+                    <img src="nothing.png"/>
+                </td>
+                <td colspan="2" class="persistence">
+                    <img src="nothing.png"/>
+                    <img class="team2" src="redskull.png"/>
+                    <img class="team3" src="redskull.png"/>
+                    <img class="team4" src="redskull.png"/>
+                    <img class="team5" src="redskull.png"/>
+                    <img class="team6" src="redskull.png"/>
+                </td>
+                <td colspan="2" class="persistence">
+                    <img src="nothing.png"/>
+                    <img class="team2" src="redskull.png"/>
+                    <img class="team3" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                    <img src="nothing.png"/>
+                    <img src="nothing.png"/>
+                </td>
+                <td colspan="2" class="persistence">
+                    <img src="nothing.png"/>
+                    <img class="team2" src="redskull.png"/>
+                    <img class="team3" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                    <img src="nothing.png"/>
+                    <img src="nothing.png"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="check-name pass">service1</td>
+                <td class="check-name fail">service2</td>
+                <td class="check-name pass">service1</td>
+                <td class="check-name fail">service2</td>
+                <td class="check-name pass">service1</td>
+                <td class="check-name fail">service2</td>
+                <td class="check-name pass">service1</td>
+                <td class="check-name fail">service2</td>
+                <td class="check-name pass">service1</td>
+                <td class="check-name fail">service2</td>
+                <td class="check-name pass">service1</td>
+                <td class="check-name fail">service2</td>
+            </tr>
+            <tr>
+                <td rowspan="2" class="team-name">
+                    <img class="team2" src="circle.png">
+                    <span class="team-name">Team 2</span>
+                </td>
+                <td colspan="2" class="persistence">
+                    <img class="team1" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                    <img src="nothing.png"/>
+                    <img src="nothing.png"/>
+                    <img class="team5" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                </td>
+                <td colspan="2" class="persistence">
+                    <img class="team1" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                    <img src="nothing.png"/>
+                    <img class="team4" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                    <img src="nothing.png"/>
+                </td>
+                <td colspan="2" class="persistence">
+                    <img class="team1" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                    <img class="team3" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                    <img src="nothing.png"/>
+                    <img class="team6" src="redskull.png"/>
+                </td>
+                <td colspan="2" class="persistence">
+                    <img class="team1" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                    <img class="team3" src="redskull.png"/>
+                    <img class="team4" src="redskull.png"/>
+                    <img class="team5" src="redskull.png"/>
+                    <img class="team6" src="redskull.png"/>
+                </td>
+                <td colspan="2" class="persistence">
+                    <img class="team1" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                    <img class="team3" src="redskull.png"/>
+                    <img class="team4" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                    <img src="nothing.png"/>
+                </td>
+                <td colspan="2" class="persistence">
+                    <img class="team1" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                    <img class="team3" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                    <img class="team5" src="redskull.png"/>
+                    <img src="nothing.png"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="check-name pass">service1</td>
+                <td class="check-name pass">service2</td>
+                <td class="check-name fail">service1</td>
+                <td class="check-name fail">service2</td>
+                <td class="check-name pass">service1</td>
+                <td class="check-name pass">service2</td>
+                <td class="check-name fail">service1</td>
+                <td class="check-name fail">service2</td>
+                <td class="check-name pass">service1</td>
+                <td class="check-name pass">service2</td>
+                <td class="check-name fail">service1</td>
+                <td class="check-name pass">service2</td>
+            </tr>
+
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
