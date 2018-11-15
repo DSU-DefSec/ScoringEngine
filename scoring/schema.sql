@@ -23,10 +23,8 @@ CREATE TABLE `system` (
 
 DROP TABLE IF EXISTS `team`;
 CREATE TABLE `team` (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `name` VARCHAR(255) NOT NULL UNIQUE,
-    `team_num` INT NOT NULL UNIQUE
-    );
+    `id` INT PRIMARY KEY,
+    `name` VARCHAR(255) NOT NULL UNIQUE);
         
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
@@ -155,17 +153,18 @@ CREATE TABLE `persistence_log` (
     `defender` INT NOT NULL,
     `attacker` INT NOT NULL,
     `system` VARCHAR(255),
-    FOREIGN KEY (`defender`) REFERENCES `team`(`team_num`)
+    FOREIGN KEY (`defender`) REFERENCES `team`(`id`)
         ON DELETE CASCADE,
-    FOREIGN KEY (`defender`) REFERENCES `team`(`team_num`)
+    FOREIGN KEY (`defender`) REFERENCES `team`(`id`)
         ON DELETE CASCADE,
     FOREIGN KEY (`system`) REFERENCES `system`(`system`)
         ON DELETE CASCADE);
 
+DROP TABLE IF EXISTS `score`;
 CREATE TABLE `score` (
-    `team_num` INT PRIMARY KEY,
+    `team_id` INT PRIMARY KEY,
     `score` INT DEFAULT 0,
-    FOREIGN KEY (`team_num`) REFERENCES `team`(`team_num`)
+    FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
         ON DELETE CASCADE);
 
 SET foreign_key_checks = 1;

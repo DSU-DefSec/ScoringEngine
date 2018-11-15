@@ -67,8 +67,8 @@ class DataModel(object):
         """
         teams = {}
         rows = db.getall('team')
-        for team_id, name, team_num in rows:
-            team = Team(team_id, name, team_num)
+        for team_id, name in rows:
+            team = Team(team_id, name)
             teams[team_id] = team
         return teams
 

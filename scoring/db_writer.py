@@ -70,8 +70,9 @@ def write_teams(teams):
     team_ids = {}
     for name, team_data in teams.items():
         team_num = team_data['team_num']
-        db_id = db.insert('team', ['name', 'team_num'], (name, team_num,))
-        team_ids[name] = db_id
+        db.insert('team', ['id', 'name'], (team_num, name,))
+        db.insert('score', ['team_id', 'score'], (team_num, 0,))
+        team_ids[name] = team_num
     return team_ids
 
 def write_web_users(admins, teams, team_ids):
