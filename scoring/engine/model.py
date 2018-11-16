@@ -240,9 +240,14 @@ class Check(object):
         where = 'defender=%s AND time > %s AND time < %s AND system=%s'
         groupby = 'attacker'
         attackers = db.get('persistence_log', ['attacker'], where=where, groupby=groupby, args=[defender, start_time, end_time, system])
+        attackers = [a[0] for a in attackers]
 
         # Calculate point split
-        teams = list(attackers) + [defender]
+        if defender in attackers:
+            teams = attackers
+        else:
+            teams = attackers + [defender]
+        print(teams)
         split = len(teams) * len(self.system.checks)
         points = 100 / split
 
