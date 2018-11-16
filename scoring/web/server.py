@@ -3,6 +3,10 @@
 from .web_model import WebModel
 import flask
 from flask import Flask, render_template, request, redirect, url_for
+
+app = Flask(__name__)
+app.secret_key = 'this is a secret'
+
 from urllib.parse import urlparse, urljoin
 import datetime
 from .forms import *
@@ -16,9 +20,8 @@ from .decorators import *
 import db
 import re
 import ialab
+from .util import filters
 
-app = Flask(__name__)
-app.secret_key = 'this is a secret'
 
 wm = WebModel()
 wm.load_db()
@@ -44,9 +47,10 @@ def status():
     """
     Render the main status page.
     """
+    wm.reload_persistence()
     teams = wm.teams
-    checks = wm.checks
-    checks.sort(key=lambda c: c.name)
+    systems = wm.systems
+    systems.sort(key=lambda s: s.name)
     results = wm.latest_results()
     teams.sort(key=lambda t: t.name)
     times = []
@@ -57,7 +61,7 @@ def status():
         last_time = ''
     else:
         last_time = max(times)
-    return render_template('status.html', teams=teams, checks=checks, results=results, last_time=last_time)
+    return render_template('status.html', teams=teams, systems=systems, results=results, last_time=last_time)
 
 @app.route('/credentials', methods=['GET'])
 @login_required

@@ -2,46 +2,64 @@
 
 {% block status %}active{% endblock %}
 
-{% block head %}<meta http-equiv="refresh" content="5">{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="static/css/status.css"/>
+<meta http-equiv="refresh" content="5">
+{% endblock %}
 
 {% block content %}
-<table class="table">
-<thead>
-<tr>
+<table class="table table-bordered">
+<thead class="thead-dark">
 <th></th>
-{% for t in teams %}
-<th {% if current_user.is_authenticated and current_user.name == 'admin' %}class='clickable'{% endif %} data-href='/credentials?tid={{ t.id }}'>{{ t.name }}</th>
+{% for s in systems %}
+    <th colspan="{{ s.checks|length }}">
+        {{ s.name }}
+    </th>
 {% endfor %}
-</tr>
 </thead>
-
-<style>
-td.check-name {
-    text-align: right;
-}
-</style>
-
 <tbody>
-{% for c in checks %}
-<tr>
-    <td class="check-name">{{ c.name }}</td>
-    {% for t in teams %}
-        {% if c.id in results[t.id] %}
+{% if current_user.is_authenticated and current_user.name == 'admin' %}
+    {% set click = 'clickable' %}
+{% else %}
+    {% set click = '' %}
+{% endif %}
+
+{% for t in teams %}
+    <tr>
+        <td rowspan="2" class="team-name {{ click }}" data-href='/credentials?tid={{ t.id }}'>
+            <img class="team{{ t.id }}" src="static/imgs/circle.png"/>
+            {{ t.name }}
+        </td>
+        {% for s in systems %}
+            <td colspan="{{ s.checks|length }}" class="persistence">
+                {% for p in teams %}
+                    {% if s.persistence[t.id][p.id] %}
+                    <img class="team{{ p.id }}" src="static/imgs/redskull.png"/>
+                    {% else %}
+                    <img src="static/imgs/nothing.png"/>
+                    {% endif %}
+                {% endfor %}
+            </td>
+        {% endfor %}
+    </tr>
+    <tr>
+    {% for s in systems %}
+    {% for c in s.checks %} {% if c.id in results[t.id] %}
             {% set r = results[t.id][c.id] %}
             {% if r.result is equalto 1 %}
-                <td class='pass {% if current_user.is_authenticated and current_user.name == 'admin' %}clickable{% endif %}' data-href='/result_log?tid={{ t.id }}&cid={{ c.id }}'>
-                        <span>Pass</span>
-                </td>
+                {% set state = 'pass' %}
             {% else %}
-                <td class='fail {% if current_user.is_authenticated and current_user.name == 'admin' %}clickable{% endif %}' data-href='/result_log?tid={{ t.id }}&cid={{ c.id }}'>
-                        <span>Fail</span>
-                </td>
+                {% set state = 'fail' %}
             {% endif %}
         {% else %}
-            <td>Pending</td>
+            {% set state = 'pending' %}
         {% endif %}
+        <td class="check-name {{ state }} {{ click }}" data-href="/result_log?tid={{ t.id }}&cid={{ c.id }}">
+            <span>{{ c.name|service_short }}</span>
+        </td>
     {% endfor %}
-</tr>
+    {% endfor %}
+    </tr>
 {% endfor %}
 </tbody>
 </table>
