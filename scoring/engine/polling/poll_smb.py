@@ -6,9 +6,9 @@ import subprocess
 
 class SmbPollInput(PollInput):
 
-    def __init__(self, hostname, sharename, path, server=None, port=None):
+    def __init__(self, action, sharename, path, server=None, port=None):
         super(SmbPollInput, self).__init__(server, port)
-        self.hostname = hostname
+        self.action = action
         self.sharename = sharename
         self.path = path
 
@@ -27,16 +27,25 @@ class SmbPoller(FilePoller):
 
         share = '//{}/{}'.format(poll_input.server, poll_input.sharename)
 
-        extension = self.get_extension(poll_input.path)
-        f = self.open_file(extension)
-        f.close()
-        cmd = 'get {} {}'.format(poll_input.path, f.name)
+        if poll_input.action == 'get':
+            extension = self.get_extension(poll_input.path)
+            f = self.open_file(extension)
+            f.close()
+            cmd = 'get {} {}'.format(poll_input.path, f.name)
+        else:
+            fname = poll_input.path.split('/')[-1]
+            cmd = 'put {0} {1}; rm {1}'.format(poll_input.path, fname)
+
+        print(cmd)
         smbcli = ['smbclient', '-U', username, share, password, '-c', cmd]
         if not domain is None:
             smbcli.extend(['-W', domain.domain])
         try:
             subprocess.check_output(smbcli, stderr=subprocess.STDOUT)
-            result = SmbPollResult(f.name)
+            if poll_input.action == 'get':
+                result = SmbPollResult(f.name)
+            else:
+                result = SmbPollResult(None)
             return result
         except Exception as e:
             result = SmbPollResult(None, e.output)

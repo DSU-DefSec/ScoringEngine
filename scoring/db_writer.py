@@ -26,6 +26,8 @@ def get_checker(check_type, check_function):
     }
     if check_function == 'authenticated':
         check_module = 'auth_check'
+    elif check_function == 'noerror':
+        check_module = 'exceptions'
     else:
         check_module = check_modules[check_type]
 
