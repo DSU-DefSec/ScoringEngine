@@ -353,7 +353,19 @@ def systems():
         elif request.form['action'] == 'restart':
             errors = ialab.restart(vapp, system.name)
         elif request.form['action'] == 'revert':
-            errors = ialab.revert(vapp, system.name)
+            last_revert = db.get('revert_log', ['time'], where='team_id=%s AND system=%s', orderby='time DESC', args=[tid, system.name])
+            if len(last_revert) != 0:
+                last_revert = last_revert[0][0]
+            else:
+                last_revert = datetime.datetime.fromtimestamp(0)
+
+            next_revert = last_revert + datetime.timedelta(minutes=10)
+            if next_revert > datetime.datetime.now():
+                to_next_revert = next_revert - datetime.datetime.now() - datetime.timedelta(hours=6)
+                errors = '{} was reverted less than 10 minutes ago ({}). Next revert allowed at {} (in {})'.format(system.name, last_revert, next_revert, to_next_revert)
+            else:
+                errors = ialab.revert(vapp, system.name)
+
             if errors == '':
                 db.insert('revert_log', ['team_id', 'system'], [tid, system.name])
     systems = wm.systems
