@@ -100,6 +100,13 @@ class System(object):
         self.host = host
         self.checks = checks
 
+    def reload_persistence(self):
+        pers = db.get('persistence', ['owner', 'attacker','active'], where='system=%s', args=[self.name])
+        for owner,attacker,active in pers:
+            if owner not in self.persistence:
+                self.persistence[owner] = {}
+            self.persistence[owner][attacker] = active
+
     def check(self, check_round, teams):
         """
         Conduct all checks on this service for every given team in parallel.
