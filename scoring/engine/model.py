@@ -99,6 +99,7 @@ class System(object):
         self.vapp = vapp
         self.host = host
         self.checks = checks
+        self.persistence = {}
 
     def reload_persistence(self):
         pers = db.get('persistence', ['owner', 'attacker','active'], where='system=%s', args=[self.name])
