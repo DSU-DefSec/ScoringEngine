@@ -77,6 +77,11 @@ def write_teams(teams):
         team_ids[name] = team_num
     return team_ids
 
+def write_persistence():
+    cmd = ("INSERT INTO persistence (owner, system, attacker) SELECT t1.id,system,t2.id FROM "
+           "team t1 JOIN system JOIN team t2")
+    db.execute(cmd)
+
 def write_web_users(admins, teams, team_ids):
     """
     Write the given users to the database, hashing their passwords.

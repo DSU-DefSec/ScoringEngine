@@ -160,6 +160,20 @@ CREATE TABLE `persistence_log` (
     FOREIGN KEY (`system`) REFERENCES `system`(`system`)
         ON DELETE CASCADE);
 
+DROP TABLE IF EXISTS `persistence`;
+CREATE TABLE `persistence` ( 
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `owner` INT NOT NULL,
+    `system` VARCHAR(255) NOT NULL,
+    `attacker` INT NOT NULL,
+    `active` BOOL NOT NULL DEFAULT 0,
+    FOREIGN KEY (`owner`) REFERENCES `team`(`id`)
+        ON DELETE CASCADE,
+    FOREIGN KEY (`system`) REFERENCES `system`(`system`)
+        ON DELETE CASCADE,
+    FOREIGN KEY (`attacker`) REFERENCES `team`(`id`)
+        ON DELETE CASCADE);
+
 DROP TABLE IF EXISTS `score`;
 CREATE TABLE `score` (
     `team_id` INT PRIMARY KEY,
