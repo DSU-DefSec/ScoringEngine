@@ -193,7 +193,11 @@ class Check(object):
         res_id = self.store_result(check_round, check_io_id, team_id, poll_input,
                                    poll_result, result)
         if res_id != -1:
-            self.update_scores(res_id)
+            defender, attackers = self.get_persistence(res_id)
+            if self.system.checks[0].id == self.id:
+                self.update_persistence(defender, attackers)
+            if result:
+                self.update_scores(defender, attackers)
 
     def store_result(self, check_round, check_io_id, team_id, poll_input,
                      poll_result, result):
@@ -226,27 +230,28 @@ class Check(object):
                                   poll_input, poll_result, result))
         return res_id
 
-    def update_scores(self, res_id):
+    def get_persistence(self, res_id):
         # Gather relevant data from DB
         last_res = db.get('result', ['team_id','check_round','time','result'], where='id=%s', args=[res_id])
         defender,check_round,end_time,result = last_res[0]
-        if not result: # Check failed, no change in scores
-            return
 
-        start_time, = db.get('result', ['time'], where='check_round=%s AND check_id=%s', args=[check_round-1, self.id])[0]
+        start_time = db.get('result', ['time'], where='check_round=%s AND check_id=%s', args=[check_round-1, self.id])
+        if len(start_time) == 0:
+            start_time = 0
+        else:
+            start_time = start_time[0][0]
         system = self.system.name
 
         # Find attackers with persistence on the system since last check
         where = 'defender=%s AND time > %s AND time < %s AND system=%s'
         groupby = 'attacker'
         attackers = db.get('persistence_log', ['attacker'], where=where, groupby=groupby, args=[defender, start_time, end_time, system])
-        attackers = [a[0] for a in attackers]
+        attackers = [a[0] for a in attackers if a[0] != defender]
+        return defender, attackers
 
+    def update_scores(self, defender, attackers):
         # Calculate point split
-        if defender in attackers:
-            teams = attackers
-        else:
-            teams = attackers + [defender]
+        teams = attackers + [defender]
         print(teams)
         split = len(teams) * len(self.system.checks)
         points = 100 / split
@@ -255,6 +260,12 @@ class Check(object):
         for team in teams:
             db.modify('score', 'score=score+%s', where='team_id=%s', args=[points, team])
 
+    def update_persistence(self, defender, attackers):
+        system = self.system.name
+        db.modify('persistence', 'active=0', where='owner=%s AND system=%s', args=[defender, system])
+        for attacker in attackers:
+            db.modify('persistence', 'active=1', where='owner=%s AND system=%s AND attacker=%s', args=[defender, system, attacker])
+            
 
 class CheckIO(object):
     """
