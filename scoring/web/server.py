@@ -365,7 +365,7 @@ def systems():
         team = [t for t in wm.teams if t.id == tid][0]
         system = [s for s in wm.systems if s.name == system][0]
         vapp = system.vapp.base_name
-        vapp = '{}_{}'.format(team.name, vapp)
+        vapp = 'Team{}_{}'.format(team.id, vapp)
         print(vapp, system.name)
 
         if request.form['action'] == 'power on':
