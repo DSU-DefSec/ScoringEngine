@@ -1,0 +1,49 @@
+settings:
+    running: 1
+    revert_penalty: 350
+    webserver_ip: 10.1.0.4
+    polling:
+        interval: 180
+        jitter: 30
+        timeout: 20
+    pcr:
+        approval_window: 0
+        service_interval: 0
+        service_jitter: 0
+
+web_admins:
+    admin: LongLong
+
+teams:
+    Team1:
+        team_num: 1
+        user:
+            username: team1
+            password: DropMini
+vapps:
+    Mock3_Local:
+        subnet: "10.1.0.{}"
+        netmask: 255.255.0.0
+        systems:
+            nfs_box:
+                host: 201
+                checks:
+                    Nfs01:
+                        type: nfs
+                        port: 2049
+                        checker: output_check
+                        ios:
+                            nfs01:
+                                input:
+                                    file: /tmp/cats.txt
+                                output:
+                                    output: somethingsomething
+credentials:
+    default_password: Password1!
+    local:
+        katie.hensley:
+            ios: []
+    domain:
+        CRONINN.LAN:
+            christopher.english:
+                ios: []

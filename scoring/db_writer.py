@@ -23,6 +23,7 @@ def get_checker(check_type, check_function):
         'smtp':  'smtp_check',
         'ldap':  'ldap_check',
         'dns':   'dns_check',
+        'nfs':   'nfs_check',
     }
     if check_function == 'authenticated':
         check_module = 'auth_check'
