@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block leaderboard %}active{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="static/css/leaderboard.css"/>
+<meta http-equiv="refresh" content="5">
+{% endblock %}
+
+{% block content %}
+    <table class="table table-bordered leaderboard">
+        <thead class="thead-dark">
+            <th></th>
+            <th>Team</th>
+            <th>Score</th>
+        </thead>
+        <tbody>
+        {% for r in rankings %}
+            <tr>
+                <td class="rank">{{ r['rank'] }}</td>
+                <td class="team">{{ r['team'] }}</td>
+                <td class="score">{{ r['score'] }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
