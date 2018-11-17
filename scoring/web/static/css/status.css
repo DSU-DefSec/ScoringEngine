@@ -1,3 +1,6 @@
+div.container {
+    width: 90%;
+}
 
 table th {
     text-align: center;
@@ -16,9 +19,14 @@ table td.fail {
 }
 
 table td.team-name {
-    width: 8%;
+    width: 10%;
     vertical-align: middle;
     text-align: center;
+    font-weight: bold;
+}
+
+table td.persistence {
+    width: 15%;
 }
 
 td.check-name {
@@ -26,7 +34,7 @@ td.check-name {
 }
 
 td img {
-    width: 18%;
+    width: 22%;
 }
 
 td.team-name img {
@@ -37,17 +45,23 @@ td.team-name img {
 }
 
 img.team2 {
-    filter: hue-rotate(36deg);
+    filter: hue-rotate(25deg) saturate(100%) brightness(250%);
 }
 img.team3 {
-    filter: hue-rotate(72deg);
+    filter: hue-rotate(60deg) saturate(100%) brightness(300%);
 }
 img.team4 {
-    filter: hue-rotate(108deg);
+    filter: hue-rotate(120deg);
 }
 img.team5 {
-    filter: hue-rotate(144deg);
+    filter: hue-rotate(230deg);
 }
 img.team6 {
+    filter: hue-rotate(280deg);
+}
+img.team7 {
+    filter: hue-rotate(320deg);
+}
+img.team8 {
     filter: hue-rotate(180deg);
 }
