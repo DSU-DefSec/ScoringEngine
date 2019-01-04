@@ -36,7 +36,6 @@ class SmbPoller(FilePoller):
             fname = poll_input.path.split('/')[-1]
             cmd = 'put {0} {1}; rm {1}'.format(poll_input.path, fname)
 
-        print(cmd)
         smbcli = ['smbclient', '-U', username, share, password, '-c', cmd]
         if not domain is None:
             smbcli.extend(['-W', domain.domain])
