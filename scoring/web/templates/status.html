@@ -8,10 +8,11 @@
 {% endblock %}
 
 {% block content %}
+
 <table class="table table-bordered">
 <thead class="thead-dark">
 <th></th>
-{% for s in systems %}
+{% for s in systems if s.name != 'pfSense' %}
     <th colspan="{{ s.checks|length }}">
         {{ s.name }}
     </th>
@@ -31,6 +32,7 @@
             {{ t.name }}
         </td>
         {% for s in systems %}
+            {% if s.name != 'pfSense' %}
             <td colspan="{{ s.checks|length }}" class="persistence">
                 {% for p in teams %}
                     {% if s.persistence[t.id][p.id] %}
@@ -40,6 +42,7 @@
                     {% endif %}
                 {% endfor %}
             </td>
+            {% endif %}
         {% endfor %}
     </tr>
     <tr>
