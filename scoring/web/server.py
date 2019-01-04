@@ -52,7 +52,7 @@ def status():
     systems = wm.systems
     systems.sort(key=lambda s: s.name)
     results = wm.latest_results()
-    teams.sort(key=lambda t: t.name)
+    teams.sort(key=lambda t: t.id)
     times = []
     for team_id,team_results in results.items():
         for check_id,result in team_results.items():
@@ -194,9 +194,9 @@ def new_pcr():
                     password = re.sub('\s+', '', ':'.join(line[1:]))
                     creds.append((username, password))
             pcr = PasswordChangeRequest(team_id, PCRStatus.PENDING, creds, check_id=check_id, domain_id=domain_id)
-            conflict = pcr.conflicts(window)
-            if conflict:
-                pcr.set_status(PCRStatus.APPROVAL)
+#            conflict = pcr.conflicts(window)
+#            if conflict:
+#                pcr.set_status(PCRStatus.APPROVAL)
             pcr_id = pcr.id
             return redirect(url_for('pcr'))
     return render_template('pcr_new.html', form=form, window=window, pcr_id=pcr_id, success=success, conflict=conflict)
