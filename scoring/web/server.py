@@ -63,6 +63,28 @@ def status():
         last_time = max(times)
     return render_template('status.html', teams=teams, systems=systems, results=results, last_time=last_time)
 
+@app.route('/leaderboard')
+def leaderboard():
+    teams = wm.teams
+    ranking_rows = db.get('score', ['team_id', 'score'], orderby='score DESC')
+    rankings = []
+    rank = 1
+    for team_id, score in ranking_rows:
+        ranking = {}
+        ranking['rank'] = rank
+        for team in teams:
+            if team.id == team_id:
+                ranking['team'] = team.name
+                break
+        ranking['score'] = '{:,}'.format(score)
+        rankings.append(ranking)
+        rank += 1
+    for i in range(1, len(rankings)):
+        if rankings[i]['score'] == rankings[i-1]['score']:
+            rankings[i]['rank'] = rankings[i-1]['rank']
+
+    return render_template('leaderboard.html', rankings=rankings)
+
 @app.route('/credentials', methods=['GET'])
 @login_required
 @admin_required
@@ -343,7 +365,7 @@ def systems():
         team = [t for t in wm.teams if t.id == tid][0]
         system = [s for s in wm.systems if s.name == system][0]
         vapp = system.vapp.base_name
-        vapp = '{}_{}'.format(team.name, vapp)
+        vapp = 'Team{}_{}'.format(team.id, vapp)
         print(vapp, system.name)
 
         if request.form['action'] == 'power on':

@@ -20,6 +20,9 @@
     <li class="nav-item {% block status %}{% endblock %}">
         <a class="nav-link" href="{{ url_for('status') }}">Status</a>
     </li>
+    <li class="nav-item {% block leaderboard %}{% endblock %}">
+        <a class="nav-link" href="{{ url_for('leaderboard') }}">Leaderboard</a>
+    </li>
     {% if current_user.is_authenticated %}
     <li class="d-inline-block nav-item {% block pcr %}{% endblock %}">
         <a class="nav-link" href="{{ url_for('pcr') }}">Password Change Requests</a>
