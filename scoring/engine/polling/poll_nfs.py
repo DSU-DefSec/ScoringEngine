@@ -4,7 +4,7 @@ import subprocess
 
 class NfsPollInput(PollInput):
 
-    def __init__(self, file=None, server=None):
+    def __init__(self, file=None, server=None, port=None):
         self.file = file
         super(NfsPollInput, self).__init__(server)
 
