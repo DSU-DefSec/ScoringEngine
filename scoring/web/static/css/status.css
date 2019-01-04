@@ -60,8 +60,8 @@ img.team6 {
     filter: hue-rotate(280deg);
 }
 img.team7 {
-    filter: hue-rotate(320deg);
+    filter: hue-rotate(320deg) brightness(0%);
 }
 img.team8 {
-    filter: hue-rotate(180deg);
+    filter: hue-rotate(180deg) brightness(200%);
 }
