@@ -1,10 +1,10 @@
 settings:
     running: 1
     revert_penalty: 0
-    webserver_ip: 10.1.0.4
+    webserver_ip: 10.20.0.2
     polling:
-        interval: 30
-        jitter: 0
+        interval: 120
+        jitter: 30
         timeout: 20
     pcr:
         approval_window: 0
@@ -12,75 +12,311 @@ settings:
         service_jitter: 0
 
 web_admins:
-    admin: LongLong
+    admin: TripleWaterRiffRaft
 
 teams:
-    Team1:
+    Brother:
         team_num: 1
         user:
             username: team1
-            password: DropMini
-    Team2:
+            password: PinkTears
+    Nick^2:
         team_num: 2
         user:
             username: team2
-            password: BangAlive
+            password: TotallyOven
     Team3:
         team_num: 3
         user:
             username: team3
-            password: TheyBrake
+            password: TerrainAdrian
+    Team4:
+        team_num: 4
+        user:
+            username: team4
+            password: FreeDock
+    Team5:
+        team_num: 5
+        user:
+            username: team5
+            password: OutputsInline
+    Team6:
+        team_num: 6
+        user:
+            username: team6
+            password: DepositSkill
+    Goats:
+        team_num: 7
+        user:
+            username: team7
+            password: SpeedsAccording
 
 vapps:
     CyberConquest:
-        subnet: "10.0.{}.0"
+        subnet: "10.10.{}.0"
         netmask: 255.255.255.0
         systems:
-            test1:
+            pfSense:
                 host: 1
-            test2:
-                host: 80
-            test3:
-                host: 90
-            test4:
-                host: 100
-            test5:
-                host: 10
-                checks:
-                    DC01-ldap:
-                        type: ldap
-                        port: 389
-                        checker: match_ldap_output
-                        ios:
-                            dc01-ldap:
-                                input:
-                                    base: cn=Users,dc=CRONINN,dc=LAN
-                                    filter: (sAMAccountName=hubert.chen)
-                                    attributes: [objectGUID]
-                                output:
-                                    objectGUID: [0sSe4kmNlEWlx2JHicE7Eg==]
-            test6:
+            CentOS:
                 host: 20
                 checks:
-                    DC02-ldap:
+                    CentOS-NFS:
+                        type: nfs
+                        port: 0
+                        checker: output_check
+                        ios:
+                            centos-nfs:
+                                input:
+                                    file: /data/data4.txt
+                                output:
+                                    output: "Something Something Cats\n"
+                    CentOS-SSH:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            centos-ssh:
+                                input: 
+                                    task: "echo $((3 + 23))"
+                                output:
+                                    output: "26"
+            Debian:
+                host: 10
+                checks:
+                    Debian-SMB:
+                        type: smb
+                        port: 445
+                        checker: hash_match
+                        ios:
+                            debian-smb:
+                                input:
+                                    action: get
+                                    sharename: data
+                                    path: "data/secretdata87.txt"
+                                output:
+                                    hash: "311e4489c7324519b38fbe72bcd170fe3431636c"
+                    Debian-SSH:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            debian-ssh:
+                                input: 
+                                    task: "cat /etc/group | grep sudo | cut -d ':' -f 1"
+                                output: 
+                                    output: "sudo"
+            Metasploitable:
+                host: 30
+                checks:
+                    Metasploitable-HTTP:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            metasploitable-http:
+                                input:
+                                    proto: http
+                                    host: "meta.corp.lan"
+                                    path: "twiki/bin/view/Main/WebHome"
+                                output:
+                                    tolerance: 0.05
+                                    file: meta.html
+                    Metasploitable-SSH:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            metasploitable-ssh:
+                                input: 
+                                    task: "ls -l /dev/urandom | cut -d ' ' -f 1"
+                                output: 
+                                    output: "crw-rw-rw-"
+            Win2003:
+                host: 103
+                checks:
+                    Win2003-SMB:
+                        type: smb
+                        port: 445
+                        checker: hash_match
+                        ios:
+                            win2003-smb:
+                                input:
+                                    action: get
+                                    sharename: share
+                                    path: "important.txt"
+                                output:
+                                    hash: "e0d8957ceb74378ea5b12b6fe85459ca8790af52"
+                    Win2003-RDP:
+                        type: rdp
+                        port: 3389
+                        checker: authenticated
+                        ios:
+                            win2003-rdp:
+                                input:
+                                output:
+            Win2008:
+                host: 105
+                checks:
+                    Win2008-LDAP:
                         type: ldap
                         port: 389
                         checker: match_ldap_output
                         ios:
-                            dc02-ldap:
+                            win2008-ldap:
                                 input:
-                                    base: cn=Users,dc=CRONINN,dc=LAN
-                                    filter: (sAMAccountName=geoffrey.glover)
+                                    base: cn=Users,dc=CORP,dc=LAN
+                                    filter: (sAMAccountName=aimee.fuller)
                                     attributes: [objectGUID]
                                 output:
-                                    objectGUID: [cxHlRSkH8UiF1sDdvPJbag==]
+                                    objectGUID: [VvQFzK1FDka2OAHzjXMk2w==]
+                    Win2008-RDP:
+                        type: rdp
+                        port: 3389
+                        checker: authenticated
+                        ios:
+                            win2008-rdp:
+                                input:
+                                output:
+            Win7:
+                host: 104
+                checks:
+                    Win7-HTTP:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            win7-http:
+                                input:
+                                    proto: http
+                                    path: "login.php"
+                                output:
+                                    tolerance: 0.05
+                                    file: dvwa.html
+                    Win7-RDP:
+                        type: rdp
+                        port: 3389
+                        checker: authenticated
+                        ios:
+                            win7-rdp:
+                                input:
+                                output:
+
 
 credentials:
     default_password: Password1!
     local:
-        a:
-            ios: []
+        deloris.bowen:
+            ios: ['debian-ssh', 'debian-smb']
+        ricardo.burt:
+            ios: ['debian-ssh']
+        chester.walton:
+            ios: ['debian-ssh', 'debian-smb']
+        jane.cunningham:
+            ios: ['debian-ssh', 'centos-ssh']
+        billy.mcconnell:
+            ios: ['debian-ssh', 'centos-ssh', 'metasploitable-ssh']
+        kurt.torres:
+            ios: ['debian-ssh']
+        alan.kirkland:
+            ios: ['debian-ssh', 'centos-ssh', 'metasploitable-ssh']
+        harriet.reese:
+            ios: ['debian-ssh']
+        mark.glass:
+            ios: ['debian-ssh']
+        cody.travis:
+            ios: ['debian-ssh', 'centos-ssh']
+        elvira.brooks:
+            ios: ['debian-smb']
+        rochelle.eaton:
+            ios: ['debian-smb']
+        cody.odom:
+            ios: ['debian-smb', 'centos-ssh', 'metasploitable-ssh']
+        aimee.fuller:
+            ios: ['debian-smb', 'centos-ssh']
+        corinne.greene:
+            ios: ['debian-smb']
+        dallas.sutton:
+            ios: ['debian-smb', 'centos-ssh']
+        brooke.wilcox:
+            ios: ['debian-smb']
+        lorene.newton:
+            ios: ['debian-smb']
+        wayne.lester:
+            ios: ['centos-ssh']
+        kim.waller:
+            ios: ['centos-ssh']
+        jane.house:
+            ios: ['centos-ssh', 'metasploitable-ssh']
+        estella.dudley:
+            ios: ['metasploitable-ssh']
+        clinton.mullins:
+            ios: ['metasploitable-ssh']
+        iva.bray:
+            ios: ['metasploitable-ssh']
+        lauren.shepard:
+            ios: ['metasploitable-ssh']
+        jacob.norris:
+            ios: ['metasploitable-ssh']
+        raquel.solis:
+            ios: ['metasploitable-ssh']
     domain:
-        TEST.LAN:
-            a:
-                ios: []
+        CORP.LAN:
+            cody.odom:
+                ios: ['win2003-smb', 'win7-rdp']
+            billy.mcconnell:
+                ios: ['win2003-smb']
+            trisha.faulkner:
+                ios: ['win2003-smb', 'win7-rdp']
+            ignacio.chaney:
+                ios: ['win2003-smb', 'win2008-rdp', 'win2003-rdp']
+            jodi.zimmerman:
+                ios: ['win2003-smb']
+            maureen.wall:
+                ios: ['win2003-smb']
+            sallie.erickson:
+                ios: ['win2003-smb', 'win2008-rdp']
+            cody.herring:
+                ios: ['win2003-smb', 'win7-rdp']
+            aimee.fuller:
+                ios: ['win2003-smb', 'win2008-ldap']
+            chad.house:
+                ios: ['win2003-smb', 'win2003-rdp']
+            cesar.avery:
+                ios: ['win2008-ldap']
+            marc.hawkins:
+                ios: ['win2008-ldap', 'win7-rdp']
+            vivian.savage:
+                ios: ['win2008-ldap']
+            rochelle.eaton:
+                ios: ['win2008-ldap', 'win2008-rdp']
+            cody.travis:
+                ios: ['win2008-ldap', 'win2003-rdp']
+            alan.kirkland:
+                ios: ['win2008-ldap', 'win2003-rdp']
+            patricia.arnold:
+                ios: ['win2008-ldap', 'win7-rdp']
+            estella.dudley:
+                ios: ['win2008-ldap']
+            elvira.brooks:
+                ios: ['win2008-ldap', 'win2003-rdp']
+            dallas.sutton:
+                ios: ['win2008-rdp']
+            wayne.lester:
+                ios: ['win2008-rdp', 'win2003-rdp']
+            chester.walton:
+                ios: ['win2008-rdp']
+            rosemarie.medina:
+                ios: ['win2008-rdp', 'win7-rdp', 'win2003-rdp']
+            harriet.reese:
+                ios: ['win2008-rdp']
+            ricardo.burt:
+                ios: ['win2008-rdp', 'win7-rdp', 'win2003-rdp']
+            jewell.kemp:
+                ios: ['win2008-rdp']
+            kurt.torres:
+                ios: ['win7-rdp', 'win2003-rdp']
+            kim.waller:
+                ios: ['win7-rdp']
+            lauren.shepard:
+                ios: ['win7-rdp', 'win2003-rdp']

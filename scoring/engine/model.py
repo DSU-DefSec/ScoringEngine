@@ -260,7 +260,6 @@ class Check(object):
     def update_scores(self, defender, attackers):
         # Calculate point split
         teams = attackers + [defender]
-        print(teams)
         split = len(teams) * len(self.system.checks)
         points = 100 / split
 
