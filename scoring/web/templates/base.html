@@ -4,7 +4,7 @@
 <title>Scoring Engine</title>
 <link rel="stylesheet" href="/static/css/bootstrap-4.0.0.min.css">
 <link rel="stylesheet" href="/static/css/fontawesome-5.0.13.css">
-<link rel="stylesheet" href="static/css/style.css">
+<link rel="stylesheet" href="/static/css/style.css">
 <script src="/static/js/jquery-3.2.1.slim.min.js"></script>
 <script src="/static/js/popper-1.12.9.min.js"></script>
 <script src="/static/js/bootstrap-4.0.0.min.js"></script>
@@ -30,16 +30,21 @@
     <li class="d-inline-block nav-item {% block revert_log %}{% endblock %}">
         <a class="nav-link" href="{{ url_for('revert_log') }}">Revert Log</a>
     </li>
+    <li class="d-inline-block nav-item dropdown {% block sla %}{% endblock %}">
+        <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">SLA</a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="{{ url_for('sla_log') }}">SLA Log</a>
+            <a class="dropdown-item" href="{{ url_for('sla_totals') }}">SLA Totals</a>
+        </div>
+    </li>
     {% endif %}
     {% if current_user.is_authenticated and current_user.name == 'admin' %}
-    <li class="d-inline-block nav-item {% block settings %}{% endblock %}">
-        <a class="nav-link" href="{{ url_for('settings') }}">Settings</a>
-    </li>
-    <li class="d-inline-block nav-item {% block scores %}{% endblock %}">
-        <a class="nav-link" href="{{ url_for('score') }}">Scores</a>
-    </li>
-    <li class="d-inline-block nav-item {% block defaults %}{% endblock %}">
-        <a class="nav-link" href="{{ url_for('default') }}">Default Creds</a>
+    <li class="d-inline-block nav-item dropdown {% block reporting %}{% endblock %}">
+        <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Reports</a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="{{ url_for('score') }}">Scores</a>
+            <a class="dropdown-item" href="{{ url_for('default') }}">Default Creds</a>
+        </div>
     </li>
     {% endif %}
 </ul>
