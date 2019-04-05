@@ -1,0 +1,10 @@
+                    name-ftp:
+                        type: ftp
+                        port: 21
+                        checker: hash_match
+                        ios:
+                            name-ftp:
+                                input:
+                                    filepath: file53
+                                output:
+                                    hash: "14ec9d8cd0cbb1757f2771501adb0a42185baa32"

@@ -1,0 +1,12 @@
+                    share-smb:
+                        type: smb
+                        port: 445
+                        checker: hash_match
+                        ios:
+                            share-smb:
+                                input:
+                                    hostname: Share
+                                    sharename: share
+                                    path: dummyfile
+                                output:
+                                    hash: hashhere

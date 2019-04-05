@@ -1,0 +1,13 @@
+                    name-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            name-http:
+                                input:
+                                    proto: http
+                                    path: ""
+                                    host: "www.team.vnet"
+                                output:
+                                    tolerance: 0.05
+                                    file: www.html

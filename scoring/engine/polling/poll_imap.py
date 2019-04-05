@@ -1,6 +1,7 @@
 from imaplib import IMAP4
 import socket
 from .poller import PollInput, PollResult, Poller
+socket.setdefaulttimeout(10)
 
 class ImapPollInput(PollInput):
 
@@ -18,6 +19,7 @@ class ImapPoller(Poller):
 
     def poll(self, poll_input):
         username = poll_input.credentials.username
+        username = '{}@falsecod.com'.format(username)
         password = poll_input.credentials.password
         
         try:

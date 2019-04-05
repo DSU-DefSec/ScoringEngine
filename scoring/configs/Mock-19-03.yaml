@@ -1,0 +1,494 @@
+settings:
+    running: 1
+    revert_penalty: 350
+    webserver_ip: 10.1.0.5
+    polling:
+        interval: 150
+        jitter: 30
+        timeout: 20
+    pcr:
+        approval_window: 0
+        service_interval: 0
+        service_jitter: 0
+
+web_admins:
+    admin: TripleWater
+
+teams:
+    Team1:
+        team_num: 1
+        user:
+            username: team1
+            password: FalseThreat
+    Team2:
+        team_num: 2
+        user:
+            username: team2
+            password: WeaponReady
+
+vapps:
+    Mock6_Local:
+        subnet: "10.0.{}.0"
+        netmask: 255.255.255.0
+        systems:
+            Palo:
+                host: 1
+            DC01:
+                host: 10
+                checks:
+                    DC01-ldap:
+                        type: ldap
+                        port: 389
+                        checker: match_ldap_output
+                        ios:
+                            dc01-ldap:
+                                input:
+                                    base: cn=Users,dc=REALFAKENEWS,dc=NET
+                                    filter: (sAMAccountName=pete.merrill)
+                                    attributes: [objectGUID]
+                                output:
+                                    objectGUID: [mKE1LEJ7jESXEyETKW8Zww==]
+            DC02:
+                host: 20
+                checks:
+                    DC02-ldap:
+                        type: ldap
+                        port: 389
+                        checker: match_ldap_output
+                        ios:
+                            dc02-ldap:
+                                input:
+                                    base: cn=Users,dc=REALFAKENEWS,dc=NET
+                                    filter: (sAMAccountName=april.lowery)
+                                    attributes: [objectGUID]
+                                output:
+                                    objectGUID: [DRgCKKP3AUaPsQDU0IzQsg==]
+#            EX01:
+#                host: 30
+#                checks:
+#                    EX01-imap:
+#                        type: imap
+#                        port: 143
+#                        checker: authenticated
+#                        ios:
+#                            ex01-imap:
+#                                input:
+#                                    starttls: True
+#                                output:
+#                    # TODO SMTP
+            NS01:
+                host: 40
+                checks:
+                    NS01-dns:
+                        type: dns
+                        port: 53
+                        checker: any_match
+                        ios:
+                            dns-www:
+                                input:
+                                    record_type: A
+                                    query: www.realfakenews.net
+                                output:
+                                    answer: [20]
+                            dns-drop:
+                                input:
+                                    record_type: A
+                                    query: drop.realfakenews.net
+                                output:
+                                    answer: [30]
+                            dns-ex01:
+                                input:
+                                    record_type: A
+                                    query: ex01.realfakenews.net
+                                output:
+                                    answer: [30]
+            JUMP:
+                host: 50
+                checks:
+                    JUMP-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            jump-ssh:
+                                input:
+                                    task: hostname
+                                output: 
+                                    output: freebsd
+            HRM:
+                host: 60
+                checks:
+                    HRM-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            hrm-http:
+                                input:
+                                    proto: http
+                                    path: "orangehrm/symfony/web/index.php/auth/login"
+                                    host: "hrm.realfakenews.net"
+                                output:
+                                    tolerance: 0.05
+                                    file: hrm.html
+            Nagios:
+                 host: 90
+                 checks:
+                     Nagios-http:
+                         type: http
+                         port: 80
+                         checker: diff_match
+                         ios:
+                             nagios-http:
+                                 input:
+                                     proto: http
+                                     path: "nagiosxi/login.php"
+                                     host: "nagios.realfakenews.net"
+                                 output:
+                                     tolerance: 0.05
+                                     file: nagios.html
+            EasyShare:
+                host: 95
+                checks:
+                    EasyShare-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            easyshare-http:
+                                input:
+                                    proto: http
+                                    path: ""
+                                    host: "easyshare.team.vnet"
+                                output:
+                                    tolerance: 0.05
+                                    file: easy.html
+    Mock6_Remote:
+        subnet: "10.10.{}.0"
+        netmask: 255.255.255.0
+        systems:
+            PUB:
+                host: 10
+                checks:
+                    PUB-rdp:
+                        type: rdp
+                        port: 3389
+                        checker: authenticated
+                        ios:
+                            pub-rdp:
+                                input:
+                                output:
+            WWW:
+                host: 20
+                checks:
+                    WWW-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            www-http:
+                                input:
+                                    proto: http
+                                    path: "mission-policies"
+                                    host: "www.team.vnet"
+                                output:
+                                    tolerance: 0.05
+                                    file: www.html
+            DROP:
+                host: 30
+                checks:
+                    DROP-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            drop-http:
+                                input:
+                                    proto: http
+                                    path: "#/submission"
+                                    host: "drop.realfakenews.net"
+                                output:
+                                    tolerance: 0.05
+                                    file: drop.html
+            FILES:
+                host: 40
+                checks:
+                    FILES-ftp:
+                        type: ftp
+                        port: 21
+                        checker: hash_match
+                        ios:
+                            files-ftp:
+                                input:
+                                    filepath: bundle/main.js
+                                output:
+                                    hash: "1e33bfdb375972088e7bf8f8df19fbce2aa16c4c"
+                    FILES-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            files-ssh:
+                                input:
+                                    task: ls -d /srv/ftp
+                                output: 
+                                    output: /srv/ftp
+            CHAT:
+                host: 50
+                checks:
+                    CHAT-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            chat-http:
+                                input:
+                                    proto: http
+                                    path: "/home"
+                                    host: "chat.realfakenews.net"
+                                output:
+                                    tolerance: 0.05
+                                    file: chat.html
+            SHARE:
+                host: 60
+                checks:
+                    SHARE-smb:
+                        type: smb
+                        port: 445
+                        checker: hash_match
+                        ios:
+                            share-smb:
+                                input:
+                                    hostname: Share
+                                    sharename: share
+                                    path: "AP Style Guide.pdf"
+                                output:
+                                    hash: 1e4d4b8088be2d18995cff4f7d99b45c3578f85a  
+
+credentials:
+    default_password: Password1!
+    local:
+        celeste.nichols:
+            ios: ['jump-ssh', 'pub-rdp', 'share-smb']
+        shelby.melendez:
+            ios: ['jump-ssh', 'pub-rdp', 'files-ftp']
+        monique.reynolds:
+            ios: ['jump-ssh', 'files-ssh']
+        douglas.joyner:
+            ios: ['jump-ssh']
+        sharon.bowers:
+            ios: ['jump-ssh', 'pub-rdp', 'files-ssh']
+        ginger.freeman:
+            ios: ['jump-ssh']
+        doreen.gomez:
+            ios: ['jump-ssh', 'files-ftp', 'files-ssh', 'share-smb']
+        maxine.blackburn:
+            ios: ['jump-ssh', 'pub-rdp', 'files-ssh']
+        rodolfo.wong:
+            ios: ['jump-ssh', 'pub-rdp', 'share-smb']
+        roland.clarke:
+            ios: ['jump-ssh', 'files-ssh']
+        ralph.henson:
+            ios: ['jump-ssh', 'share-smb']
+        roger.burks:
+            ios: ['jump-ssh', 'pub-rdp']
+        bob.joyce:
+            ios: ['jump-ssh', 'files-ssh']
+        lewis.mclaughlin:
+            ios: ['jump-ssh', 'pub-rdp', 'files-ftp', 'files-ssh']
+        paula.barr:
+            ios: ['jump-ssh', 'files-ssh']
+        joel.boone:
+            ios: ['jump-ssh', 'files-ftp', 'files-ssh']
+        christie.francis:
+            ios: ['jump-ssh', 'share-smb']
+        kurt.carson:
+            ios: ['jump-ssh']
+        winifred.gardner:
+            ios: ['jump-ssh', 'pub-rdp']
+        wm.dawson:
+            ios: ['jump-ssh', 'files-ftp']
+        hazel.rivera:
+            ios: ['jump-ssh']
+        mike.oconnor:
+            ios: ['jump-ssh', 'files-ftp']
+        myra.gardner:
+            ios: ['jump-ssh']
+        alyssa.cervantes:
+            ios: ['jump-ssh', 'share-smb']
+        lance.clarke:
+            ios: ['jump-ssh', 'pub-rdp', 'files-ssh', 'share-smb']
+        alejandro.morin:
+            ios: ['pub-rdp', 'files-ftp', 'share-smb']
+        meredith.holcomb:
+            ios: ['pub-rdp']
+        kathleen.gill:
+            ios: ['pub-rdp']
+        gloria.morales:
+            ios: ['pub-rdp', 'files-ssh', 'share-smb']
+        lourdes.marquez:
+            ios: ['pub-rdp']
+        marvin.vega:
+            ios: ['pub-rdp', 'files-ftp']
+        homer.white:
+            ios: ['pub-rdp']
+        reginald.wade:
+            ios: ['pub-rdp']
+        jenna.henry:
+            ios: ['pub-rdp', 'files-ssh']
+        jonathan.riddle:
+            ios: ['pub-rdp', 'files-ssh']
+        randall.delaney:
+            ios: ['pub-rdp', 'files-ssh']
+        jacqueline.rosales:
+            ios: ['pub-rdp', 'files-ssh']
+        hugo.hood:
+            ios: ['pub-rdp']
+        bonita.eaton:
+            ios: ['pub-rdp']
+        jodi.salinas:
+            ios: ['pub-rdp', 'files-ftp']
+        gayle.owen:
+            ios: ['pub-rdp', 'share-smb']
+        john.weber:
+            ios: ['files-ftp', 'share-smb']
+        madeline.washington:
+            ios: ['files-ftp']
+        randall.burgess:
+            ios: ['files-ftp', 'files-ssh']
+        virgil.daniel:
+            ios: ['files-ftp']
+        sandy.coleman:
+            ios: ['files-ftp', 'files-ssh', 'share-smb']
+        mae.lane:
+            ios: ['files-ftp', 'files-ssh']
+        alisha.rocha:
+            ios: ['files-ftp']
+        howard.houston:
+            ios: ['files-ftp', 'files-ssh']
+        marie.scott:
+            ios: ['files-ftp']
+        amelia.walls:
+            ios: ['files-ftp', 'share-smb']
+        shaun.oconnor:
+            ios: ['files-ftp', 'files-ssh', 'share-smb']
+        timothy.wagner:
+            ios: ['files-ftp', 'files-ssh']
+        roberto.hardin:
+            ios: ['files-ftp']
+        erica.mcneil:
+            ios: ['files-ftp']
+        sheri.lang:
+            ios: ['files-ftp', 'files-ssh', 'share-smb']
+        hector.best:
+            ios: ['files-ftp']
+        joanna.sheppard:
+            ios: ['files-ssh']
+        sammy.montgomery:
+            ios: ['files-ssh']
+        sherri.pierce:
+            ios: ['files-ssh']
+        bessie.baxter:
+            ios: ['share-smb']
+        pete.merrill:
+            ios: ['share-smb']
+        julio.norris:
+            ios: ['share-smb']
+        jonathon.grant:
+            ios: ['share-smb']
+        vera.adkins:
+            ios: ['share-smb']
+        julian.donovan:
+            ios: ['share-smb']
+        lawrence.hurst:
+            ios: ['share-smb']
+        tommy.dodson:
+            ios: ['share-smb']
+        april.lowery:
+            ios: ['share-smb']
+        roberta.burnett:
+            ios: ['share-smb']
+    domain:
+        REALFAKENEWS.NET:
+            myra.gardner:
+                ios: ['dc01-ldap']
+            joel.boone:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            gloria.morales:
+                ios: ['dc01-ldap']
+            mae.lane:
+                ios: ['dc01-ldap']
+            pete.merrill:
+                ios: ['dc01-ldap']
+            erica.mcneil:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            joanna.sheppard:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            sammy.montgomery:
+                ios: ['dc01-ldap']
+            marie.scott:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            shelby.melendez:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            jacqueline.rosales:
+                ios: ['dc01-ldap']
+            ginger.freeman:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            meredith.holcomb:
+                ios: ['dc01-ldap']
+            jonathan.riddle:
+                ios: ['dc01-ldap']
+            sheri.lang:
+                ios: ['dc01-ldap']
+            lawrence.hurst:
+                ios: ['dc01-ldap']
+            ralph.henson:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            kathleen.gill:
+                ios: ['dc01-ldap']
+            kirk.stark:
+                ios: ['dc01-ldap']
+            lourdes.marquez:
+                ios: ['dc01-ldap']
+            april.lowery:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            paula.barr:
+                ios: ['dc01-ldap']
+            hector.best:
+                ios: ['dc01-ldap']
+            sharon.bowers:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            roberto.hardin:
+                ios: ['dc01-ldap']
+            randall.burgess:
+                ios: ['dc02-ldap']
+            marvin.vega:
+                ios: ['dc02-ldap']
+            madeline.washington:
+                ios: ['dc02-ldap']
+            virgil.daniel:
+                ios: ['dc02-ldap']
+            hugo.hood:
+                ios: ['dc02-ldap']
+            maxine.blackburn:
+                ios: ['dc02-ldap']
+            hazel.rivera:
+                ios: ['dc02-ldap']
+            douglas.joyner:
+                ios: ['dc02-ldap']
+            monique.reynolds:
+                ios: ['dc02-ldap']
+            jenna.henry:
+                ios: ['dc02-ldap']
+            alyssa.cervantes:
+                ios: ['dc02-ldap']
+            john.weber:
+                ios: ['dc02-ldap']
+            timothy.wagner:
+                ios: ['dc02-ldap']
+            loren.franco:
+                ios: ['dc02-ldap']
+            ora.chase:
+                ios: ['dc02-ldap']
+            sherri.pierce:
+                ios: ['dc02-ldap']

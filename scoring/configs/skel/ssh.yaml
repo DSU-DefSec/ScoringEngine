@@ -1,0 +1,10 @@
+                    name-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            name-ssh:
+                                input:
+                                    task: dirname `pwd`
+                                output: 
+                                    output: /home

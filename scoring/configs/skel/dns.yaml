@@ -1,0 +1,23 @@
+                    name-dns:
+                        type: dns
+                        port: 53
+                        checker: any_match
+                        ios:
+                            dns-www:
+                                input:
+                                    record_type: A
+                                    query: www.goats.lan
+                                output:
+                                    answer: [20]
+                            dns-owncloud:
+                                input:
+                                    record_type: A
+                                    query: owncloud.goats.lan
+                                output:
+                                    answer: [50]
+                            dns-moodle:
+                                input:
+                                    record_type: A
+                                    query: moodle.goats.lan
+                                output:
+                                    answer: [100]

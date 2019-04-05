@@ -1,0 +1,12 @@
+                    name-ldap:
+                        type: ldap
+                        port: 389
+                        checker: match_ldap_output
+                        ios:
+                            name-ldap:
+                                input:
+                                    base: cn=Users,dc=,dc=
+                                    filter: (sAMAccountName=)
+                                    attributes: [objectGUID]
+                                output:
+                                    objectGUID: [0sSe4kmNlEWlx2JHicE7Eg==]

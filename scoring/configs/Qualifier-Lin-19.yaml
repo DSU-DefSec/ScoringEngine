@@ -1,0 +1,220 @@
+settings:
+    running: 1
+    revert_penalty: 350
+    webserver_ip: 10.53.0.5
+    polling:
+        interval: 180
+        jitter: 30
+        timeout: 20
+    pcr:
+        approval_window: 0
+        service_interval: 0
+        service_jitter: 0
+
+web_admins:
+    admin: TripleWater
+
+teams:
+    Tim:
+        team_num: 1
+        user:
+            username: tim
+            password: BlockStop
+    Chase:
+        team_num: 2
+        user:
+            username: christian
+            password: BlockStop
+    Peter:
+        team_num: 3
+        user:
+            username: peter
+            password: BlockStop
+    Anna:
+        team_num: 5
+        user:
+            username: anna
+            password: BlockStop
+
+vapps:
+    Linux_Qualifier:
+        subnet: "10.53.{}.0"
+        netmask: 255.255.255.0
+        systems:
+            pfSense:
+                host: 1
+            WWW:
+                host: 4
+                checks:
+                    WWW-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            www-http:
+                                input:
+                                    proto: http
+                                    path: ""
+                                    host: "www.team.vnet"
+                                output:
+                                    tolerance: 0.05
+                                    file: www.html
+                    WWW-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            www-ssh:
+                                input:
+                                    task: dirname `pwd`
+                                output: 
+                                    output: /home
+            DB:
+                host: 3
+                checks:
+                    DB-ftp:
+                        type: ftp
+                        port: 21
+                        checker: hash_match
+                        ios:
+                            db-ftp:
+                                input:
+                                    filepath: file53
+                                output:
+                                    hash: "14ec9d8cd0cbb1757f2771501adb0a42185baa32"
+                    DB-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            db-ssh:
+                                input:
+                                    task: dirname `pwd`
+                                output: 
+                                    output: /home
+            Mail:
+                host: 2
+                checks:
+                    Mail-imap:
+                        type: imap
+                        port: 143
+                        checker: authenticated
+                        ios:
+                            mail-imap:
+                                input:
+                                    starttls: True
+                                output:
+                    Mail-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            mail-ssh:
+                                input:
+                                    task: dirname `pwd`
+                                output: 
+                                    output: /home
+
+credentials:
+    default_password: Password1!
+    local:
+        lindsay.frost:
+            ios: ['www-ssh', 'mail-ssh']
+        jason.frazier:
+            ios: ['www-ssh', 'db-ssh', 'mail-ssh', 'mail-imap']
+        johnathan.smith:
+            ios: ['www-ssh', 'mail-imap']
+        cathy.russell:
+            ios: ['www-ssh', 'db-ssh', 'mail-ssh']
+        allison.noel:
+            ios: ['www-ssh', 'db-ssh', 'db-ftp', 'mail-ssh']
+        lillian.snow:
+            ios: ['www-ssh', 'db-ftp', 'mail-imap']
+        kara.nichols:
+            ios: ['www-ssh', 'mail-imap']
+        lorenzo.porter:
+            ios: ['www-ssh', 'db-ftp']
+        lindsay.mcneil:
+            ios: ['www-ssh', 'db-ftp']
+        eugene.morton:
+            ios: ['www-ssh', 'db-ssh', 'db-ftp', 'mail-ssh']
+        gustavo.vance:
+            ios: ['www-ssh', 'mail-ssh']
+        marissa.wilkerson:
+            ios: ['www-ssh', 'db-ftp', 'mail-imap']
+        nellie.mcmillan:
+            ios: ['www-ssh', 'db-ftp', 'mail-ssh', 'mail-imap']
+        mandy.wilkins:
+            ios: ['www-ssh', 'db-ssh', 'mail-ssh']
+        janis.cardenas:
+            ios: ['www-ssh', 'db-ftp', 'mail-imap']
+        jonathon.carpenter:
+            ios: ['www-ssh', 'db-ssh', 'mail-imap']
+        johnathan.williams:
+            ios: ['www-ssh', 'db-ssh', 'db-ftp']
+        christie.bradshaw:
+            ios: ['www-ssh', 'mail-ssh']
+        lionel.estes:
+            ios: ['www-ssh']
+        andrea.gibson:
+            ios: ['www-ssh', 'db-ssh', 'mail-imap']
+        dewey.calhoun:
+            ios: ['www-ssh', 'db-ssh', 'mail-imap']
+        mandy.oneal:
+            ios: ['www-ssh', 'db-ssh', 'mail-imap']
+        norman.powell:
+            ios: ['www-ssh']
+        sonia.brown:
+            ios: ['www-ssh', 'db-ssh', 'db-ftp', 'mail-ssh']
+        eric.bentley:
+            ios: ['www-ssh', 'db-ftp', 'mail-imap']
+        willis.noble:
+            ios: ['db-ssh', 'mail-ssh']
+        kristin.bolton:
+            ios: ['db-ssh', 'mail-ssh']
+        dsu:
+            ios: ['db-ssh', 'db-ftp']
+        norma.bush:
+            ios: ['db-ssh', 'mail-imap']
+        karla.pollard:
+            ios: ['db-ssh', 'db-ftp', 'mail-imap']
+        grace.santos:
+            ios: ['db-ssh']
+        bethany.dalton:
+            ios: ['db-ssh', 'db-ftp', 'mail-ssh', 'mail-imap']
+        cedric.mullins:
+            ios: ['db-ssh']
+        hilda.crawford:
+            ios: ['db-ssh', 'mail-imap']
+        margaret.wolfe:
+            ios: ['db-ssh', 'db-ftp', 'mail-ssh', 'mail-imap']
+        sherry.watkins:
+            ios: ['db-ssh', 'db-ftp', 'mail-ssh']
+        lila.kelly:
+            ios: ['db-ssh', 'db-ftp']
+        norma.buck:
+            ios: ['db-ssh', 'mail-ssh', 'mail-imap']
+        sam.burt:
+            ios: ['db-ssh', 'db-ftp', 'mail-ssh']
+        steve.chan:
+            ios: ['db-ftp', 'mail-ssh']
+        brad.cohen:
+            ios: ['db-ftp', 'mail-ssh', 'mail-imap']
+        ronda.young:
+            ios: ['db-ftp', 'mail-ssh']
+        ethel.gross:
+            ios: ['db-ftp', 'mail-ssh', 'mail-imap']
+        candice.stanley:
+            ios: ['db-ftp', 'mail-ssh', 'mail-imap']
+        hattie.bruce:
+            ios: ['db-ftp', 'mail-ssh', 'mail-imap']
+        vernon.hinton:
+            ios: ['db-ftp', 'mail-imap']
+        jeanne.tyson:
+            ios: ['mail-ssh']
+        louis.graves:
+            ios: ['mail-ssh']
+        ruben.berry:
+            ios: ['mail-imap']
+        krystal.lindsay:
+            ios: ['mail-imap']

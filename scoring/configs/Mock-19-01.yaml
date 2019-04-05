@@ -1,0 +1,445 @@
+settings:
+    running: 1
+    revert_penalty: 350
+    webserver_ip: 10.1.0.5
+    polling:
+        interval: 150
+        jitter: 30
+        timeout: 20
+    pcr:
+        approval_window: 0
+        service_interval: 0
+        service_jitter: 0
+
+web_admins:
+    admin: TripleWater
+
+teams:
+    Team1:
+        team_num: 1
+        user:
+            username: team1
+            password: DriveSlots
+    BitsNBytes:
+        team_num: 2
+        user:
+            username: team2
+            password: ConcernTowers
+    Team3:
+        team_num: 3
+        user:
+            username: team3
+            password: RoyalNicole
+
+vapps:
+    Mock4:
+        subnet: "10.0.{}.0"
+        netmask: 255.255.255.0
+        systems:
+            Juniper:
+                host: 1
+            CLI01:
+                host: 5
+            CLI02:
+                host: 15
+            CLI02:
+                host: 25
+            DB:
+                host: 35
+                checks:
+                    DB-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            db-ssh:
+                                input:
+                                    task: dirname `pwd`
+                                output: 
+                                    output: /home
+            CLI04:
+                host: 10
+                checks:
+                    CLI04-rdp:
+                        type: rdp
+                        port: 3389
+                        checker: authenticated
+                        ios:
+                            cli04-rdp:
+                                input:
+                                output:
+            CLI05:
+                host: 20
+            CLI06:
+                host: 30
+            MAIL:
+                host: 40
+                checks:
+                    MAIL-imap:
+                        type: imap
+                        port: 143
+                        checker: authenticated
+                        ios:
+                            mail-imap:
+                                input:
+                                    starttls: False
+                                output:
+                    MAIL-rdp:
+                        type: rdp
+                        port: 3389
+                        checker: authenticated
+                        ios:
+                            mail-rdp:
+                                input:
+                                output:
+            SHOP:
+                host: 155
+                checks:
+                    SHOP-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            shop-http:
+                                input:
+                                    proto: http
+                                    path: "/index.php/default-products/default-product-detail"
+                                    host: "shop.falsecod.com"
+                                output:
+                                    tolerance: 0.05
+                                    file: shop.html
+            FILES:
+                host: 165
+                checks:
+                    FILES-ftp:
+                        type: ftp
+                        port: 21
+                        checker: hash_match
+                        ios:
+                            files-ftp:
+                                input:
+                                    filepath: ml_codfish.jpg
+                                output:
+                                    hash: "1da1ee32559100cb52a953bbd21b76bf29bc298c"
+                    FILES-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            files-ssh:
+                                input:
+                                    task: ls -d /var/ftp/MMR_Cape1.jpg
+                                output: 
+                                    output: /var/ftp/MMR_Cape1.jpg
+            CHAT:
+                host: 175
+                checks:
+                    CHAT-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            chat-http:
+                                input:
+                                    proto: http
+                                    path: "/login"
+                                    host: "chat.falsecod.com"
+                                output:
+                                    tolerance: 0.05
+                                    file: chat.html
+            HMI:
+                host: 185
+                checks:
+                    HMI-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            hmi-http:
+                                input:
+                                    proto: http
+                                    path: "/scada/login.htm"
+                                    host: "hmi.falsecod.com"
+                                output:
+                                    tolerance: 0.05
+                                    file: hmi.html
+                    HMI-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            hmi-ssh:
+                                input:
+                                    task: cat /etc/passwd | head -n 1 | cut -d ':' -f 3
+                                output: 
+                                    output: "0"
+            DC01:
+                host: 160
+                checks:
+                    DC01-ldap:
+                        type: ldap
+                        port: 389
+                        checker: match_ldap_output
+                        ios:
+                            dc01-ldap:
+                                input:
+                                    base: cn=Users,dc=FALSECOD,dc=COM
+                                    filter: (sAMAccountName=rudy.jenkins)
+                                    attributes: [objectGUID]
+                                output:
+                                    objectGUID: [7c63sDb2s0yQdm7L/Vsf2Q==]
+                    DC01-dns:
+                        type: dns
+                        port: 53
+                        checker: any_match
+                        ios:
+                            dns-shop:
+                                input:
+                                    record_type: A
+                                    query: shop.falsecod.com
+                                output:
+                                    answer: [155]
+                            dns-hrm:
+                                input:
+                                    record_type: A
+                                    query: hrm.falsecod.com
+                                output:
+                                    answer: [180]
+                            dns-chat:
+                                input:
+                                    record_type: A
+                                    query: chat.falsecod.com
+                                output:
+                                    answer: [175]
+            DC02:
+                host: 170
+                checks:
+                    DC02-ldap:
+                        type: ldap
+                        port: 389
+                        checker: match_ldap_output
+                        ios:
+                            dc02-ldap:
+                                input:
+                                    base: cn=Users,dc=FALSECOD,dc=COM
+                                    filter: (sAMAccountName=rudy.jenkins)
+                                    attributes: [objectGUID]
+                                output:
+                                    objectGUID: [7c63sDb2s0yQdm7L/Vsf2Q==]
+            HRM:
+                host: 180
+                checks:
+                    HRM-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            hrm-http:
+                                input:
+                                    proto: http
+                                    path: ""
+                                    host: "hr.falsecod.com"
+                                output:
+                                    tolerance: 0.05
+                                    file: hrm.html
+            SHARE:
+                host: 190
+                checks:
+                    SHARE-smb:
+                        type: smb
+                        port: 445
+                        checker: hash_match
+                        ios:
+                            share-smb:
+                                input:
+                                    hostname: Share
+                                    sharename: share
+                                    path: cod.jpg
+                                output:
+                                    hash: a606d23c4b79c89e5187898f254af8b510cec91f
+
+credentials:
+    default_password: Password1!
+    local:
+        ada.ramirez:
+            ios: ['db-ssh', 'files-ssh', 'files-ftp', 'hmi-ssh']
+        cecil.eaton:
+            ios: ['db-ssh', 'files-ssh', 'files-ftp', 'hmi-ssh']
+        emma.randolph:
+            ios: ['db-ssh']
+        bryant.barrett:
+            ios: ['db-ssh', 'files-ssh', 'files-ftp', 'hmi-ssh']
+        hugh.charles:
+            ios: ['db-ssh', 'files-ssh', 'files-ftp', 'hmi-ssh']
+        jamie.lloyd:
+            ios: ['db-ssh', 'files-ftp']
+        eric.diaz:
+            ios: ['db-ssh', 'hmi-ssh']
+        rudy.jenkins:
+            ios: ['db-ssh']
+        estelle.brennan:
+            ios: ['db-ssh', 'files-ftp', 'hmi-ssh']
+        cara.johnston:
+            ios: ['db-ssh', 'hmi-ssh']
+        melody.ramos:
+            ios: ['db-ssh', 'files-ssh', 'files-ftp']
+        bennie.pittman:
+            ios: ['db-ssh']
+        eunice.crosby:
+            ios: ['db-ssh', 'files-ssh', 'hmi-ssh']
+        ora.cortez:
+            ios: ['db-ssh', 'hmi-ssh']
+        vincent.rivas:
+            ios: ['db-ssh', 'files-ftp']
+        eloise.lowe:
+            ios: ['db-ssh', 'files-ssh']
+        sonja.cook:
+            ios: ['db-ssh']
+        martha.gonzales:
+            ios: ['db-ssh', 'files-ftp', 'hmi-ssh']
+        sylvia.fuller:
+            ios: ['db-ssh', 'files-ssh', 'files-ftp', 'hmi-ssh']
+        jaime.patterson:
+            ios: ['db-ssh', 'files-ssh', 'hmi-ssh']
+        michele.mullins:
+            ios: ['db-ssh', 'files-ftp', 'hmi-ssh']
+        kelly.nunez:
+            ios: ['db-ssh', 'files-ssh', 'files-ftp']
+        cynthia.york:
+            ios: ['db-ssh', 'files-ssh', 'files-ftp', 'hmi-ssh']
+        stuart.lamb:
+            ios: ['db-ssh', 'files-ssh', 'hmi-ssh']
+        jackie.jimenez:
+            ios: ['db-ssh', 'files-ssh']
+        rhonda.knapp:
+            ios: ['files-ssh', 'files-ftp']
+        vicky.gill:
+            ios: ['files-ssh', 'files-ftp']
+        latoya.branch:
+            ios: ['files-ssh', 'files-ftp', 'hmi-ssh']
+        bryan.jimenez:
+            ios: ['files-ssh']
+        tami.dixon:
+            ios: ['files-ssh', 'hmi-ssh']
+        gene.logan:
+            ios: ['files-ssh', 'hmi-ssh']
+        michelle.downs:
+            ios: ['files-ssh']
+        iris.hansen:
+            ios: ['files-ssh', 'hmi-ssh']
+        sheldon.valencia:
+            ios: ['files-ssh']
+        kirk.watkins:
+            ios: ['files-ssh', 'files-ftp', 'hmi-ssh']
+        dustin.maddox:
+            ios: ['files-ssh', 'files-ftp']
+        maxine.frye:
+            ios: ['files-ssh', 'files-ftp', 'hmi-ssh']
+        tracy.aguilar:
+            ios: ['files-ftp', 'hmi-ssh']
+        beulah.fowler:
+            ios: ['files-ftp']
+        mary.petty:
+            ios: ['files-ftp']
+        aubrey.mccullough:
+            ios: ['files-ftp', 'hmi-ssh']
+        miranda.mcbride:
+            ios: ['files-ftp', 'hmi-ssh']
+        arthur.mason:
+            ios: ['files-ftp']
+        marc.hamilton:
+            ios: ['hmi-ssh']
+    domain:
+        FALSECOD.COM:
+            kirk.watkins:
+                ios: ['dc01-ldap', 'share-smb', 'mail-rdp']
+            estelle.brennan:
+                ios: ['dc01-ldap', 'dc02-ldap', 'mail-rdp', 'cli04-rdp']
+            eunice.crosby:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb', 'mail-rdp', 'cli04-rdp']
+            mary.petty:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb', 'mail-rdp']
+            jackie.jimenez:
+                ios: ['dc01-ldap', 'dc02-ldap', 'mail-imap']
+            cara.johnston:
+                ios: ['dc01-ldap', 'dc02-ldap', 'mail-imap']
+            rudy.jenkins:
+                ios: ['dc01-ldap', 'mail-imap', 'mail-rdp', 'cli04-rdp']
+            jana.hartman:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            tracy.aguilar:
+                ios: ['dc01-ldap', 'mail-imap']
+            dustin.maddox:
+                ios: ['dc01-ldap', 'share-smb', 'mail-imap', 'mail-rdp', 'cli04-rdp']
+            stuart.lamb:
+                ios: ['dc01-ldap', 'dc02-ldap', 'mail-imap']
+            bryan.jimenez:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb', 'mail-rdp']
+            aubrey.mccullough:
+                ios: ['dc01-ldap', 'dc02-ldap', 'mail-rdp', 'cli04-rdp']
+            iris.hansen:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb', 'mail-imap', 'cli04-rdp']
+            ada.ramirez:
+                ios: ['dc01-ldap', 'mail-imap', 'mail-rdp', 'cli04-rdp']
+            sylvia.fuller:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            miranda.mcbride:
+                ios: ['dc01-ldap', 'share-smb', 'mail-imap']
+            kelly.nunez:
+                ios: ['dc01-ldap', 'mail-imap', 'mail-rdp']
+            cecil.eaton:
+                ios: ['dc01-ldap', 'dc02-ldap', 'mail-rdp']
+            beulah.fowler:
+                ios: ['dc01-ldap', 'dc02-ldap', 'mail-imap', 'mail-rdp']
+            melody.ramos:
+                ios: ['dc01-ldap', 'cli04-rdp']
+            ora.cortez:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb', 'mail-imap', 'mail-rdp', 'cli04-rdp']
+            michelle.downs:
+                ios: ['dc01-ldap', 'dc02-ldap', 'mail-imap']
+            sonja.cook:
+                ios: ['dc01-ldap', 'share-smb', 'cli04-rdp']
+            eloise.lowe:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb', 'mail-imap', 'mail-rdp', 'cli04-rdp']
+            martha.gonzales:
+                ios: ['dc02-ldap', 'share-smb', 'cli04-rdp']
+            maxine.frye:
+                ios: ['dc02-ldap', 'share-smb', 'mail-imap']
+            gene.logan:
+                ios: ['dc02-ldap', 'share-smb', 'mail-rdp', 'cli04-rdp']
+            sheldon.valencia:
+                ios: ['dc02-ldap']
+            latoya.branch:
+                ios: ['dc02-ldap', 'share-smb', 'mail-imap', 'mail-rdp', 'cli04-rdp']
+            hugh.charles:
+                ios: ['dc02-ldap', 'mail-rdp', 'cli04-rdp']
+            marc.hamilton:
+                ios: ['dc02-ldap', 'share-smb', 'mail-imap', 'mail-rdp']
+            vicky.gill:
+                ios: ['dc02-ldap', 'share-smb', 'mail-rdp', 'cli04-rdp']
+            bryant.barrett:
+                ios: ['dc02-ldap', 'mail-imap']
+            jill.phelps:
+                ios: ['share-smb', 'cli04-rdp']
+            arthur.mason:
+                ios: ['share-smb']
+            emma.randolph:
+                ios: ['share-smb', 'mail-imap', 'cli04-rdp']
+            bennie.pittman:
+                ios: ['share-smb', 'mail-rdp', 'cli04-rdp']
+            michele.mullins:
+                ios: ['share-smb', 'mail-imap', 'cli04-rdp']
+            vincent.rivas:
+                ios: ['share-smb', 'mail-imap']
+            megan.horne:
+                ios: ['share-smb', 'mail-rdp', 'cli04-rdp']
+            edwin.ramirez:
+                ios: ['share-smb', 'mail-rdp']
+            jaime.patterson:
+                ios: ['mail-imap', 'mail-rdp', 'cli04-rdp']
+            eric.diaz:
+                ios: ['mail-imap', 'mail-rdp', 'cli04-rdp']
+            tyrone.briggs:
+                ios: ['mail-imap']
+            jamie.lloyd:
+                ios: ['mail-rdp', 'cli04-rdp']

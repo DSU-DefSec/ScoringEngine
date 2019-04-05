@@ -193,7 +193,10 @@ def write_credentials(credentials, team_ids, domain_ids, check_io_ids):
     """
     default_pass = credentials['default_password']
     local_creds = credentials['local']
-    domain_creds = credentials['domain']
+    if 'domain' in credentials:
+        domain_creds = credentials['domain']
+    else:
+        domain_creds = {}
     for team_id in team_ids.values():
         write_cred_set(local_creds, default_pass, team_id, check_io_ids)
         for domain, dcreds in domain_creds.items():

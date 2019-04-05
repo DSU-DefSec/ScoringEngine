@@ -1,0 +1,8 @@
+                    name-rdp:
+                        type: rdp
+                        port: 3389
+                        checker: authenticated
+                        ios:
+                            name-rdp:
+                                input:
+                                output:

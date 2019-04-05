@@ -1,0 +1,9 @@
+                    name-imap:
+                        type: imap
+                        port: 143
+                        checker: authenticated
+                        ios:
+                            name-imap:
+                                input:
+                                    starttls: True
+                                output:

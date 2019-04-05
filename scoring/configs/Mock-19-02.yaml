@@ -1,0 +1,568 @@
+settings:
+    running: 1
+    revert_penalty: 350
+    webserver_ip: 10.1.0.5
+    polling:
+        interval: 150
+        jitter: 30
+        timeout: 20
+    pcr:
+        approval_window: 0
+        service_interval: 0
+        service_jitter: 0
+
+web_admins:
+    admin: TripleWater
+
+teams:
+    Team1:
+        team_num: 1
+        user:
+            username: team1
+            password: FalseThreat
+    Team2:
+        team_num: 2
+        user:
+            username: team2
+            password: WeaponReady
+    Team3:
+        team_num: 3
+        user:
+            username: team3
+            password: OddBall
+
+vapps:
+    Mock4_Local:
+        subnet: "10.0.{}.0"
+        netmask: 255.255.255.0
+        systems:
+            Palo:
+                host: 1
+            DC01:
+                host: 5
+                checks:
+                    DC01-ldap:
+                        type: ldap
+                        port: 389
+                        checker: match_ldap_output
+                        ios:
+                            dc01-ldap:
+                                input:
+                                    base: cn=Users,dc=GOLDSTREET,dc=COM
+                                    filter: (sAMAccountName=w.mesa)
+                                    attributes: [objectGUID]
+                                output:
+                                    objectGUID: [cxrM4HV9CEa6ClEm6aUNgw==]
+                    DC01-dns:
+                        type: dns
+                        port: 53
+                        checker: any_match
+                        ios:
+                            dns-www:
+                                input:
+                                    record_type: A
+                                    query: www.goldstreet.com
+                                output:
+                                    answer: [150]
+                            dns-dc01:
+                                input:
+                                    record_type: A
+                                    query: dc01.goldstreet.com
+                                output:
+                                    answer: [5]
+                            dns-print:
+                                input:
+                                    record_type: A
+                                    query: print.goldstreet.com
+                                output:
+                                    answer: [30]
+            WIN7:
+                host: 10
+            SHARE:
+                host: 20
+                checks:
+                    SHARE-smb:
+                        type: smb
+                        port: 445
+                        checker: hash_match
+                        ios:
+                            share-smb:
+                                input:
+                                    hostname: Share
+                                    sharename: share
+                                    path: street_of_gold.jpg
+                                output:
+                                    hash: 736cb71f748c94d4371ede37d445bfabaa008cfc
+            PRINT:
+                host: 30
+            Fedora:
+                host: 40
+            Ubnt:
+                host: 50
+            Cent:
+                host: 60
+            DB01:
+                host: 70
+                checks:
+                    DB01-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            db01-ssh:
+                                input:
+                                    task: which mysql
+                                output: 
+                                    output: /usr/bin/mysql
+            DC02:
+                host: 110
+                checks:
+                    DC02-ldap:
+                        type: ldap
+                        port: 389
+                        checker: match_ldap_output
+                        ios:
+                            dc02-ldap:
+                                input:
+                                    base: cn=Users,dc=GOLDSTREET,dc=COM
+                                    filter: (sAMAccountName=m.astles)
+                                    attributes: [objectGUID]
+                                output:
+                                    objectGUID: [miuPY7EqoEmbpQCAV2CGHA==]
+            WIN8:
+                host: 120
+                checks:
+                    WIN8-rdp:
+                        type: rdp
+                        port: 3389
+                        checker: authenticated
+                        ios:
+                            win8-rdp:
+                                input:
+                                output:
+            ACCOUNTING:
+                host: 130
+                checks:
+                    ACCT-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            acct-http:
+                                input:
+                                    proto: http
+                                    path: "/wzusers/register"
+                                    host: "accounting.goldstreet.com"
+                                output:
+                                    tolerance: 0.05
+                                    file: accounting.html
+            FILES:
+                host: 140
+                checks:
+                    FILES-ftp:
+                        type: ftp
+                        port: 21
+                        checker: hash_match
+                        ios:
+                            files-ftp:
+                                input:
+                                    filepath: QPCX.csv
+                                output:
+                                    hash: 4b08c77259e5afc15dab35d12333de1551a6bed0  
+            WWW:
+                host: 150
+                checks:
+                    WWW-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            www-http:
+                                input:
+                                    proto: http
+                                    path: ""
+                                    host: "www.goldstreet.com"
+                                output:
+                                    tolerance: 0.05
+                                    file: www.html
+    Mock4_Remote:
+        subnet: "10.10.{}.0"
+        netmask: 255.255.255.0
+        systems:
+            HRM:
+                host: 10
+                checks:
+                    HRM-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            hrm-http:
+                                input:
+                                    proto: http
+                                    path: "/app/login.php"
+                                    host: "hrm.goldstreet.com"
+                                output:
+                                    tolerance: 0.05
+                                    file: hrm.html
+            WINCLI:
+                host: 20
+            DB02:
+                host: 30
+                checks:
+                    DB02-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            db02-ssh:
+                                input:
+                                    task: dirname `pwd`
+                                output: 
+                                    output: /home
+            MAIL:
+                host: 40
+                checks:
+                    MAIL-imap:
+                        type: imap
+                        port: 143
+                        checker: authenticated
+                        ios:
+                            mail-imap:
+                                input:
+                                    starttls: True
+                                output:
+                    MAIL-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            mail-ssh:
+                                input:
+                                    task: hostname
+                                output: 
+                                    output: arch
+            TRADING:
+                host: 50
+                checks:
+                    TRADING-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            trading-http:
+                                input:
+                                    proto: http
+                                    path: "/login.php"
+                                    host: "trading.goldstreet.com"
+                                output:
+                                    tolerance: 0.05
+                                    file: trading.html
+
+credentials:
+    default_password: Password1!
+    local:
+        t.haws:
+            ios: ['db01-ssh', 'mail-imap']
+        a.simpson:
+            ios: ['db01-ssh', 'files-ftp']
+        a.dudek:
+            ios: ['db01-ssh', 'db02-ssh']
+        w.dunlop:
+            ios: ['db01-ssh']
+        f.haddad:
+            ios: ['db01-ssh', 'files-ftp']
+        z.barabas:
+            ios: ['db01-ssh', 'mail-ssh']
+        a.kim:
+            ios: ['db01-ssh', 'db02-ssh', 'files-ftp', 'mail-imap']
+        p.munro:
+            ios: ['db01-ssh']
+        j.finkbeiner:
+            ios: ['db01-ssh', 'mail-imap']
+        g.wallace:
+            ios: ['db01-ssh', 'mail-ssh']
+        k.mccord-wilson:
+            ios: ['db01-ssh', 'db02-ssh']
+        a.behr:
+            ios: ['db01-ssh']
+        a.mcelfresh:
+            ios: ['db01-ssh', 'files-ftp']
+        t.nittmann:
+            ios: ['db01-ssh']
+        l.wong-savun:
+            ios: ['db01-ssh']
+        b.nemtin:
+            ios: ['db01-ssh']
+        m.babcock:
+            ios: ['db01-ssh', 'mail-ssh']
+        h.miller:
+            ios: ['db01-ssh', 'mail-ssh']
+        s.dowson:
+            ios: ['db01-ssh', 'db02-ssh', 'mail-ssh']
+        p.hooson:
+            ios: ['db01-ssh', 'files-ftp', 'mail-imap']
+        h.yada:
+            ios: ['db01-ssh', 'mail-imap']
+        m.astles:
+            ios: ['db01-ssh']
+        j.tapaoan:
+            ios: ['db01-ssh', 'mail-imap']
+        o.graber:
+            ios: ['db01-ssh', 'files-ftp', 'mail-ssh']
+        k.dutton:
+            ios: ['db01-ssh', 'mail-ssh']
+        r.schroeder:
+            ios: ['db02-ssh', 'files-ftp', 'mail-imap']
+        s.grayhm:
+            ios: ['db02-ssh', 'files-ftp']
+        c.bentley:
+            ios: ['db02-ssh', 'mail-ssh', 'mail-imap']
+        g.pawlowski:
+            ios: ['db02-ssh']
+        j.boulden:
+            ios: ['db02-ssh']
+        s.white:
+            ios: ['db02-ssh']
+        l.olson:
+            ios: ['db02-ssh', 'files-ftp']
+        b.brooks:
+            ios: ['db02-ssh']
+        c.webb:
+            ios: ['db02-ssh', 'files-ftp']
+        n.allen:
+            ios: ['db02-ssh']
+        c.anaka:
+            ios: ['db02-ssh']
+        s.palmer:
+            ios: ['db02-ssh']
+        a.dmitiew:
+            ios: ['db02-ssh', 'mail-ssh']
+        l.connery:
+            ios: ['db02-ssh', 'files-ftp']
+        b.korenberg:
+            ios: ['db02-ssh', 'files-ftp']
+        b.edwards:
+            ios: ['db02-ssh', 'mail-ssh']
+        r.graham:
+            ios: ['db02-ssh']
+        j.magee:
+            ios: ['db02-ssh']
+        k.angus:
+            ios: ['db02-ssh', 'mail-imap']
+        m.jacyszyn:
+            ios: ['db02-ssh']
+        p.cummings:
+            ios: ['db02-ssh', 'mail-ssh']
+        j.gording:
+            ios: ['files-ftp', 'mail-ssh']
+        l.benavente-notaro:
+            ios: ['files-ftp']
+        e.batut:
+            ios: ['files-ftp', 'mail-ssh']
+        m.pappas:
+            ios: ['files-ftp', 'mail-ssh']
+        t.martin:
+            ios: ['files-ftp', 'mail-ssh', 'mail-imap']
+        f.rosati:
+            ios: ['files-ftp']
+        t.landon:
+            ios: ['files-ftp']
+        a.duvernay:
+            ios: ['files-ftp']
+        e.velez:
+            ios: ['files-ftp']
+        j.chavez:
+            ios: ['files-ftp', 'mail-imap']
+        c.ash:
+            ios: ['files-ftp']
+        j.anderson:
+            ios: ['files-ftp']
+        d.mannis-gardner:
+            ios: ['files-ftp']
+        m.bevis:
+            ios: ['mail-ssh']
+        t.binkle:
+            ios: ['mail-ssh', 'mail-imap']
+        d.dann:
+            ios: ['mail-ssh']
+        a.pimentel:
+            ios: ['mail-ssh']
+        j.myhre:
+            ios: ['mail-ssh']
+        a.bohaker:
+            ios: ['mail-ssh']
+        t.castellucci:
+            ios: ['mail-ssh']
+        c.anderson:
+            ios: ['mail-ssh']
+        r.harrison:
+            ios: ['mail-ssh', 'mail-imap']
+        j.hall:
+            ios: ['mail-ssh']
+        m.martin:
+            ios: ['mail-imap']
+        e.williams:
+            ios: ['mail-imap']
+        s.decrescent:
+            ios: ['mail-imap']
+        j.makaro:
+            ios: ['mail-imap']
+        r.jobin:
+            ios: ['mail-imap']
+        b.beardwood:
+            ios: ['mail-imap']
+        n.jeerh:
+            ios: ['mail-imap']
+        c.virtue:
+            ios: ['mail-imap']
+        c.lee:
+            ios: ['mail-imap']
+        j.white:
+            ios: ['mail-imap']
+        j.greenall:
+            ios: ['mail-imap']
+        e.norris:
+            ios: ['mail-imap']
+    domain:
+        GOLDSTREET.COM:
+            j.robinson:
+                ios: ['dc01-ldap', 'share-smb', 'win8-rdp']
+            d.dann:
+                ios: ['dc01-ldap', 'share-smb']
+            a.dudek:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            t.martin:
+                ios: ['dc01-ldap']
+            m.bevis:
+                ios: ['dc01-ldap']
+            e.norris:
+                ios: ['dc01-ldap', 'win8-rdp']
+            j.finkbeiner:
+                ios: ['dc01-ldap', 'dc02-ldap', 'win8-rdp']
+            j.hall:
+                ios: ['dc01-ldap']
+            j.white:
+                ios: ['dc01-ldap', 'share-smb', 'win8-rdp']
+            s.decrescent:
+                ios: ['dc01-ldap', 'win8-rdp']
+            h.miller:
+                ios: ['dc01-ldap']
+            k.furneaux:
+                ios: ['dc01-ldap', 'share-smb']
+            s.unger:
+                ios: ['dc01-ldap', 'win8-rdp']
+            r.harrison:
+                ios: ['dc01-ldap', 'dc02-ldap']
+            c.anderson:
+                ios: ['dc01-ldap']
+            l.benavente-notaro:
+                ios: ['dc01-ldap', 'dc02-ldap', 'share-smb']
+            n.allen:
+                ios: ['dc01-ldap']
+            k.dutton:
+                ios: ['dc01-ldap']
+            k.mccord-wilson:
+                ios: ['dc01-ldap']
+            d.herriott:
+                ios: ['dc01-ldap']
+            z.barabas:
+                ios: ['dc01-ldap', 'win8-rdp']
+            r.jobin:
+                ios: ['dc01-ldap', 'share-smb']
+            w.dunlop:
+                ios: ['dc01-ldap', 'share-smb']
+            b.korenberg:
+                ios: ['dc01-ldap']
+            j.tapaoan:
+                ios: ['dc01-ldap']
+            m.babcock:
+                ios: ['dc02-ldap', 'share-smb']
+            j.myhre:
+                ios: ['dc02-ldap']
+            g.gross:
+                ios: ['dc02-ldap']
+            c.lee:
+                ios: ['dc02-ldap', 'share-smb']
+            e.velez:
+                ios: ['dc02-ldap']
+            s.dowson:
+                ios: ['dc02-ldap']
+            s.white:
+                ios: ['dc02-ldap']
+            t.haws:
+                ios: ['dc02-ldap', 'win8-rdp']
+            f.haddad:
+                ios: ['dc02-ldap', 'share-smb', 'win8-rdp']
+            b.nemtin:
+                ios: ['dc02-ldap']
+            f.rosati:
+                ios: ['dc02-ldap']
+            p.cummings:
+                ios: ['dc02-ldap', 'win8-rdp']
+            e.williams:
+                ios: ['dc02-ldap', 'win8-rdp']
+            t.landon:
+                ios: ['dc02-ldap']
+            g.hay:
+                ios: ['dc02-ldap']
+            l.connery:
+                ios: ['dc02-ldap']
+            t.castellucci:
+                ios: ['dc02-ldap', 'share-smb']
+            a.dmitiew:
+                ios: ['dc02-ldap']
+            j.greenall:
+                ios: ['dc02-ldap']
+            c.bentley:
+                ios: ['dc02-ldap']
+            m.martin:
+                ios: ['dc02-ldap', 'share-smb']
+            c.anaka:
+                ios: ['share-smb', 'win8-rdp']
+            g.hanson:
+                ios: ['share-smb']
+            j.anderson:
+                ios: ['share-smb']
+            j.boulden:
+                ios: ['share-smb']
+            j.magee:
+                ios: ['share-smb']
+            c.webb:
+                ios: ['share-smb', 'win8-rdp']
+            b.edwards:
+                ios: ['share-smb']
+            s.palmer:
+                ios: ['share-smb']
+            j.chavez:
+                ios: ['share-smb']
+            g.cannom:
+                ios: ['share-smb']
+            a.mcelfresh:
+                ios: ['share-smb']
+            s.hecker:
+                ios: ['share-smb']
+            m.jacyszyn:
+                ios: ['share-smb', 'win8-rdp']
+            p.munro:
+                ios: ['win8-rdp']
+            j.gording:
+                ios: ['win8-rdp']
+            n.jeerh:
+                ios: ['win8-rdp']
+            m.pappas:
+                ios: ['win8-rdp']
+            a.behr:
+                ios: ['win8-rdp']
+            j.makaro:
+                ios: ['win8-rdp']
+            r.schroeder:
+                ios: ['win8-rdp']
+            b.beardwood:
+                ios: ['win8-rdp']
+            c.ash:
+                ios: ['win8-rdp']
+            b.brooks:
+                ios: ['win8-rdp']
+            a.pimentel:
+                ios: ['win8-rdp']

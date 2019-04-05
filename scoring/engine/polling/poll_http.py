@@ -27,6 +27,13 @@ class HttpPoller(FilePoller):
         try:
             proto = poll_input.proto
             server = poll_input.server
+
+            # Temp fix: Remove after comp!
+            if server in ['10.0.1.90', '10.0.1.95']: #, '10.0.2.90', '10.0.2.95']:
+                server  = server.split('.')
+                server[1] = '10'
+                server = '.'.join(server)
+
             port = poll_input.port
             path = poll_input.path
             url = '{}://{}/{}'.format(proto, server, path)
