@@ -192,22 +192,6 @@ def result_log():
     fname = ''
     return render_template('result_log.html', results=results, fname=fname)
 
-@app.route('/settings', methods=['GET', 'POST'])
-@login_required
-@admin_required
-def settings():
-    """
-    Render page with a button for starting and stopping the engine.
-    """
-    running = wm.settings['running']
-    if request.method =='POST':
-        if request.form['running'] == 'Start':
-            running = True
-        elif request.form['running'] == 'Stop':
-            running = False
-        wm.update_setting('running', running)
-    return render_template('competition.html', running=running)
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """
@@ -367,3 +351,56 @@ def revert_log():
     else:
         reverts = db.get('revert_log', ['*'], where='team_id=%s', orderby='time DESC', args=(current_user.team.id,))
     return render_template('revert_log.html', teams=teams, reverts=reverts)
+
+def get_team_slas(team_id):
+    results = db.get('result', ['time', 'check_id', 'result'], where='team_id=%s', orderby='time ASC', args=(team_id,))
+    down_counts = {}
+    slas = []
+    for time, check_id, result in results:
+        if not check_id in down_counts:
+            down_counts[check_id] = 0
+        if not result:
+            down_counts[check_id] += 1
+        else:
+            down_counts[check_id] = 0
+        if down_counts[check_id] >= 6:
+            down_counts[check_id] = 0
+            slas.append((time, check_id))
+    return slas
+
+def get_slas():
+    slas = {}
+    for team in wm.teams:
+        slas[team.id] = get_team_slas(team.id)
+    return slas
+
+@app.route('/sla/log', methods=['GET'])
+@login_required
+def sla_log():
+    slas = get_slas()
+
+    cs = {}
+    for check in wm.checks:
+        cs[check.id] = check
+
+    return render_template('sla_log.html', slas=slas, checks=cs)
+
+@app.route('/sla/totals', methods=['GET'])
+@login_required
+def sla_totals():
+    cs = {}
+    for check in wm.checks:
+        cs[check.id] = check
+
+    slas = get_slas()
+    totals = {}
+    for team in wm.teams:
+        totals[team.id] = {}
+        for check in wm.checks:
+            totals[team.id][check.id] = 0
+
+    for team in wm.teams:
+        for time, check_id in slas[team.id]:
+            totals[team.id][check_id] += 1
+
+    return render_template('sla_totals.html', totals=totals, checks=cs)

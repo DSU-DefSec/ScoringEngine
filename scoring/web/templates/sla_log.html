@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block sla %}active{% endblock %}
+
+{% block content %}
+<br/>
+
+<style>
+h2 {
+    text-align: center;
+}
+
+table.table {
+    width:50%;
+    margin: auto;
+}
+</style>
+
+<h2>SLA Log</h2>
+
+<table class="table table-striped table-bordered" id="revert-table">
+    <thead class="thead-dark">
+        <th>Time</th>
+        <th>Service</th>
+    </thead>
+    <tbody>
+        {% for t,cid in slas[current_user.team.id] %}
+        <tr>
+            <td>{{ t }}</td>
+            <td>{{ checks[cid].name }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
