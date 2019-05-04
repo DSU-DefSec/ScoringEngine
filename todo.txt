@@ -1,0 +1,5 @@
+- add scoring start/end based on time
+- allow disabling of ialab
+- see github issues
+- log is inundated with web
+- what's up with rsync?

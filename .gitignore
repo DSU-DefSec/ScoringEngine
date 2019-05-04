@@ -1,6 +1,14 @@
 *.pyc
 */__pycache__
 */__cache__
+.pytest_cache/
+
+*.pid
+instance/
+dist/
+build/
+*.egg-info/
+
 scoring/checkfiles/*
 !scoring/checkfiles/.gitkeep
 !scoring/checkfiles/expected/.gitkeep
