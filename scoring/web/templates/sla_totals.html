@@ -17,10 +17,36 @@ table.table {
 
 <h2>SLA Totals</h2>
 
-<table class="table table-striped table-bordered" id="revert-table">
+    {% if current_user.is_admin %}
+        {% for team in teams %}
+        <table class="table table-striped table-bordered" id="revert-table">
+        <thead class="thead-dark">
+            <th>Team Number</th>
+            <th>Service</th>
+            <th>Total SLAs</th>
+        </thead>
+        <tbody>
+            {% set ts = totals[team.id] %}
+            {% for cid,total in ts.items() %}
+            <tr>
+                <td>{{ team.team_num }}</td>
+                <td>{{ checks[cid].name }}</td>
+                <td>{{ total }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td>Total</td>
+                <td>{{ ts.values()|sum }}</td>
+            </tr>
+        </tbody>
+        </table>
+        <br>
+        {% endfor %}
+    {% else %}
+    <table class="table table-striped table-bordered" id="revert-table">
     <thead class="thead-dark">
-        <th>Service</th>
-        <th>Total SLAs</th>
+    <th>Service</th>
+    <th>Total SLAs</th>
     </thead>
     <tbody>
         {% set ts = totals[current_user.team.id] %}
@@ -35,6 +61,10 @@ table.table {
             <td>{{ ts.values()|sum }}</td>
         </tr>
     </tbody>
-</table>
+    </table>
+    {% endif %}
+
+
+
 
 {% endblock %}

@@ -543,5 +543,5 @@ def sla_totals():
         for time, check_id in slas[team.id]:
             totals[team.id][check_id] += 1
 
-    return render_template('sla_totals.html', totals=totals, checks=cs)
+    return render_template('sla_totals.html', totals=totals, checks=cs, teams=wm.teams)
 

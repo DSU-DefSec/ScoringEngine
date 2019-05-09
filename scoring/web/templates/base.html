@@ -42,15 +42,15 @@
     <li class="d-inline-block nav-item {% block revert_log %}{% endblock %}">
         <a class="nav-link" href="{{ url_for('revert_log') }}">Revert Log</a>
     </li>
-    {% if not current_user.is_admin %}
     <li class="d-inline-block nav-item dropdown {% block sla %}{% endblock %}">
         <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">SLA</a>
         <div class="dropdown-menu">
+            {% if not current_user.is_admin %}
             <a class="dropdown-item" href="{{ url_for('sla_log') }}">SLA Log</a>
+            {% endif %}
             <a class="dropdown-item" href="{{ url_for('sla_totals') }}">SLA Totals</a>
         </div>
     </li>
-    {% endif %}
     {% endif %}
     {% if current_user.is_admin or current_user.is_redteam %}
     <li class="d-inline-block nav-item dropdown {% block reporting %}{% endblock %}">
