@@ -49,7 +49,7 @@ echo -e "\n$plus Installing dependencies..."
     install_package libldap2-dev
     install_package freerdp2-x11
     install_package smbclient
-    pip3 install -U dnspython paramiko pymysql pymssql pyldap requests
+    pip3 install -U dnspython paramiko pymysql pymssql pyldap requests pyyaml
     echo -e "$plus Common files installed"
 
 echo -e "$plus Installing database (mysql-server)..."

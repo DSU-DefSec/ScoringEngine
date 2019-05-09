@@ -11,7 +11,7 @@ import validate
 def load_config(filename):
     print("Loading config...")
     with open(filename, 'r') as f:
-        config = yaml.load(f)
+        config = yaml.load(f, Loader=yaml.FullLoader)
 
     settings = flatten_settings(config['settings'])
     vapps = config['vapps']
