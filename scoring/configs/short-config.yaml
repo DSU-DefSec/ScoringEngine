@@ -6,13 +6,10 @@ settings:
         interval: 150
         jitter: 30
         timeout: 20
-    pcr:
-        approval_window: 0
-        service_interval: 0
-        service_jitter: 0
 
-web_admins:
+web_users:
     admin: TripleWater
+    redteam: SunClose
 
 teams:
     Team1:

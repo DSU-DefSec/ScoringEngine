@@ -74,7 +74,7 @@ def write_teams(teams):
         team_ids[name] = db_id
     return team_ids
 
-def write_web_users(admins, teams, team_ids):
+def write_web_users(web_users, teams, team_ids):
     """
     Write the given users to the database, hashing their passwords.
 
@@ -82,12 +82,18 @@ def write_web_users(admins, teams, team_ids):
         team_ids (Dict(str->int)): A mapping of team names to team database IDs
 
     """
-    for username, password in admins.items():
+    for username, password in web_users.items():
         password = password.encode('utf-8')
         pwhash = bcrypt.hashpw(password, bcrypt.gensalt())
-        db.insert('users',
-            ['username', 'password', 'team_id', 'is_admin'],
-            (username, pwhash, None, True))
+        if username == "admin":
+            db.insert('users',
+		['username', 'password', 'team_id', 'is_admin', 'is_redteam'],
+		(username, pwhash, None, True, False))
+        elif username == "redteam":
+            db.insert('users',
+                 ['username', 'password', 'team_id', 'is_admin', 'is_redteam'],
+                 (username, pwhash, None, False, True))
+
 
     for team_name, data in teams.items():
         tid = team_ids[team_name]
@@ -97,8 +103,8 @@ def write_web_users(admins, teams, team_ids):
         pwhash = bcrypt.hashpw(password, bcrypt.gensalt())
 
         db.insert('users',
-            ['username', 'password', 'team_id', 'is_admin'],
-            (username, pwhash, tid, False))
+            ['username', 'password', 'team_id', 'is_admin', 'is_redteam'],
+            (username, pwhash, tid, False, False))
 
 def write_domains(domains):
     """

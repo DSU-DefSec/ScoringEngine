@@ -1,21 +1,24 @@
 #!/usr/bin/python3
 
-from .web_model import WebModel
+# Flask and system imports
 import flask
 from flask import Flask, render_template, request, redirect, url_for
+import flask_login
+from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from urllib.parse import urlparse, urljoin
 import datetime
+
+# Custom imports
+from engine.model import PasswordChangeRequest, RedTeamReport, REQStatus
+from .web_model import WebModel
+from .model import User
+from .decorators import *
 from .forms import *
 from . import score
 import validate
-import flask_login
-from flask_login import LoginManager, current_user, login_user, logout_user, login_required
-from .model import User
-from engine.model import PasswordChangeRequest, PCRStatus
-from .decorators import *
+import ialab
 import db
 import re
-import ialab
 
 app = Flask(__name__)
 app.secret_key = 'this is a secret'
@@ -25,6 +28,7 @@ wm.load_db()
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -75,6 +79,7 @@ def credentials():
 
 @app.route('/pcr', methods=['GET', 'POST'])
 @login_required
+@deny_redteam
 def pcr():
     """
     Render the password change request overview page.
@@ -82,70 +87,61 @@ def pcr():
     user = flask_login.current_user
     if request.method == 'GET':
         if user.is_admin:
-            where = 'status = %s'
-            args = (int(PCRStatus.APPROVAL))
-            orderby = None
+            orderby = 'submitted DESC'
+            pcr_ids = db.get('pcr', ['id'], orderby=orderby)
+            pcrs = [PasswordChangeRequest.load(pcr_id) for pcr_id in pcr_ids ]
+            for pcr in pcrs:
+                where = 'id = ' + str(pcr.team_id)
+                pcr.team_num = db.get('team', ['team_num'], where=where)
+            domains = {d.id:d for d in wm.domains}
+            checks = {c.id:c for c in wm.checks}
+            return render_template('pcr_overview.html', pcrs=pcrs, checks=checks, domains=domains)
         else:
             team_id = user.team.id
             where = 'team_id = %s'
             orderby = 'submitted DESC'
             args = (team_id)
-        pcr_ids = db.get('pcr', ['id'], where=where, orderby=orderby, args=args)
-        pcrs = [PasswordChangeRequest.load(pcr_id) for pcr_id in pcr_ids]
-        domains = {d.id:d for d in wm.domains}
-        checks = {c.id:c for c in wm.checks}
-        return render_template('pcr_overview.html', pcrs=pcrs, checks=checks, domains=domains)
+            pcr_ids = db.get('pcr', ['id'], where=where, orderby=orderby, args=args)
+            pcrs = [PasswordChangeRequest.load(pcr_id) for pcr_id in pcr_ids]
+            domains = {d.id:d for d in wm.domains}
+            checks = {c.id:c for c in wm.checks}
+            return render_template('pcr_overview.html', pcrs=pcrs, checks=checks, domains=domains)
     elif request.method == 'POST':
         pcr_id = request.form['reqId']
         pcr = PasswordChangeRequest.load(pcr_id)
-        if (not user.is_admin and user.team.id != pcr.team_id) or pcr.status == PCRStatus.COMPLETE:
+        if (not user.is_admin and user.team.id != pcr.team_id) or pcr.status == REQStatus.COMPLETE:
             pass # Show error?
         else:
             pcr.delete()
         return redirect(url_for('pcr'))
 
-@app.route('/pcr_details', methods=['GET', 'POST'])
+@app.route('/pcr_details')
 @login_required
+@deny_redteam
 def pcr_details():
     """
     Render the password change request details page.
     """
     user = flask_login.current_user
-    if request.method == 'GET':
-        pcr_id = request.args.get('id')
-        pcr = PasswordChangeRequest.load(pcr_id)
-        domains = {d.id:d for d in wm.domains}
-        checks = {c.id:c for c in wm.checks}
-        if user.is_admin or user.team.id == pcr.team_id:
-            return render_template('pcr_details.html', pcr=pcr, checks=checks, domains=domains)
-        else:
-            return redirect(url_for('pcr'))
-    elif request.method == 'POST':
-        pcr_id = request.form.get('reqId')
-        pcr = PasswordChangeRequest.load(pcr_id)
-        if user.is_admin:
-            if request.form['approval'] == 'Approve':
-                status = PCRStatus.PENDING
-            else:
-                status = PCRStatus.DENIED
-            comment = request.form['admin_comment']
-            pcr.set_status(status)
-            pcr.set_admin_comment(comment)
-        elif user.team.id == pcr.team_id:
-            comment = request.form['team_comment']
-            pcr.set_team_comment(comment)
-        return redirect(url_for('pcr_details') + '?id={}'.format(pcr_id))
+    pcr_id = request.args.get('id')
+    pcr = PasswordChangeRequest.load(pcr_id)
+    domains = {d.id:d for d in wm.domains}
+    checks = {c.id:c for c in wm.checks}
+    if user.is_admin or user.team.id == pcr.team_id:
+        return render_template('pcr_details.html', pcr=pcr, checks=checks, domains=domains)
+    else:
+        return redirect(url_for('pcr'))
+    
 
 @app.route('/new_pcr', methods=['GET', 'POST'])
 @login_required
+@deny_redteam
 def new_pcr():
     """
     Render the password change request form.
     """
-    window = wm.settings['pcr_approval_window']
     pcr_id = 0
     form = PasswordChangeForm(wm)
-    conflict = False
     success = False
     if request.method == 'POST':
         if form.validate_on_submit():
@@ -167,13 +163,10 @@ def new_pcr():
                     username = re.sub('\s+', '', line[0])
                     password = re.sub('\s+', '', ':'.join(line[1:]))
                     creds.append((username, password))
-            pcr = PasswordChangeRequest(team_id, PCRStatus.PENDING, creds, check_id=check_id, domain_id=domain_id)
-            conflict = pcr.conflicts(window)
-            if conflict:
-                pcr.set_status(PCRStatus.APPROVAL)
-            pcr_id = pcr.id
+            pcr = PasswordChangeRequest(team_id, int(REQStatus.PENDING), creds, check_id=check_id, domain_id=domain_id)
+            pcr.service_request()            
             return redirect(url_for('pcr'))
-    return render_template('pcr_new.html', form=form, window=window, pcr_id=pcr_id, success=success, conflict=conflict)
+    return render_template('pcr_new.html', form=form, pcr_id=pcr_id, success=success)
 
 @app.route('/result_log', methods=['GET'])
 @login_required
@@ -246,7 +239,7 @@ def pw_reset():
 
 @app.route('/reporting/score', methods=['GET'])
 @login_required
-@admin_required
+@redorwhite_required
 def score():
     """
     Score information page
@@ -288,9 +281,10 @@ def score():
 
     return render_template('score.html', results=simple_results, teams=teams, checks=checks, systems=systems, reverts=reverts)
 
+
 @app.route('/reporting/default', methods=['GET'])
 @login_required
-@admin_required
+@redorwhite_required
 def default():
     """
     Default passwords information page.
@@ -338,6 +332,130 @@ def systems():
                 db.insert('revert_log', ['team_id', 'system'], [tid, system.name])
     systems = wm.systems
     return render_template('systems.html', systems=systems, penalty=wm.settings['revert_penalty'], errors=errors)
+
+@app.route('/rtr', methods=['GET', 'POST'])
+@login_required
+@redteam_required
+def rtr():
+    """
+    Page for red team to claim access on systems.
+    """
+    systems = wm.systems
+    return render_template('rtr_systems.html', systems=systems)
+    
+@app.route('/rtr_overview', methods=['GET', 'POST'])
+@login_required
+@redorwhite_required
+def rtr_overview():
+    """
+    Render the password change request overview page.
+    """
+    user = flask_login.current_user
+    if request.method == 'GET':
+        orderby = 'submitted DESC'
+        rtr_ids = db.get('rtr', ['id'], orderby=orderby)
+        rtrs = [RedTeamReport.load(rtr_id) for rtr_id in rtr_ids ]
+        for rtr in rtrs:
+            where = 'id = ' + str(rtr.team_id)
+            rtr.team_num = db.get('team', ['team_num'], where=where)
+
+        return render_template('rtr_overview.html', rtrs=rtrs)
+     
+    elif request.method == 'POST':
+        rtr_id = request.form['reqId']
+        rtr = RedTeamReport.load(rtr_id)
+        if user.is_admin:
+            return render_template('access_denied.html')
+        else:
+            rtr.delete()
+        return redirect(url_for('rtr'))
+
+@app.route('/rtr_submit', methods=['GET', 'POST'])
+@login_required
+@redteam_required
+def rtr_submit():
+    """
+    Form for red team to claim access on systems.
+    """    
+    rtr_id = 0
+    success = False
+    if 'system_id' in request.args:    
+        system_id = request.args['system_id']
+    elif 'system_id' in request.form:
+        system_id = request.form['system_id']
+    form = RedTeamActionReportForm(wm)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            success = True
+            team_id = form.team.data
+            btype = form.btype.data
+            if btype == 'root':
+                point_penalty = 100
+            elif btype == 'user':
+                point_penalty = 25
+            elif btype == 'userids':
+                point_penalty = 50
+            elif btype == 'sensitive_files':
+                point_penalty = 25
+            elif btype == 'pii':
+                point_penalty = 200
+            elif btype == 'other':
+                point_penalty = 50
+            else:
+                point_penalty = 0
+
+            description = form.describe.data
+            rtr = RedTeamReport(team_id, int(REQStatus.PENDING), system_id, btype, description=description, point_penalty=point_penalty)
+            return redirect(url_for('rtr'))
+    return render_template('rtr_submit.html', form=form, rtr_id=rtr_id, success=success, system_id=system_id)     
+
+@app.route('/rtr_details', methods=['GET', 'POST'])
+@login_required
+@redorwhite_required
+def rtr_details():
+    """
+    Location to view and edit red team action reports.
+    """
+    user = flask_login.current_user
+    if request.method == 'GET':
+        rtr_id = request.args.get('id')
+        rtr = RedTeamReport.load(rtr_id)
+        domains = {d.id:d for d in wm.domains}
+        checks = {c.id:c for c in wm.checks}
+        return render_template('rtr_details.html', rtr=rtr, checks=checks, domains=domains)
+
+
+    elif request.method == 'POST':
+        rtr_id = request.form['reqId']
+        rtr = RedTeamReport.load(rtr_id)
+        if user.is_admin:
+            if 'approval' in request.form:
+                if request.form['approval'] == 'Approve':
+                    status = REQStatus.PENDING
+                    rtr.set_status(status)
+                    rtr.service_request()
+                else:
+                    status = REQStatus.DENIED
+                    rtr.set_status(status)
+            comment = request.form['admin_comment']
+            rtr.set_admin_comment(comment)
+        return redirect(url_for('rtr_details') + '?id={}'.format(rtr_id))
+
+@app.route('/ir', methods=['GET', 'POST'])
+@login_required
+def ir():
+    """
+    Systems for the blue team to file incident reports on.
+    """
+    return render_template('ir_systems.html')
+
+@app.route('/ir_overview', methods=['GET', 'POST'])
+@login_required
+def ir_overview():
+    """
+    Dashboard with incident reports information.
+    """
+    return render_template('ir_overview.html')
 
 @app.route('/revert_log', methods=['GET'])
 @login_required

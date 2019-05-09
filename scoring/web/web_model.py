@@ -27,14 +27,14 @@ class WebModel(DataModel):
             Dict(str->User): Mapping of usernames to User objects for users who can login to the web application.
         """
         users = {}
-        user_rows = db.get('users', ['username', 'team_id', 'is_admin'])
-        for user,team_id,is_admin in user_rows:
+        user_rows = db.get('users', ['username', 'team_id', 'is_admin', 'is_redteam'])
+        for user,team_id,is_admin,is_redteam in user_rows:
             teams_match = [t for t in teams if t.id == team_id]
             if len(teams_match) == 0:
                 team = None
             else:
                 team = teams_match[0]
-            users[user] = User(user, team, is_admin)
+            users[user] = User(user, team, is_admin, is_redteam)
         return users
 
     def latest_results(self):

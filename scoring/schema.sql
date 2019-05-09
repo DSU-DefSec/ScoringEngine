@@ -35,6 +35,7 @@ CREATE TABLE `users` (
     `password` CHAR(60) NOT NULL,
     `team_id` INT,
     `is_admin` BOOL NOT NULL,
+    `is_redteam` BOOL NOT NULL,
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
         ON DELETE CASCADE);
     
@@ -124,13 +125,26 @@ CREATE TABLE `pcr` (
     `completed` TIMESTAMP NULL,
     `status` INT NOT NULL,
     `creds` TEXT NOT NULL,
-    `team_comment` VARCHAR(4095) DEFAULT '',
-    `admin_comment` VARCHAR(4095) DEFAULT '',
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
        ON DELETE CASCADE,
     FOREIGN KEY (`check_id`) REFERENCES `service_check`(`id`)
        ON DELETE CASCADE,
     FOREIGN KEY (`domain_id`) REFERENCES `domain`(`id`)
+       ON DELETE CASCADE);
+
+DROP TABLE IF EXISTS `rtr`;
+CREATE TABLE `rtr` (
+    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `team_id` INT NOT NULL,
+    `system_id` VARCHAR(4095) DEFAULT '',
+    `btype` VARCHAR(4095) DEFAULT '',
+    `point_penalty` INT,
+    `submitted` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `completed` TIMESTAMP NULL,
+    `status` INT NOT NULL,
+    `description` VARCHAR(4095) DEFAULT '',
+    `admin_comment` VARCHAR(4095) DEFAULT '',
+    FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
        ON DELETE CASCADE);
 
 DROP TABLE IF EXISTS `default_creds_log`;

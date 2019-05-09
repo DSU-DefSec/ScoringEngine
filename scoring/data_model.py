@@ -51,9 +51,6 @@ class DataModel(object):
         settings['jitter'] = int(settings['polling_jitter'])
         settings['timeout'] = int(settings['polling_timeout'])
         settings['running'] = int(settings['running'])
-        settings['pcr_approval_window'] = int(settings['pcr_approval_window'])
-        settings['pcr_service_window'] = int(settings['pcr_service_interval'])
-        settings['pcr_service_jitter'] = int(settings['pcr_service_jitter'])
         settings['revert_penalty'] = int(settings['revert_penalty'])
 
         self.settings = settings

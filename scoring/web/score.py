@@ -59,3 +59,4 @@ def uptime(results):
         else:
             uptime[team_id][0] = round(total_good_checks/float(total_checks)*100, 2)
     return uptime
+

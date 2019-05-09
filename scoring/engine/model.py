@@ -334,41 +334,88 @@ class Result(object):
         self.result = result
 
 
-class PCRStatus(IntEnum):
+class REQStatus(IntEnum):
     COMPLETE = 0
     PENDING = 1
     APPROVAL = 2
     DENIED = 3
 
-class PasswordChangeRequest(object):
+class ScoringRequest(object):
+    """
+    A scoring request object. Superclass of PasswordChangeRequest, RedTeamReport, IncidentReport, and InjectTask.
+
+    Attributes
+        team_id (int): ID of the team that request is meant for
+        status (REQStatus): The status of the request
+        id (int): ID of the request
+        submitted (datetime): Submission time for the request
+        completed (datetime): Completition time for the request
+        
+    """
+    def __init__(self, team_id, status, id=None, submitted=None, completed=None):
+        self.id = id
+        self.team_id = team_id
+        if submitted is None:
+            self.submitted = datetime.datetime.now()
+        self.submitted = submitted
+        self.completed = completed
+        self.status = status
+
+    def load(db_id):
+        """
+        Load request from database.
+        """
+        raise NotImplementedError("load method is not implemented. Depends on data fields of requests.")
+
+    def save(self):
+        """
+        Save this new request to the database.
+        """
+        raise NotImplementedError("save method is not implemented. Depends on data fields of requests.")
+
+    def delete(self):
+        """
+        Delete this password change request from the database. The object should not be used after this method is called.
+        """
+        db.delete(self.dbname, [self.id], 'id=%s')
+
+    def set_status(self, new_status):
+        """
+        Set the status of the request, and update the database to reflect the new status
+
+        Arguments:
+            new_status (REQStatus): New status for the request
+        """
+        self.status = new_status
+        db.modify(self.dbname, 'status=%s', (int(self.status), self.id), where='id=%s')
+
+    def service_request(self):
+        """
+        Service this request, updating account credentials in the database, and updating the current status of the request
+        """
+        raise NotImplementedError("service_request is not implemented for the superclass.")
+
+
+class PasswordChangeRequest(ScoringRequest):
     """
     A password change request.
 
     Attributes:
-        
         team_id (int): ID of the team to change passwords for
-        status (PCRStatus): The status of the request
-        creds (List(str,str)): List of tuples (username, new_password)
-        check_id (int): ID of the service to change passwords for
-        domain_id (int): ID of the domain to change passwords for
+        status (REQStatus): The status of the request
         submitted (datetime): Submission time for the request
         completed (datetime): Completition time for the request
-        id (int): ID of the request
+        creds (List(str,str)): List of tuples (username, new_password)
+        id (int): ID of the request   
+        check_id (int): ID of the service to change passwords for
+        domain_id (int): ID of the domain to change passwords for
     """
-    def __init__(self, team_id, status, creds, id=None, check_id=None, domain_id=None, submitted=None, completed=None, team_comment='', admin_comment=''):
-        self.id = id
-        self.team_id = team_id
+    def __init__(self, team_id, status, creds, id=None, check_id=None, domain_id=None, submitted=None, completed=None):
+        ScoringRequest.__init__(self, team_id, status, id, submitted, completed)
         self.check_id = check_id
         self.domain_id = domain_id
-        if submitted is None:
-            submitted = datetime.datetime.now()
-        self.submitted = submitted
-        self.completed = completed
-        self.status = status
         self.creds = creds
-        self.team_comment = team_comment
-        self.admin_comment = admin_comment
-        
+        self.dbname = 'pcr'
         if id is None:
             self.save()
 
@@ -383,6 +430,136 @@ class PasswordChangeRequest(object):
             PasswordChangeRequest: The password change request with the given ID
         """
         pcr_data = db.get('pcr', ['*'], where='id=%s', args=[pcr_id])[0]
+        id, team_id, check_id, domain_id, submitted, completed, status, creds = pcr_data
+        creds = json.loads(creds)
+        pcr = PasswordChangeRequest(team_id, status, creds, id, check_id, domain_id, submitted, completed)
+        return pcr
+
+    def save(self):
+        """
+        Save this new password change request to the database.
+        """
+        columns = ['team_id', 'check_id', 'domain_id', 'submitted', 'completed', 'status', 'creds']
+        data = [self.team_id, self.check_id, self.domain_id, self.submitted, self.completed, int(self.status), json.dumps(self.creds)]
+        self.id = db.insert(self.dbname, columns, data)
+
+    def service_request(self):
+        """
+        Service this request, updating account credentials in the database, and updating the current status of the request
+        """
+        for cred in self.creds:
+            username, password = cred
+            db.set_credential_password(username, password, self.team_id, self.check_id, self.domain_id)
+        self.completed = datetime.datetime.now()
+        db.modify(self.dbname, 'completed=%s', (self.completed, self.id), where='id=%s')
+        self.set_status(REQStatus.COMPLETE)
+
+
+class RedTeamReport(ScoringRequest):
+    """
+    A submission of a red team action report.
+
+    Attributes:
+        team_id (int): ID of the team that the request is for # todo: make this range so red teamers don't have to go one by one for a large exploit
+        status (REQStatus): The status of the request
+        system_id (String): Name of the system compromised
+        btype (String): Type of breach
+        point_penalty (int): Point penalty of the red team action
+        submitted (datetime): Submission time for the request
+        completed (datetime): Completition time for the request
+        description (String): Description of breach
+        id (int): ID of the request
+        admin_comment (str): String of admin's comment on the report
+    """
+    def __init__(self, team_id, status, system_id, btype, point_penalty=0, submitted=None, completed=None, id=None, description='', admin_comment=''):
+        ScoringRequest.__init__(self, team_id, status, id, submitted, completed)
+        self.system_id = system_id
+        self.btype = btype
+        self.description = description;
+        self.point_penalty = point_penalty
+        self.admin_comment = admin_comment
+        self.dbname = 'rtr'
+        if id is None:
+            self.save()
+
+    def load(rtr_id):
+        """
+        Load a RedTeamRequest with the given ID.
+
+        Arguments:
+            rtr_id (int): ID of RedTeamRequest in database
+
+        Returns:
+            RedTeamRequest: The report with the given ID
+        """
+        rtr_data = db.get('rtr', ['*'], where='id=%s', args=[rtr_id])[0]
+        id, team_id, system_id, btype, point_penalty, submitted, completed, status, description, admin_comment = rtr_data
+        rtr = RedTeamReport(team_id, status, system_id, btype, point_penalty, submitted, completed, id, description, admin_comment)
+        return rtr
+
+    def save(self):
+        """
+        Save this new red team report to the database.
+        """
+        columns = ['team_id', 'system_id', 'btype', 'point_penalty', 'submitted', 'completed', 'status', 'description', 'admin_comment']
+        data = [self.team_id, self.system_id, self.btype, self.point_penalty, self.submitted, self.completed, int(self.status), self.description, self.admin_comment]
+        self.id = db.insert(self.dbname, columns, data)
+
+    def set_admin_comment(self, admin_comment):
+        """
+        Set the admin comment for this request and save it to the database.
+
+        Arguments:
+            admin_comment (str): New admin comment
+        """
+        self.admin_comment = admin_comment
+        db.modify(self.dbname, 'admin_comment=%s', (admin_comment, self.id), where='id=%s')
+
+    def service_request(self):
+        """
+        Service this request, applying or denying the point deduction and updating the status.
+        """           
+        # code to update score here upon white team approval
+        self.completed = datetime.datetime.now()
+        db.modify(self.dbname, 'completed=%s', (self.completed, self.id), where='id=%s')
+        self.set_status(REQStatus.COMPLETE)
+
+
+class IncidentReport(ScoringRequest):
+    """
+    A submission of a blue team incident report.
+
+    Attributes:
+        team_id (int): ID of the team that the request is for # todo: make this range so red teamers don't have to go one by one for a large exploit
+        status (REQStatus): The status of the request
+        submitted (datetime): Submission time for the request
+        completed (datetime): Completition time for the request
+        id (int): ID of the request
+        point_penalty (int): Point penalty of the red team action
+        system_id (int): ID of the system compromised
+        team_comment (str): String of team's comment on RTR
+        admin_comment (str): String of admin's comment on RTR
+    """
+    def __init__(self, team_id, status, creds, id=None, check_id=None, domain_id=None, submitted=None, completed=None, team_comment='', admin_comment=''):
+        ScoringRequest.__init__(self, team_id, status, id, submitted, completed)
+        self.system_id = check_id
+        self.team_comment = team_comment
+        self.admin_comment = admin_comment
+        self.dbname = 'rtr'
+        if id is None:
+            self.save()
+
+    def load(rtr_id):
+        """
+        Load a RedTeamRequest with the given ID.
+
+        Arguments:
+            rtr_id (int): ID of RedTeamRequest in database
+
+        Returns:
+            PasswordChangeRequest: The password change request with the given ID
+        """
+        pcr_data = db.get('rtr', ['*'], where='id=%s', args=[pcr_id])[0]
         id, team_id, check_id, domain_id, submitted, completed, status, creds, team_comment, admin_comment = pcr_data
         creds = json.loads(creds)
         pcr = PasswordChangeRequest(team_id, status, creds, id, check_id, domain_id, submitted, completed, team_comment, admin_comment)
@@ -394,52 +571,7 @@ class PasswordChangeRequest(object):
         """
         columns = ['team_id', 'check_id', 'domain_id', 'submitted', 'completed', 'status', 'creds']
         data = [self.team_id, self.check_id, self.domain_id, self.submitted, self.completed, int(self.status), json.dumps(self.creds)]
-        self.id = db.insert('pcr', columns, data)
-
-    def delete(self):
-        """
-        Delete this password change request from the database. The object should not be used after this method is called.
-        """
-        db.delete('pcr', [self.id], 'id=%s')
-
-    def conflicts(self, window):
-        """
-        Is there an account conflict for requests submitted in the window of time before this request.
-
-        Arguments:
-            window (int): Window for flagging conflicting requests in minutes
-
-        Returns:
-            bool: Does this request conflict with an earlier one?
-        """
-        # Load list of possible conflicting password change requests
-        where = 'id != %s AND team_id = %s AND status != %s '
-        if self.check_id is None:
-            where += 'AND check_id is %s AND domain_id = %s'
-        else:
-            where += 'AND check_id = %s AND domain_id is %s'
-
-        pcr_ids = db.get('pcr', ['id'], where=where, args=[self.id, self.team_id, int(PCRStatus.DENIED), self.check_id, self.domain_id])
-        pcrs = [PasswordChangeRequest.load(pcr_id) for pcr_id in pcr_ids]
-        # Check list for conflicts
-        window = datetime.timedelta(minutes=window)
-        users = [cred[0] for cred in self.creds]
-        for pcr in pcrs:
-            if pcr.submitted + window >= self.submitted:
-                for cred in pcr.creds:
-                    if cred[0] in users:
-                        return True
-        return False
-
-    def set_status(self, new_status):
-        """
-        Set the status of the request, and update the database to reflect the new status
-
-        Arguments:
-            new_status (PCRStatus): New status for the request
-        """
-        self.status = new_status
-        db.modify('pcr', 'status=%s', (int(self.status), self.id), where='id=%s')
+        self.id = db.insert(self.dbname, columns, data)
 
     def set_team_comment(self, team_comment):
         """
@@ -449,7 +581,7 @@ class PasswordChangeRequest(object):
             team_comment (str): New team comment
         """
         self.team_comment = team_comment
-        db.modify('pcr', 'team_comment=%s', (team_comment, self.id), where='id=%s')
+        db.modify(self.dbname, 'team_comment=%s', (team_comment, self.id), where='id=%s')
 
     def set_admin_comment(self, admin_comment):
         """
@@ -459,15 +591,14 @@ class PasswordChangeRequest(object):
             admin_comment (str): New admin comment
         """
         self.admin_comment = admin_comment
-        db.modify('pcr', 'admin_comment=%s', (admin_comment, self.id), where='id=%s')
+        db.modify(self.dbname, 'admin_comment=%s', (admin_comment, self.id), where='id=%s')
 
     def service_request(self):
         """
-        Service this request, updating account credentials in the database, and updating the current status of the request
-        """
-        for cred in self.creds:
-            username, password = cred
-            db.set_credential_password(username, password, self.team_id, self.check_id, self.domain_id)
+        Service this request, applying or denying the point deduction and updating the status.
+        """           
+        # code to update score here
         self.completed = datetime.datetime.now()
-        db.modify('pcr', 'completed=%s', (self.completed, self.id), where='id=%s')
-        self.set_status(PCRStatus.COMPLETE)
+        db.modify(self.dbname, 'completed=%s', (self.completed, self.id), where='id=%s')
+        self.set_status(REQStatus.COMPLETE)
+

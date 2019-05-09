@@ -2,6 +2,7 @@
 
 {% block content %}
 
+<br>
 <h3 class="text-center">Password Change Request Details</h3>
 
 <div class="col-8 offset-2">
@@ -82,42 +83,5 @@ window.onload = function () {
 }
 </script>
 
-<form method="post" action="pcr_details">
-<div class="border rounded" id="comment_container">
-    <div class="float-right col-6 mt-1">
-        <span class=""><strong><u>Admin Comments</u></strong></span>
-        {% if current_user.is_admin %}
-        <textarea name="admin_comment" id="admin_comment" class="col-12" style="height:100%; resize:none;" onkeyup="textAreaAdjust(this)">{{ pcr.admin_comment }}</textarea>
-        {% else %}
-        <p class="">{{ pcr.admin_comment }}</p>
-        {% endif %}
-    </div>
-    
-    <div class="col-6 mt-1">
-        <span class=""><strong><u>Team Comments</u></strong></span>
-        {% if not current_user.is_admin %}
-        <textarea name="team_comment" id="team_comment" class="col-12" style="height:100%; resize:none;" onkeyup="textAreaAdjust(this)">{{ pcr.team_comment }}</textarea>
-        {% else %}
-        <p class="">{{ pcr.team_comment }}</p>
-        {% endif %}
-    </div>
-</div>
-
-    <input type="hidden" id="reqId" name="reqId" value="{{pcr.id}}"/>
-    {% if current_user.is_admin %}
-    <div class="jusitfy-content-center">
-        <div class="col-6 float-right">
-            <input type="submit" name="approval" value="Deny" class="mt-1 mb-5 col-12 btn btn-danger"/>
-        </div>
-        <div class="col-6">
-            <input type="submit" name="approval" value="Approve" class="mt-1 mb-5 col-12 btn btn-success"/>
-        </div>
-    </div>
-    {% else %}
-    <div class="col-12">
-        <input type="submit" value="Save Comments" class="col-12 btn btn-success"/>
-    </div>
-    {% endif %}
-</form>
 
 {% endblock %}

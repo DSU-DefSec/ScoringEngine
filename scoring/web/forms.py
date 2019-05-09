@@ -77,6 +77,30 @@ class PasswordChangeForm(FlaskForm):
                 Regexp('^(.*[^\s]+:[^\s]+.*(\r\n)*)+$',
                     message='Invalid format: Use user:password, one per line')]
 
+class RedTeamActionReportForm(FlaskForm):
+    """
+    A form for the red team to claim access on a box.
+
+    Attributes:
+        team (SelectField): Field for selecting the credential's team
+        btype (SelectField): Field for selecting the type of breach
+        describe (TextAreaField): Field for selecting the credential's domain
+        wm (WebModel): The web model
+    """
+    team = SelectField('Team', coerce=int)
+    btype = SelectField('Type of Action')
+    describe = TextAreaField('Description of Action')
+    # Todo: add file upload (flask-upload?)
+
+    def __init__(self, wm):
+        super(RedTeamActionReportForm, self).__init__()
+        self.wm = wm
+
+        # Add options
+        self.team.choices=[(t.id, t.name) for t in wm.teams]
+        self.btype.choices=[('root', 'Obtained root level access'), ('user', 'Obtained user level access'), ('userids', 'Obtained userids and passwords (encrypted or unencrypted)'), ('sensitive_files', 'Recovered sensitive files or pieces of information'), ('pii', 'Recovered customer PII from system'), ('other', 'Other')]
+
+
 class PasswordResetForm(FlaskForm):
     """
     A form for reseting a web user's password

@@ -75,6 +75,8 @@ This project is composed of a few important parts.
 
 Load a config with `./scoring/load_config.py [CONFIG_FILE]`. This will wipe the previous database.
 
+The white team user is `admin`. The red team user is `redteam`. These usernames have specific privileges. All users should be teams, specified in the teams section.
+
 ### Config file format
 
 The Scoring Engine is configured using a `yaml` config file. A few sample configs can be found in `configs/`. A basic configuration might look like:
@@ -88,13 +90,10 @@ settings:
         interval: 150
         jitter: 30
         timeout: 20
-    pcr:
-        approval_window: 0
-        service_interval: 0
-        service_jitter: 0
 
 web_admins:
     admin: adminPassword # Password for web interface
+    redteam: redteamPassword
 
 teams:
     Team1: # Team number and password. Can add multiple teams. Number is used to determine subnet.
@@ -123,7 +122,6 @@ vapps:
                                     attributes: [objectGUID]
                                 output:
                                     objectGUID: [mKE1LEJ7jESXEyETKW8Zww==]
-
 
 
 credentials:

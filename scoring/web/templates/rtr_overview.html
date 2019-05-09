@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block pcr %}active{% endblock %}
+{% block rtr %}active{% endblock %}
 {% block head %}<meta http-equiv="refresh" content="30">{% endblock %}
 
 {% block content %}
@@ -13,56 +13,53 @@
 
 <table class="table">
     <thead>
-        {% if current_user.is_admin %}
         <th>Team Number</th>
-        {% endif %}
         <th>Submission Time</th>
         <th>Completion Time</th>
-        <th>Domain/Service</th>
+        <th>System</th>
+        <th>Penalty</th>
         <th>Status</th>
-        <th>
-            <a href="{{ url_for('new_pcr') }}" class="btn btn-success">
+        {% if current_user.is_redteam %}        
+	    <th>
+            <a href="{{ url_for('rtr') }}" class="btn btn-success">
                 New Request
             </a>
         </th>
+        {% endif %}
     </thead>
     <tbody>
-        {% for pcr in pcrs %}
+        {% for rtr in rtrs %}
         <tr>
-            {% if current_user.is_admin %}
-            <td>{{ pcr.team_num[0][0] }}</td>
-            {% endif %}
-            <td>{{ pcr.submitted }}</td>
+            <td>{{ rtr.team_num[0][0] }}</td>
+            <td>{{ rtr.submitted }}</td>
             <td>
-            {% if pcr.completed is none %}
+            {% if rtr.completed is none %}
                 -
             {% else %}
-                {{ pcr.completed }}
+                {{ rtr.completed }}
             {% endif %}
             </td>
             <td>
-            {% if pcr.check_id is none %}
-                {{ domains[pcr.domain_id] }}
-            {% else %}
-                {% set c = checks[pcr.check_id] %}
-                {{ c.name }}
-            {% endif %}
+            {{ rtr.system_id }}
             </td>
-            {% if pcr.status == 0 %}
+            <td>
+            {{ rtr.point_penalty }}
+            </td>
+            {% if rtr.status == 0 %}
             <td class="text-success"><strong>Complete</strong></td>
-            {% elif pcr.status == 1 %}
+            {% elif rtr.status == 1 %}
             <td class="text-primary"><strong>Pending</strong></td>
-            {% elif pcr.status == 2 %}
+            {% elif rtr.status == 2 %}
             <td class="text-warning"><strong>Awaiting Approval</strong></td>
-            {% elif pcr.status == 3 %}
+            {% elif rtr.status == 3 %}
             <td class="text-danger"><strong>Denied</strong></td>
             {% endif %}
             <td>
-                <a href="{{ url_for('pcr_details') }}?id={{pcr.id}}" class="btn btn-primary">
+                <a href="{{ url_for('rtr_details') }}?id={{rtr.id}}" class="btn btn-primary">
                     View
                 </a>
-                {% if not current_user.is_admin and pcr.status != 0 %}
-                    <button class="btn btn-danger" onclick='clickDelete({{pcr.id}})'>
+                {% if rtr.status == 1 and current_user.is_redteam %}
+                    <button class="btn btn-danger" onclick='clickDelete({{rtr.id}})'>
                         <i class="fas fa-trash"></i>
                     </button>
                 {% endif %}
@@ -82,10 +79,10 @@
         </button>
       </div>
       <div class="modal-body">
-        Are you sure you want to delete this password change request?
+        Are you sure you want to delete this red team report?
       </div>
       <div class="modal-footer">
-        <form method="post" action="{{ url_for('pcr') }}" id="delete-pcr">
+        <form method="post" action="{{ url_for('rtr_overview') }}" id="delete-rtr">
             <input type="hidden" id="reqId" name="reqId" value="0"/>
             <button type="submit" class="btn btn-danger">Delete</button>
         </form>

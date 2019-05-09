@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block systems %}active{% endblock %}
+
+{% block content %}
+
+
+<br/>
+<h1>Claim Access to Systems</h1>
+<br/>
+
+{% if success %}
+<div class="alert alert-success">
+    <strong>Successfully submitted!</strong>
+</div>
+{% endif %}
+
+<style>
+#system-table {
+    width:75%;
+    margin: auto;
+}
+
+#system-table td,th {
+    font-weight: bold;
+}
+
+#system-table button {
+    display: block;
+}
+</style>
+
+<table class="table" id="system-table">
+    <thead class="thead-dark">
+        <th>System</th>
+        <th>Claim Access</th>
+        <th>Previous Reports</th>
+    </thead>
+    <tbody>
+        {% for system in systems %}
+        <tr>
+            <td>{{ system.name }}</td>
+            <td>
+                <form method="get" action="{{ url_for('rtr_submit') }}">
+                    <input type="hidden" id="system" name="system_id" value="{{ system.name }}"/>
+                    <button type="submit" class="btn btn-success">Submit Action Report</button>
+                </form>                    
+            </td>
+            <td>
+                <form action="{{ url_for('rtr_overview') }}" method="get">
+                    <button class="btn btn-primary">
+                        View Reports
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

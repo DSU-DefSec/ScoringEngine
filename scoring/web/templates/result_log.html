@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<br>
 <h1>Result Log</h1>
 
-<img src={{ url_for('static', filename='imgs/'+fname) }}/>
 
 <table class="table">
 <thead>
@@ -24,7 +24,7 @@
     <td>
     <ul>
     {% for key, value in r.poll_input.attrs().items() %}
-        <li>{{ key }}:{{ value }}</li>
+        <li>{{ key }}: {{ value }}</li>
     {% endfor %}
     </ul>
     </td>
@@ -33,9 +33,9 @@
     {% for key, value in r.poll_result.items() %}
         {% if key != 'exception' %}
             {% if key == 'file_name' and not value is none %}
-            <li>{{ key }}:<a href="{{ url_for('static', filename=value) }}">{{ value }}</a></li>
+            <li>{{ key }}: <a href="{{ url_for('static', filename=value) }}">{{ value }}</a></li>
             {% else %}
-            <li>{{ key }}:{{ value }}</li>
+            <li>{{ key }}: {{ value }}</li>
             {% endif %}
         {% endif %}
     {% endfor %}
