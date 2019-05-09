@@ -24,6 +24,7 @@ class ScoringEngine(object):
 
             if running:
                 self.log_default_creds()
+                self.log_score()
                 self.check()
             else:
                 print("Stopped")
@@ -53,6 +54,11 @@ class ScoringEngine(object):
         cmd = ('INSERT INTO default_creds_log (team_id, perc_default) '
                 'SELECT team_id,AVG(is_default) FROM credential GROUP BY team_id')
         db.execute(cmd)
+
+    def log_score(self):
+        rows = db.getall('team')
+        for team_id, name, team_num, service_points, sla_violations, inject_points, redteam_points, ir_points in rows:
+            db.insert('score_log', ['team_id', 'service_points', 'sla_violations', 'inject_points', 'redteam_points', 'ir_points'], (team_id, service_points, sla_violations, inject_points, redteam_points, ir_points,))          
 
 
 if __name__ == '__main__':

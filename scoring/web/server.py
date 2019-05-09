@@ -244,6 +244,23 @@ def score():
     """
     Score information page
     """
+  
+    # tests n stuff
+    megastring = ''
+
+    rows = db.getall('team')
+    for team_id, name, team_num, service_points, sla_violations, inject_points, redteam_points, ir_points in rows:
+        megastring += '<br><strong>Team ' + str(team_num) + ':</strong><br><br>'
+        megastring += '<i>Service points gained:</i> ' + str(service_points) + '<br>'
+        megastring += '<i>SLA violation points lost:</i> ' + str(sla_violations) + '<br>'
+        megastring += '<i>Inject points gained:</i> ' + str(inject_points) + '<br>'
+        megastring += '<i>Red team points lost:</i> ' + str(redteam_points) + '<br>'
+        megastring += '<i>Incident report points gained:</i> ' + str(ir_points) + '<br><br>'
+        megastring += '    TOTAL SCORE: ' + str((service_points + inject_points) - (sla_violations + (redteam_points - ir_points))) + '<br>'
+
+    return megastring
+
+    # sorry to nic's code below
     start = request.args.get('start')
     end = request.args.get('end')
     today = datetime.datetime.today()
@@ -429,14 +446,15 @@ def rtr_details():
         rtr_id = request.form['reqId']
         rtr = RedTeamReport.load(rtr_id)
         if user.is_admin:
-            if 'approval' in request.form:
-                if request.form['approval'] == 'Approve':
-                    status = REQStatus.PENDING
-                    rtr.set_status(status)
-                    rtr.service_request()
-                else:
-                    status = REQStatus.DENIED
-                    rtr.set_status(status)
+            if rtr.status == REQStatus.PENDING or rtr.status == REQStatus.APPROVAL:
+                if 'approval' in request.form:
+                    if request.form['approval'] == 'Approve':
+                        status = REQStatus.PENDING
+                        rtr.set_status(status)
+                        rtr.service_request(wm.teams[rtr.team_id-1])
+                    else:
+                        status = REQStatus.DENIED
+                        rtr.set_status(status)
             comment = request.form['admin_comment']
             rtr.set_admin_comment(comment)
         return redirect(url_for('rtr_details') + '?id={}'.format(rtr_id))
@@ -494,8 +512,11 @@ def get_slas():
 
 @app.route('/sla/log', methods=['GET'])
 @login_required
+@deny_redteam
 def sla_log():
     slas = get_slas()
+
+    user = flask_login.current_user
 
     cs = {}
     for check in wm.checks:
@@ -505,6 +526,7 @@ def sla_log():
 
 @app.route('/sla/totals', methods=['GET'])
 @login_required
+@deny_redteam
 def sla_totals():
     cs = {}
     for check in wm.checks:
@@ -522,3 +544,4 @@ def sla_totals():
             totals[team.id][check_id] += 1
 
     return render_template('sla_totals.html', totals=totals, checks=cs)
+

@@ -22,11 +22,15 @@ CREATE TABLE `system` (
         ON DELETE CASCADE);
 
 DROP TABLE IF EXISTS `team`;
-CREATE TABLE `team` (
+CREATE TABLE `team` ( 
     `id` INT PRIMARY KEY AUTO_INCREMENT,
     `name` VARCHAR(255) NOT NULL UNIQUE,
-    `team_num` INT NOT NULL UNIQUE
-    );
+    `team_num` INT NOT NULL UNIQUE,
+    `service_points` INT,
+    `sla_violations` INT,
+    `inject_points` INT,
+    `redteam_points` INT,
+    `ir_points` INT);
         
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
@@ -136,8 +140,8 @@ DROP TABLE IF EXISTS `rtr`;
 CREATE TABLE `rtr` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `team_id` INT NOT NULL,
-    `system_id` VARCHAR(4095) DEFAULT '',
-    `btype` VARCHAR(4095) DEFAULT '',
+    `system_id` VARCHAR(255) DEFAULT '',
+    `btype` VARCHAR(255) DEFAULT '',
     `point_penalty` INT,
     `submitted` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `completed` TIMESTAMP NULL,
@@ -152,6 +156,18 @@ CREATE TABLE `default_creds_log` (
     `time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `team_id` INT NOT NULL,
     `perc_default` DOUBLE NOT NULL,
+    FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
+        ON DELETE CASCADE);
+
+DROP TABLE IF EXISTS `score_log`;
+CREATE TABLE `score_log` (
+    `time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `team_id` INT NOT NULL,
+    `service_points` INT,
+    `sla_violations` INT,
+    `inject_points` INT,
+    `redteam_points` INT,
+    `ir_points` INT,
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
         ON DELETE CASCADE);
 

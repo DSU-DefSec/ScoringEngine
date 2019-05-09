@@ -64,7 +64,7 @@ class DataModel(object):
         """
         teams = {}
         rows = db.getall('team')
-        for team_id, name, team_num in rows:
+        for team_id, name, team_num, service_points, sla_violations, inject_points, redteam_points, ir_points in rows:
             team = Team(team_id, name, team_num)
             teams[team_id] = team
         return teams

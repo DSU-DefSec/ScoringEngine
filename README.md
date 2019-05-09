@@ -25,7 +25,7 @@ This project is composed of a few important parts.
         └── ...
     ├── configs # Contains example configurations. Write yours in here.
         └── ...
-    ├── data_model.py # class that lays out "DataModel" object. Stores all data and manages db
+    ├── data_model.py # class that creates all databse objects and creates the objects upon restart from database
     ├── db.creds
     ├── db.py # Contains functions for MySQL database access
     ├── db_writer.py # Contains specialized functions for writing scoring data to database
@@ -70,6 +70,7 @@ This project is composed of a few important parts.
 
 ## Checks and Polls
 
+## Database setup
 
 ## Configuration
 

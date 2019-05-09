@@ -70,7 +70,7 @@ def write_teams(teams):
     team_ids = {}
     for name, team_data in teams.items():
         team_num = team_data['team_num']
-        db_id = db.insert('team', ['name', 'team_num'], (name, team_num,))
+        db_id = db.insert('team', ['name', 'team_num', 'service_points', 'sla_violations', 'inject_points', 'redteam_points', 'ir_points'], (name, team_num,0,0,0,0,0,))
         team_ids[name] = db_id
     return team_ids
 

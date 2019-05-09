@@ -97,6 +97,7 @@ window.onload = function () {
 
     <input type="hidden" id="reqId" name="reqId" value="{{rtr.id}}"/>
     {% if current_user.is_admin %}
+    {% if rtr.status == 1 or rtr.status == 2 %}
     <div class="jusitfy-content-center">
         <div class="col-6 float-right">
             <input type="submit" name="approval" value="Deny" class="mt-1 mb-5 col-12 btn btn-danger"/>
@@ -105,11 +106,13 @@ window.onload = function () {
             <input type="submit" name="approval" value="Approve" class="mt-1 mb-5 col-12 btn btn-success"/>
         </div>
     </div>
+    {% endif %}
 
     <div class="col-12">
         <input type="submit" value="Save Comments" class="col-12 btn btn-success"/>
     </div>
     {% endif %}
+
    
 </form>
 

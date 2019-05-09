@@ -1,10 +1,10 @@
+from threading import Thread
+from enum import IntEnum
+import datetime
 import random
 import copy
 import json
 import db
-from threading import Thread
-from enum import IntEnum
-import datetime
 
 class Team(object):
     """
@@ -13,9 +13,14 @@ class Team(object):
     Attributes:
         id (int): ID of the team in the database
         name (str): Name of the team
-        subnet (IP): Subnet of the team
-        netmask (IP): Netmask of the subnet
-        vapp (str): Name of team vApp
+        team_num (int): Team number
+        
+        In database only (avoid different threads having different versions of object):
+        service_points (int): Service points gained
+        sla_violations (int): SLA violation points lost
+        inject_points (int): Inject points gained
+        redteam_points (int): Red team report points lost
+        ir_points (int): Incident report points gained
     """
     def __init__(self, id, name, team_num):
         self.id = int(id)
@@ -126,6 +131,8 @@ class System(object):
         octets[3] = str(self.host)
         ip = '.'.join(octets)
         return ip
+
+    #def get_ip(self, team_num): increment sla counter and add to db. if 6, then decrement team sla counter by 20 d
 
     def __str__(self):
         return self.name
@@ -515,15 +522,16 @@ class RedTeamReport(ScoringRequest):
         self.admin_comment = admin_comment
         db.modify(self.dbname, 'admin_comment=%s', (admin_comment, self.id), where='id=%s')
 
-    def service_request(self):
+    def service_request(self, team):
         """
         Service this request, applying or denying the point deduction and updating the status.
         """           
-        # code to update score here upon white team approval
+        updated_redteam_points = db.get('team', ['redteam_points'], where='id=%s', args=(team.id))[0][0] + self.point_penalty
+        db.modify('team', 'redteam_points=%s', (updated_redteam_points, team.id), where='id=%s')
+        db.execute(cmd)
         self.completed = datetime.datetime.now()
         db.modify(self.dbname, 'completed=%s', (self.completed, self.id), where='id=%s')
         self.set_status(REQStatus.COMPLETE)
-
 
 class IncidentReport(ScoringRequest):
     """
@@ -597,7 +605,7 @@ class IncidentReport(ScoringRequest):
         """
         Service this request, applying or denying the point deduction and updating the status.
         """           
-        # code to update score here
+        # code
         self.completed = datetime.datetime.now()
         db.modify(self.dbname, 'completed=%s', (self.completed, self.id), where='id=%s')
         self.set_status(REQStatus.COMPLETE)
