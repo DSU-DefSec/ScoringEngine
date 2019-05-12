@@ -1,5 +1,6 @@
 from threading import Thread
 from enum import IntEnum
+from time import sleep
 import datetime
 import random
 import copy
@@ -131,8 +132,6 @@ class System(object):
         octets[3] = str(self.host)
         ip = '.'.join(octets)
         return ip
-
-    #def get_ip(self, team_num): increment sla counter and add to db. if 6, then decrement team sla counter by 20 d
 
     def __str__(self):
         return self.name
@@ -450,16 +449,22 @@ class PasswordChangeRequest(ScoringRequest):
         data = [self.team_id, self.check_id, self.domain_id, self.submitted, self.completed, int(self.status), json.dumps(self.creds)]
         self.id = db.insert(self.dbname, columns, data)
 
-    def service_request(self):
-        """
-        Service this request, updating account credentials in the database, and updating the current status of the request
-        """
+
+    def accept_request(self):
+        sleep(random.randint(20, 40))
         for cred in self.creds:
             username, password = cred
             db.set_credential_password(username, password, self.team_id, self.check_id, self.domain_id)
         self.completed = datetime.datetime.now()
         db.modify(self.dbname, 'completed=%s', (self.completed, self.id), where='id=%s')
         self.set_status(REQStatus.COMPLETE)
+
+    def service_request(self):
+        """
+        Service this request, updating account credentials in the database, and updating the current status of the request
+        """
+        pcr_servicer = Thread(target=self.accept_request())
+        pcr_servicer.start()
 
 
 class RedTeamReport(ScoringRequest):

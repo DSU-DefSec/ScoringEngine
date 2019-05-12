@@ -11,6 +11,20 @@
     <canvas id="canvas"></canvas>
 </div>
 
+
+
+<table class="table" hidden="true">
+    <tbody>
+        {% for team_id in defaults.keys() %}
+        <tr>
+            <td id="def-{{team_id}}">
+                {{defaults[team_id]}}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 <table class="table" hidden="true">
     <tbody>
         {% for team_id in defaults.keys() %}

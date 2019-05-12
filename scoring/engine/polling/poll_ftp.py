@@ -1,6 +1,7 @@
 import ftplib
 from .poller import PollInput, PollResult
 from .file_poller import FilePoller
+import time, timeout_decorator
 
 class FtpPollInput(PollInput):
     """Wrapper for the inputs to a FtpPoller.
@@ -27,6 +28,8 @@ class FtpPollResult(PollResult):
 class FtpPoller(FilePoller):
     """
     """
+
+    @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
         username = poll_input.credentials.username
         password = poll_input.credentials.password

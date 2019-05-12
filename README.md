@@ -60,7 +60,7 @@ This project is composed of a few important parts.
 
 3. Create database `scoring` in mysqld (`CREATE DATABASE scoring;`). Set up the database with schema with `mysql -u root -p < ./scoring/schema.sql`.
      
-4. Input your MySQL credentials (username and password separated by newline) in `./scoring/db.creds`.
+4. Input your MySQL credentials (host, username, and password separated by newline) in `./scoring/db.creds`.
 
 5. Write the configuration file, and load it into the database (see below).
 
@@ -70,7 +70,11 @@ This project is composed of a few important parts.
 
 ## Checks and Polls
 
-## Database setup
+todo
+
+## Database Description
+
+todo
 
 ## Configuration
 

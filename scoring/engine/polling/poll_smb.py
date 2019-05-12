@@ -1,5 +1,5 @@
 import socket
-
+import time, timeout_decorator
 from .poller import PollInput, PollResult
 from .file_poller import FilePoller
 import subprocess
@@ -20,6 +20,7 @@ class SmbPollResult(PollResult):
 
 class SmbPoller(FilePoller):
 
+    @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
         username = poll_input.credentials.username
         password = poll_input.credentials.password

@@ -3,6 +3,7 @@ from requests.exceptions import *
 import re
 from .poller import PollInput, PollResult, Poller
 from .file_poller import FilePoller
+import time, timeout_decorator
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -23,6 +24,7 @@ class HttpPollResult(PollResult):
 
 class HttpPoller(FilePoller):
     
+    @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
         try:
             proto = poll_input.proto

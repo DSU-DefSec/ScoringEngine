@@ -1,5 +1,5 @@
-from ..timeout import timeout
 import copy
+import time, timeout_decorator
 
 class PollInput(object):
     """Wrapper for the inputs to a Poller.
@@ -77,7 +77,7 @@ class PollResult(object):
 
 class Poller(object):
     """
-    
+    Superclass to all poll objects.
     """
     def poll_timed(self, poll_input):
         try:
@@ -85,8 +85,8 @@ class Poller(object):
         except Exception as e:
             poll_result = PollResult(e)
         return poll_result
-
-    @timeout(20)
+        
+    @timeout_decorator.timeout(10)
     def poll(self, poll_input):
         """Poll a service and return a PollResult.
 
@@ -96,3 +96,4 @@ class Poller(object):
         Returns:
             PollResult: Results of polling the service
         """
+        raise NotImplementedError("Poll is not implemented in superclass.")

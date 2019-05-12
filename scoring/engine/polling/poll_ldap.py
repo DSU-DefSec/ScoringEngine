@@ -1,6 +1,6 @@
 import ldap
-
 from .poller import PollInput, PollResult, Poller
+import time, timeout_decorator
 
 class LdapPollInput(PollInput):
 
@@ -18,6 +18,7 @@ class LdapPollResult(PollResult):
 
 class LdapPoller(Poller):
 
+    @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
         username = poll_input.credentials.username
         password = poll_input.credentials.password

@@ -320,6 +320,35 @@ def default():
 
     return render_template('default.html', defaults=defaults, teams=teams)
 
+@app.route('/reporting/all', methods=['GET'])
+@login_required
+@redorwhite_required
+def score_all(): # TODO
+    """
+    Scoring information for every score factor for each team.
+    """
+    # add get input validation for tid
+    teams = {}
+    #for team in wm.teams:
+    #    teams[team.id] = team.name
+
+    # add teams selector above. for now, just team 1
+
+    #team_id = int(request.args.get('tid'))
+    team_id=1    
+    defaults = {}
+    #for team_id in teams.keys():
+    # for now, just sla violations
+    teams[1] = 'Team1'
+
+    res = db.get('score_log', ['time', 'sla_violations'], where='team_id=%s', args=(team_id,))
+    res = list(res)
+    for i in range(len(res)):
+        res[i] = [res[i][0].strftime('%Y-%m-%d %H:%M:%S'), res[i][1]]
+    defaults[team_id] = res
+
+    return render_template('score_all.html', defaults=defaults, teams=teams)
+
 @app.route('/systems', methods=['GET', 'POST'])
 @login_required
 def systems():
@@ -488,7 +517,8 @@ def revert_log():
         reverts = db.get('revert_log', ['*'], where='team_id=%s', orderby='time DESC', args=(current_user.team.id,))
     return render_template('revert_log.html', teams=teams, reverts=reverts)
 
-def get_team_slas(team_id):
+def get_team_slas(team_id): # This code is redundant with that in scoring_engine. Find a better wayt to calc and store slas?
+                            # Could create sla database and store per team, or add team values to system rather than calculating from result log
     results = db.get('result', ['time', 'check_id', 'result'], where='team_id=%s', orderby='time ASC', args=(team_id,))
     down_counts = {}
     slas = []

@@ -3,9 +3,8 @@ settings:
     revert_penalty: 350
     webserver_ip: 10.1.0.5
     polling:
-        interval: 150
-        jitter: 30
-        timeout: 20
+        interval: 30
+        jitter: 5
 
 web_users:
     admin: TripleWater

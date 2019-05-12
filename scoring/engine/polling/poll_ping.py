@@ -1,5 +1,5 @@
 import subprocess
-
+import time, timeout_decorator
 from .poller import PollInput, PollResult, Poller
 
 class PingPollInput(PollInput):
@@ -14,6 +14,8 @@ class PingPollResult(PollResult):
         self.output = output
 
 class PingPoller(Poller):
+
+    @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
         server = poll_input.server
         output = subprocess.call('ping -W 2 -c 5 -q {} > /dev/null'.format(server), shell=True)

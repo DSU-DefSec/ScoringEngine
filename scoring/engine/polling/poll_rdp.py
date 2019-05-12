@@ -1,5 +1,5 @@
 import subprocess
-
+import time, timeout_decorator
 from .poller import PollInput, PollResult, Poller
 
 class RdpPollInput(PollInput):
@@ -15,6 +15,7 @@ class RdpPollResult(PollResult):
 
 class RdpPoller(Poller):
 
+    @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
         username = poll_input.credentials.username
         password = poll_input.credentials.password

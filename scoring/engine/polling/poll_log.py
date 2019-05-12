@@ -1,5 +1,6 @@
 from .poller import PollInput, PollResult, Poller
 import datetime
+import time, timeout_decorator
 
 class LogPollInput(PollInput):
     """Wrapper for the inputs to a LogPoller.
@@ -35,6 +36,7 @@ class LogPoller(Poller):
     Logs are expected to be of the form:
     yyyy-mm-dd HH:MM:SS|log values
     """
+    @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
         try:
             log = open(poll_input.log_file, 'r')

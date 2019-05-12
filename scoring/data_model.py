@@ -49,7 +49,6 @@ class DataModel(object):
         # Cast to correct data types
         settings['interval'] = int(settings['polling_interval'])
         settings['jitter'] = int(settings['polling_jitter'])
-        settings['timeout'] = int(settings['polling_timeout'])
         settings['running'] = int(settings['running'])
         settings['revert_penalty'] = int(settings['revert_penalty'])
 

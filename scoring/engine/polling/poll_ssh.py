@@ -1,7 +1,7 @@
 from paramiko import client
 from paramiko.ssh_exception import *
 import socket
-
+import time, timeout_decorator
 from .poller import PollInput, PollResult, Poller
 
 class SshPollInput(PollInput):
@@ -20,6 +20,8 @@ class SshPollResult(PollResult):
 
 
 class SshPoller(Poller):
+
+    @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
         username = poll_input.credentials.username
         password = poll_input.credentials.password

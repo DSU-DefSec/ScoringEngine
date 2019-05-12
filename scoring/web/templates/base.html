@@ -22,7 +22,7 @@
     </li>
     {% if current_user.is_authenticated and current_user.name != 'redteam' %}
     <li class="d-inline-block nav-item {% block pcr %}{% endblock %}">
-        <a class="nav-link" href="{{ url_for('pcr') }}">PCRs</a>
+        <a class="nav-link" href="{{ url_for('pcr') }}">PCR</a>
     </li>
     {% if not current_user.is_admin %}
     <li class="d-inline-block nav-item {% block systems %}{% endblock %}">
@@ -63,7 +63,7 @@
     {% endif %}
     {% if current_user.is_authenticated and current_user.name == 'redteam' %}
     <li class="d-inline-block nav-item dropdown ">
-        <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Systems</a>
+        <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Action Reports</a>
         <div class="dropdown-menu">
             <a class="dropdown-item" href="{{ url_for('rtr') }}">Claim System Access</a>
             <a class="dropdown-item" href="{{ url_for('ir_overview') }}">Blue Team Incident Reports</a>
@@ -77,7 +77,7 @@
             <a class="nav-link" href="{{ url_for('pw_reset') }}">Reset Password</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout ({{ current_user.name }})</a>
         </li>
     {% else %}
         <li class="nav-item">
