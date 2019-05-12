@@ -1,4 +1,4 @@
-from threading import Thread
+from threading import Thread, Timer
 from enum import IntEnum
 from time import sleep
 import datetime
@@ -451,7 +451,9 @@ class PasswordChangeRequest(ScoringRequest):
 
 
     def accept_request(self):
-        sleep(random.randint(20, 40))
+        """
+        Service this request, updating account credentials in the database, and updating the current status of the request
+        """
         for cred in self.creds:
             username, password = cred
             db.set_credential_password(username, password, self.team_id, self.check_id, self.domain_id)
@@ -461,9 +463,9 @@ class PasswordChangeRequest(ScoringRequest):
 
     def service_request(self):
         """
-        Service this request, updating account credentials in the database, and updating the current status of the request
+        Create a new thread with an artificial PCR delay (30 seconds +- 10).
         """
-        pcr_servicer = Thread(target=self.accept_request())
+        pcr_servicer = Timer(random.randint(20, 40), self.accept_request)
         pcr_servicer.start()
 
 

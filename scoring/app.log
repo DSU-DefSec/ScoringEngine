@@ -1,0 +1,155 @@
+05/12/2019 11:03:12 AM - INFO - 
+05/12/2019 11:03:12 AM - INFO - 
+05/12/2019 11:03:12 AM - INFO - 
+05/12/2019 11:03:12 AM - INFO - 
+05/12/2019 11:03:15 AM - INFO - 
+05/12/2019 11:03:15 AM - INFO - 
+05/12/2019 11:03:17 AM - INFO - 
+05/12/2019 11:03:41 AM - INFO - 
+05/12/2019 11:03:41 AM - INFO - 
+05/12/2019 11:03:41 AM - INFO - 
+05/12/2019 11:03:43 AM - INFO - 
+05/12/2019 11:03:43 AM - INFO - 
+05/12/2019 11:03:46 AM - INFO - 
+05/12/2019 11:03:52 AM - INFO - 
+05/12/2019 11:03:52 AM - INFO - 
+05/12/2019 11:03:52 AM - INFO - 
+05/12/2019 11:03:52 AM - INFO - 
+05/12/2019 11:03:54 AM - INFO - 
+05/12/2019 11:03:54 AM - INFO - 
+05/12/2019 11:03:55 AM - INFO - 
+05/12/2019 11:03:55 AM - INFO - 
+05/12/2019 11:03:55 AM - INFO - 
+05/12/2019 11:03:55 AM - INFO - 
+05/12/2019 11:03:57 AM - INFO - 
+05/12/2019 11:03:57 AM - INFO - 
+05/12/2019 11:04:00 AM - INFO - 
+05/12/2019 11:04:31 AM - INFO - 
+05/12/2019 11:04:31 AM - INFO - 
+05/12/2019 11:04:31 AM - INFO - 
+05/12/2019 11:04:33 AM - INFO - 
+05/12/2019 11:04:33 AM - INFO - 
+05/12/2019 11:04:36 AM - INFO - 
+05/12/2019 11:05:03 AM - INFO - 
+05/12/2019 11:05:03 AM - INFO - 
+05/12/2019 11:05:03 AM - INFO - 
+05/12/2019 11:05:05 AM - INFO - 
+05/12/2019 11:05:05 AM - INFO - 
+05/12/2019 11:05:08 AM - INFO - 
+05/12/2019 11:05:20 AM - INFO - Starting engine.
+05/12/2019 11:05:20 AM - INFO - Starting SSH poller.
+05/12/2019 11:05:20 AM - INFO - Starting SSH poller.
+05/12/2019 11:05:20 AM - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:05:22 AM - INFO - Authentication (password) failed.
+05/12/2019 11:05:22 AM - INFO - SSH poller ended with error.
+05/12/2019 11:05:25 AM - INFO - SSH poller ended with error.
+05/12/2019 11:05:47 AM - INFO - Starting SSH poller.
+05/12/2019 11:05:47 AM - INFO - Starting SSH poller.
+05/12/2019 11:05:47 AM - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:05:49 AM - INFO - Authentication (password) failed.
+05/12/2019 11:05:49 AM - INFO - SSH poller ended with error.
+05/12/2019 11:05:52 AM - INFO - SSH poller ended with error.
+05/12/2019 11:06:15 AM - INFO - Starting SSH poller.
+05/12/2019 11:06:15 AM - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:06:15 AM - INFO - Starting SSH poller.
+05/12/2019 11:06:17 AM - INFO - Authentication (password) failed.
+05/12/2019 11:06:17 AM - INFO - SSH poller ended with error.
+05/12/2019 11:06:20 AM - INFO - SSH poller ended with error.
+05/12/2019 11:06:40 AM - INFO - Starting SSH poller.
+05/12/2019 11:06:40 AM - INFO - Starting SSH poller.
+05/12/2019 11:06:40 AM - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:06:42 AM - INFO - Authentication (password) failed.
+05/12/2019 11:06:42 AM - INFO - SSH poller ended with error.
+05/12/2019 11:06:45 AM - INFO - SSH poller ended with error.
+05/12/2019 11:07:16 AM - INFO - Starting SSH poller.
+05/12/2019 11:07:16 AM - INFO - Starting SSH poller.
+05/12/2019 11:07:16 AM - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:07:17 AM - INFO - Authentication (password) failed.
+05/12/2019 11:07:17 AM - INFO - SSH poller ended with error.
+05/12/2019 11:07:21 AM - INFO - SSH poller ended with error.
+05/12/2019 11:07:46 AM - INFO - Starting SSH poller.
+05/12/2019 11:07:46 AM - INFO - Starting SSH poller.
+05/12/2019 11:07:46 AM - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:07:48 AM - INFO - Authentication (password) failed.
+05/12/2019 11:07:48 AM - INFO - SSH poller ended with error.
+05/12/2019 11:07:49 AM - INFO - Starting engine.
+05/12/2019 11:07:50 AM - INFO - Starting SSH poller.
+05/12/2019 11:07:50 AM - INFO - Starting SSH poller.
+05/12/2019 11:07:50 AM - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:07:52 AM - INFO - Authentication (password) failed.
+05/12/2019 11:07:52 AM - INFO - SSH poller ended with error.
+05/12/2019 11:07:55 AM - INFO - SSH poller ended with error.
+05/12/2019 11:08:16 AM - INFO - Calculating SLAs for team 1.
+05/12/2019 11:08:16 AM - INFO - Calculating SLAs for team 2.
+05/12/2019 11:08:16 AM - INFO - Starting SSH poller.
+05/12/2019 11:08:16 AM - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:08:16 AM - INFO - Starting SSH poller.
+05/12/2019 11:08:18 AM - INFO - Authentication (password) failed.
+05/12/2019 11:08:18 AM - INFO - SSH poller ended with error.
+05/12/2019 11:08:21 AM - INFO - SSH poller ended with error.
+05/12/2019 11:08:51 AM - INFO - Calculating SLAs for team 1.
+05/12/2019 11:08:51 AM - INFO - Calculating SLAs for team 2.
+05/12/2019 11:08:51 AM - INFO - Starting SSH poller.
+05/12/2019 11:08:51 AM - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:08:51 AM - INFO - Starting SSH poller.
+05/12/2019 11:08:53 AM - INFO - Authentication (password) failed.
+05/12/2019 11:08:53 AM - INFO - SSH poller ended with error.
+05/12/2019 11:08:56 AM - INFO - SSH poller ended with error.
+05/12/2019 11:09:26 AM - INFO - Calculating SLAs for team 1.
+05/12/2019 11:09:26 AM - INFO - Calculating SLAs for team 2.
+05/12/2019 11:09:26 AM - INFO - Starting SSH poller.
+05/12/2019 11:09:26 AM - INFO - Starting SSH poller.
+05/12/2019 11:09:26 AM - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:09:29 AM - INFO - Authentication (password) failed.
+05/12/2019 11:09:29 AM - INFO - SSH poller ended with error.
+05/12/2019 11:09:31 AM - INFO - SSH poller ended with error.
+05/12/2019 11:09:54 AM - INFO - Calculating SLAs for team 1.
+05/12/2019 11:09:54 AM - INFO - Calculating SLAs for team 2.
+05/12/2019 11:09:54 AM - INFO - Starting SSH poller.
+05/12/2019 11:09:54 AM - INFO - Starting SSH poller.
+05/12/2019 11:09:54 AM - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:09:57 AM - INFO - Authentication (password) failed.
+05/12/2019 11:09:57 AM - INFO - SSH poller ended with error.
+05/12/2019 11:09:59 AM - INFO - SSH poller ended with error.
+05/12/2019 11:10:28 AM - INFO - Calculating SLAs for team 1.
+05/12/2019 11:10:28 AM - INFO - Calculating SLAs for team 2.
+05/12/2019 11:10:28 AM - INFO - Starting SSH poller.
+05/12/2019 11:10:28 AM - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:10:28 AM - INFO - Starting SSH poller.
+05/12/2019 11:10:30 AM - INFO - Authentication (password) failed.
+05/12/2019 11:10:30 AM - INFO - SSH poller ended with error.
+05/12/2019 11:10:33 AM - INFO - SSH poller ended with error.
+05/12/2019 11:10:42 AM - ENGINE - INFO - Starting engine.
+05/12/2019 11:10:42 AM - ENGINE - INFO - Beginning new round of checks.
+05/12/2019 11:10:42 AM - ENGINE - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:10:44 AM - ENGINE - INFO - Authentication (password) failed.
+05/12/2019 11:10:52 AM - ENGINE - INFO - Starting engine.
+05/12/2019 11:10:52 AM - ENGINE - INFO - Beginning new round of checks.
+05/12/2019 11:10:52 AM - ENGINE - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:10:54 AM - ENGINE - INFO - Authentication (password) failed.
+05/12/2019 11:11:19 AM - ENGINE - INFO - Calculating SLAs for team 1.
+05/12/2019 11:11:19 AM - ENGINE - INFO - Calculating SLAs for team 2.
+05/12/2019 11:11:20 AM - ENGINE - INFO - Beginning new round of checks.
+05/12/2019 11:11:20 AM - ENGINE - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:11:22 AM - ENGINE - INFO - Authentication (password) failed.
+05/12/2019 11:11:55 AM - ENGINE - INFO - Calculating SLAs for team 1.
+05/12/2019 11:11:55 AM - ENGINE - INFO - Calculating SLAs for team 2.
+05/12/2019 11:11:55 AM - ENGINE - INFO - Beginning new round of checks.
+05/12/2019 11:11:55 AM - ENGINE - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:11:57 AM - ENGINE - INFO - Authentication (password) failed.
+05/12/2019 11:12:22 AM - ENGINE - INFO - Calculating SLAs for team 1.
+05/12/2019 11:12:22 AM - ENGINE - INFO - Calculating SLAs for team 2.
+05/12/2019 11:12:22 AM - ENGINE - INFO - Beginning new round of checks.
+05/12/2019 11:12:22 AM - ENGINE - INFO - Connected (version 2.0, client OpenSSH_7.2p2)
+05/12/2019 11:12:24 AM - ENGINE - INFO - Authentication (password) failed.
+05/12/2019 11:12:30 AM - ENGINE - INFO - Starting engine.
+05/12/2019 11:12:30 AM - ENGINE - INFO - Beginning new round of checks.
+05/12/2019 11:12:55 AM - ENGINE - INFO - Calculating SLAs for team 1.
+05/12/2019 11:12:55 AM - ENGINE - INFO - Calculating SLAs for team 2.
+05/12/2019 11:12:55 AM - ENGINE - INFO - Beginning new round of checks.
+05/12/2019 11:13:21 AM - ENGINE - INFO - Calculating SLAs for team 1.
+05/12/2019 11:13:21 AM - ENGINE - INFO - Calculating SLAs for team 2.
+05/12/2019 11:13:21 AM - ENGINE - INFO - Beginning new round of checks.
+05/12/2019 11:13:52 AM - ENGINE - INFO - Calculating SLAs for team 1.
+05/12/2019 11:13:53 AM - ENGINE - INFO - Calculating SLAs for team 2.
+05/12/2019 11:13:53 AM - ENGINE - INFO - Beginning new round of checks.

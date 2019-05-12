@@ -3,6 +3,10 @@ from paramiko.ssh_exception import *
 import socket
 import time, timeout_decorator
 from .poller import PollInput, PollResult, Poller
+import logging
+
+log = logging.getLogger(__name__)
+logging.getLogger("paramiko").setLevel(logging.WARNING)
 
 class SshPollInput(PollInput):
 
@@ -23,6 +27,7 @@ class SshPoller(Poller):
 
     @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
+        log.debug("Starting SSH poller.")
         username = poll_input.credentials.username
         password = poll_input.credentials.password
         try:
@@ -39,7 +44,9 @@ class SshPoller(Poller):
             else:
                 result = SshPollResult(True)
             cli.close()
+            log.debug("SSH poller finished.")
             return result
         except (Exception, socket.error) as e:
             result = SshPollResult(False, exceptions=Exception(str(e)))
+            log.debug("SSH poller ended with error.")
             return result

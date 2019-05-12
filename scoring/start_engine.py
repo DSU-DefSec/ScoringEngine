@@ -1,12 +1,13 @@
 #!/usr/bin/python3
 from engine.engine_model import EngineModel
 from engine.file_manager import FileManager
-from threading import Thread
+from threading import Thread, Timer
 import db
 import time, datetime
 from time import sleep
 import random
 import sys
+import logging
 
 class ScoringEngine(object):
 
@@ -32,19 +33,19 @@ class ScoringEngine(object):
                 self.log_score()
                 self.check()
                  # Calculate SLAs only after all checks are done
-                sla_calculator = Thread(target=self.calc_sla(wait))
+                sla_calculator = Timer(wait, self.calc_sla, args=(wait,))
                 sla_calculator.start()
             else:
                 print("Stopped")
                 return
 
-            print("Default Interval: " + str(wait))
+            print("Default Interval: " + str(interval))
             print("Jitter (delay): " + str(offset))
             print("Wait Until Next Check: " + str(wait))
             time.sleep(wait)
 
     def check(self):
-        print("New Round of Checks")
+        logging.info("Beginning new round of checks.")
         self.em.reload_credentials()
 
         check_round = db.execute('INSERT INTO check_log () VALUES ()')
@@ -54,6 +55,7 @@ class ScoringEngine(object):
                     system.check(check_round, self.em.teams)
                 else:
                     system.check(check_round, [self.em.teams[self.team_num]])
+        logging.info("Round of checks has concluded.")
 
     def log_default_creds(self):
         cmd = ('INSERT INTO default_creds_log (team_id, perc_default) '
@@ -66,11 +68,10 @@ class ScoringEngine(object):
             db.insert('score_log', ['team_id', 'service_points', 'sla_violations', 'inject_points', 'redteam_points', 'ir_points'], (team_id, service_points, sla_violations, inject_points, redteam_points, ir_points,))
 
     def calc_sla(self, wait):
-        sleep(wait)
         down_counts = {}
-        slas = {}
         for team in self.em.teams:
             results = db.get('result', ['time', 'check_id', 'result'], where='team_id=%s', orderby='time ASC', args=(team.id,))
+            logging.info("Calculating SLAs for team %s.", str(team.team_num))
             sla_counter = 0
             for time, check_id, result in results:
                 if not check_id in down_counts:
@@ -82,9 +83,7 @@ class ScoringEngine(object):
                 if down_counts[check_id] >= 6:
                     down_counts[check_id] = 0
                     sla_counter += 1
-
-            db.modify('team', 'sla_violations=%s', (str(sla_counter * 20), str(team.id)), where='id=%s') # loss of 20 points per sla violation
-        return slas
+            db.modify('team', 'sla_violations=%s', (str(sla_counter), str(team.id)), where='id=%s')
 
 
 if __name__ == '__main__':
@@ -96,9 +95,14 @@ if __name__ == '__main__':
         team_num = int(sys.argv[1]) - 1
         engine = ScoringEngine(team_num)
 
+    logging.basicConfig(filename='app.log', format='%(asctime)s - ENGINE - %(levelname)s - %(message)s', \
+        datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+
     file_manager = FileManager()
     file_manager_thread = Thread(target=file_manager.manage_files)
     file_manager_thread.start()
 
     db.modify('settings', set='value=%s', where='skey=%s', args=(True, 'running'))
+    logging.info('Starting engine.')
     engine.start()
+

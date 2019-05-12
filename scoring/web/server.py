@@ -164,7 +164,7 @@ def new_pcr():
                     password = re.sub('\s+', '', ':'.join(line[1:]))
                     creds.append((username, password))
             pcr = PasswordChangeRequest(team_id, int(REQStatus.PENDING), creds, check_id=check_id, domain_id=domain_id)
-            pcr.service_request()            
+            pcr.service_request()          
             return redirect(url_for('pcr'))
     return render_template('pcr_new.html', form=form, pcr_id=pcr_id, success=success)
 
@@ -252,7 +252,7 @@ def score():
     for team_id, name, team_num, service_points, sla_violations, inject_points, redteam_points, ir_points in rows:
         megastring += '<br><strong>Team ' + str(team_num) + ':</strong><br><br>'
         megastring += '<i>Service points gained:</i> ' + str(service_points) + '<br>'
-        megastring += '<i>SLA violation points lost:</i> ' + str(sla_violations) + '<br>'
+        megastring += '<i>SLA violation points lost:</i> ' + str(sla_violations * 20) + '<br>'
         megastring += '<i>Inject points gained:</i> ' + str(inject_points) + '<br>'
         megastring += '<i>Red team points lost:</i> ' + str(redteam_points) + '<br>'
         megastring += '<i>Incident report points gained:</i> ' + str(ir_points) + '<br><br>'
