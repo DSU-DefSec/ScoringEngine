@@ -9,16 +9,22 @@ from urllib.parse import urlparse, urljoin
 import datetime
 
 # Custom imports
-from engine.model import PasswordChangeRequest, RedTeamReport, REQStatus
+from engine.model import PasswordChangeRequest, RedTeamReport, IncidentReport, REQStatus
 from .web_model import WebModel
 from .model import User
 from .decorators import *
 from .forms import *
-from . import score
+import logging
+# from . import score
 import validate
 import ialab
 import db
 import re
+
+logging.basicConfig(filename='app.log', format='%(asctime)s - WEB - %(levelname)s - %(message)s', \
+    datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+
+logging.info("Running web server.")
 
 app = Flask(__name__)
 app.secret_key = 'this is a secret'
@@ -115,7 +121,7 @@ def pcr():
             pcr.delete()
         return redirect(url_for('pcr'))
 
-@app.route('/pcr_details')
+@app.route('/pcr_details', methods=['GET', 'POST'])
 @login_required
 @deny_redteam
 def pcr_details():
@@ -123,10 +129,20 @@ def pcr_details():
     Render the password change request details page.
     """
     user = flask_login.current_user
-    pcr_id = request.args.get('id')
-    pcr = PasswordChangeRequest.load(pcr_id)
-    domains = {d.id:d for d in wm.domains}
-    checks = {c.id:c for c in wm.checks}
+    if request.method == 'GET':
+        pcr_id = request.args.get('id')
+        pcr = PasswordChangeRequest.load(pcr_id)
+        domains = {d.id:d for d in wm.domains}
+        checks = {c.id:c for c in wm.checks}
+    if request.method == 'POST':
+        pcr_id = request.form.get('reqId')
+        pcr = PasswordChangeRequest.load(pcr_id)
+        if user.is_admin:
+            if request.form['approval'] == 'Push Through':
+                pcr.accept_request()
+            else:
+                pcr.set_status(REQStatus.DENIED)
+        return redirect(url_for('pcr_details') + '?id={}'.format(pcr_id))
     if user.is_admin or user.team.id == pcr.team_id:
         return render_template('pcr_details.html', pcr=pcr, checks=checks, domains=domains)
     else:
@@ -245,20 +261,19 @@ def score():
     Score information page
     """
   
-    # tests n stuff
-    megastring = ''
+    scores = ''
 
     rows = db.getall('team')
     for team_id, name, team_num, service_points, sla_violations, inject_points, redteam_points, ir_points in rows:
-        megastring += '<br><strong>Team ' + str(team_num) + ':</strong><br><br>'
-        megastring += '<i>Service points gained:</i> ' + str(service_points) + '<br>'
-        megastring += '<i>SLA violation points lost:</i> ' + str(sla_violations * 20) + '<br>'
-        megastring += '<i>Inject points gained:</i> ' + str(inject_points) + '<br>'
-        megastring += '<i>Red team points lost:</i> ' + str(redteam_points) + '<br>'
-        megastring += '<i>Incident report points gained:</i> ' + str(ir_points) + '<br><br>'
-        megastring += '    TOTAL SCORE: ' + str((service_points + inject_points) - (sla_violations + (redteam_points - ir_points))) + '<br>'
+        scores += '<br><strong>Team ' + str(team_num) + ':</strong><br><br>'
+        scores += '<i>Service points gained:</i> ' + str(service_points) + '<br>'
+        scores += '<i>SLA violation points lost:</i> ' + str(sla_violations * 20) + '<br>'
+        scores += '<i>Inject points gained:</i> ' + str(inject_points) + '<br>'
+        scores += '<i>Red team points lost:</i> ' + str(redteam_points) + '<br>'
+        scores += '<i>Incident report points gained:</i> ' + str(ir_points) + '<br><br>'
+        scores += '    TOTAL SCORE: ' + str((service_points + inject_points) - ((sla_violations * 20) + (redteam_points - ir_points))) + '<br>'
 
-    return megastring
+    return scores
 
     # sorry to nic's code below
     start = request.args.get('start')
@@ -323,10 +338,15 @@ def default():
 @app.route('/reporting/all', methods=['GET'])
 @login_required
 @redorwhite_required
-def score_all(): # TODO
+def score_log(): # TODO
     """
     Scoring information for every score factor for each team.
     """
+    
+    return "todo"
+
+    # USE FORM TO GET TID, RETURN PAGE FROM POST REQUESTS
+
     # add get input validation for tid
     teams = {}
     #for team in wm.teams:
@@ -347,7 +367,7 @@ def score_all(): # TODO
         res[i] = [res[i][0].strftime('%Y-%m-%d %H:%M:%S'), res[i][1]]
     defaults[team_id] = res
 
-    return render_template('score_all.html', defaults=defaults, teams=teams)
+    return render_template('score_log.html', defaults=defaults, teams=teams)
 
 @app.route('/systems', methods=['GET', 'POST'])
 @login_required
@@ -366,13 +386,13 @@ def systems():
         vapp = '{}_{}'.format(team.name, vapp)
         print(vapp, system.name)
 
-        if request.form['action'] == 'power on':
+        if action == 'power on':
             errors = ialab.power_on(vapp, system.name)
-        elif request.form['action'] == 'power off':
+        elif action == 'power off':
             errors = ialab.power_off(vapp, system.name)
-        elif request.form['action'] == 'restart':
+        elif action == 'restart':
             errors = ialab.restart(vapp, system.name)
-        elif request.form['action'] == 'revert':
+        elif action == 'revert':
             errors = ialab.revert(vapp, system.name)
             if errors == '':
                 db.insert('revert_log', ['team_id', 'system'], [tid, system.name])
@@ -399,13 +419,18 @@ def rtr_overview():
     user = flask_login.current_user
     if request.method == 'GET':
         orderby = 'submitted DESC'
-        rtr_ids = db.get('rtr', ['id'], orderby=orderby)
+        system_id = 'None'
+        if 'system_id' in request.args:    
+            system_id = request.args['system_id']
+            where='system_id="' + str(system_id) + '"'
+            rtr_ids = db.get('rtr', ['id'], where=where, orderby=orderby)
+        else:
+            rtr_ids = db.get('rtr', ['id'], orderby=orderby)
         rtrs = [RedTeamReport.load(rtr_id) for rtr_id in rtr_ids ]
         for rtr in rtrs:
             where = 'id = ' + str(rtr.team_id)
             rtr.team_num = db.get('team', ['team_num'], where=where)
-
-        return render_template('rtr_overview.html', rtrs=rtrs)
+        return render_template('rtr_overview.html', rtrs=rtrs, system_id=system_id)
      
     elif request.method == 'POST':
         rtr_id = request.form['reqId']
@@ -424,7 +449,6 @@ def rtr_submit():
     Form for red team to claim access on systems.
     """    
     rtr_id = 0
-    success = False
     if 'system_id' in request.args:    
         system_id = request.args['system_id']
     elif 'system_id' in request.form:
@@ -453,7 +477,7 @@ def rtr_submit():
             description = form.describe.data
             rtr = RedTeamReport(team_id, int(REQStatus.PENDING), system_id, btype, description=description, point_penalty=point_penalty)
             return redirect(url_for('rtr'))
-    return render_template('rtr_submit.html', form=form, rtr_id=rtr_id, success=success, system_id=system_id)     
+    return render_template('rtr_submit.html', form=form, rtr_id=rtr_id, system_id=system_id)     
 
 @app.route('/rtr_details', methods=['GET', 'POST'])
 @login_required
@@ -490,19 +514,117 @@ def rtr_details():
 
 @app.route('/ir', methods=['GET', 'POST'])
 @login_required
+@blueteam_required
 def ir():
     """
-    Systems for the blue team to file incident reports on.
+    Page for blue team to issue incident reports.
     """
-    return render_template('ir_systems.html')
-
+    systems = wm.systems
+    return render_template('ir_systems.html', systems=systems)
+    
 @app.route('/ir_overview', methods=['GET', 'POST'])
 @login_required
+@deny_redteam
 def ir_overview():
     """
-    Dashboard with incident reports information.
+    Render the password change request overview page.
     """
-    return render_template('ir_overview.html')
+    user = flask_login.current_user
+    if request.method == 'GET':
+        orderby = 'submitted DESC'
+        system_id = 'None'
+        if 'system_id' in request.args:    
+            system_id = request.args['system_id']
+            where='system_id="' + str(system_id) + '"'
+            ir_ids = db.get('ir', ['id'], where=where, orderby=orderby)
+        else:
+            ir_ids = db.get('ir', ['id'], orderby=orderby)
+        irs = [IncidentReport.load(ir_id) for ir_id in ir_ids ]
+        for ir in irs:
+            where = 'id = ' + str(ir.team_id)
+            ir.team_num = db.get('team', ['team_num'], where=where)
+        return render_template('ir_overview.html', irs=irs, system_id=system_id)
+     
+    elif request.method == 'POST':
+        ir_id = request.form['reqId']
+        ir = IncidentReport.load(ir_id)
+        if user.is_admin:
+            return render_template('access_denied.html')
+        else:
+            ir.delete()
+        return redirect(url_for('ir'))
+
+@app.route('/ir_submit', methods=['GET', 'POST'])
+@login_required
+@blueteam_required
+def ir_submit():
+    """
+    Form for blue team to submit incident reports on systems.
+    """    
+    if 'system_id' in request.args:    
+        system_id = request.args['system_id']
+    elif 'system_id' in request.form:
+        system_id = request.form['system_id']
+    form = IncidentReportForm(wm)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            team_id = current_user.team.id
+            btype = form.btype.data
+            if btype == 'root':
+                point_gain = 50
+            elif btype == 'user':
+                point_gain = 12
+            elif btype == 'userids':
+                point_gain = 25
+            elif btype == 'sensitive_files':
+                point_gain = 12
+            elif btype == 'pii':
+                point_gain = 100
+            elif btype == 'other':
+                point_gain = 25
+            else:
+                point_gain = 0
+            description = form.describe.data
+            ir = IncidentReport(team_id, int(REQStatus.PENDING), system_id, btype, description=description, point_gain=point_gain)
+            return redirect(url_for('ir'))
+    return render_template('ir_submit.html', form=form, system_id=system_id)     
+
+@app.route('/ir_details', methods=['GET', 'POST'])
+@login_required
+@deny_redteam
+def ir_details():
+    """
+    Location to view and edit incident reports.
+    """
+    user = flask_login.current_user
+    if request.method == 'GET':
+        ir_id = request.args.get('id')
+        ir = IncidentReport.load(ir_id)
+        domains = {d.id:d for d in wm.domains}
+        checks = {c.id:c for c in wm.checks}
+        return render_template('ir_details.html', ir=ir, checks=checks, domains=domains)
+
+    elif request.method == 'POST':
+        ir_id = request.form['reqId']
+        ir = IncidentReport.load(ir_id)
+        if user.is_admin:
+            if ir.status == REQStatus.PENDING or ir.status == REQStatus.APPROVAL:
+                if 'approval' in request.form:
+                    if request.form['approval'] == 'Approve':
+                        status = REQStatus.PENDING
+                        ir.set_status(status)
+                        ir.service_request(wm.teams[ir.team_id-1])
+                    else:
+                        status = REQStatus.DENIED
+                        ir.set_status(status)  
+            comment = request.form['admin_comment']
+            ir.set_admin_comment(comment)
+            return redirect(url_for('ir_overview'))
+        else:
+            comment = request.form['team_comment']
+            ir.set_team_comment(comment)
+            return redirect(url_for('ir_details') + '?id={}'.format(ir_id))
+        
 
 @app.route('/revert_log', methods=['GET'])
 @login_required

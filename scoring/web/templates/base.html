@@ -20,55 +20,56 @@
     <li class="nav-item {% block status %}{% endblock %}">
         <a class="nav-link" href="{{ url_for('status') }}">Status</a>
     </li>
-    {% if current_user.is_authenticated and current_user.name != 'redteam' %}
-    <li class="d-inline-block nav-item {% block pcr %}{% endblock %}">
-        <a class="nav-link" href="{{ url_for('pcr') }}">PCR</a>
-    </li>
-    {% if not current_user.is_admin %}
-    <li class="d-inline-block nav-item {% block systems %}{% endblock %}">
-        <a class="nav-link" href="{{ url_for('systems') }}">System Resets</a>
-    </li>
-    {% endif %}
-    {% if current_user.is_admin %}
-    <li class="d-inline-block nav-item dropdown">
-        <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Systems</a>
-        <div class="dropdown-menu">
-            <a class="dropdown-item" href="{{ url_for('systems') }}">System Resets</a>            
-            <a class="dropdown-item" href="{{ url_for('rtr_overview') }}">Action Reports</a>
-            <a class="dropdown-item" href="{{ url_for('ir_overview') }}">Incident Reports</a>
-        </div>
-    </li>
-    {% endif %}
-    <li class="d-inline-block nav-item {% block revert_log %}{% endblock %}">
-        <a class="nav-link" href="{{ url_for('revert_log') }}">Revert Log</a>
-    </li>
-    <li class="d-inline-block nav-item dropdown {% block sla %}{% endblock %}">
-        <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">SLA</a>
-        <div class="dropdown-menu">
-            {% if not current_user.is_admin %}
-            <a class="dropdown-item" href="{{ url_for('sla_log') }}">SLA Log</a>
+
+    {% if current_user.is_authenticated %}
+        {% if not current_user.is_admin %}
+            {% if not current_user.is_redteam %}
+            <li class="d-inline-block nav-item">
+                    <a class="nav-link" href="{{ url_for('systems') }}">System Actions</a>
+            </li>
+            <li class="d-inline-block nav-item">
+                    <a class="nav-link" href="{{ url_for('ir') }}">Incident Reports</a>
+            </li>
+            <li class="d-inline-block nav-item">
+                    <a class="nav-link" href="{{ url_for('pcr') }}">PCR</a>
+            </li>
+            <li class="d-inline-block nav-item dropdown {% block sla %}{% endblock %}">
+                <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">SLA</a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{{ url_for('sla_log') }}">SLA Log</a>
+                    <a class="dropdown-item" href="{{ url_for('sla_totals') }}">SLA Totals</a>
+                </div>
+            </li>
             {% endif %}
-            <a class="dropdown-item" href="{{ url_for('sla_totals') }}">SLA Totals</a>
-        </div>
-    </li>
-    {% endif %}
-    {% if current_user.is_admin or current_user.is_redteam %}
-    <li class="d-inline-block nav-item dropdown {% block reporting %}{% endblock %}">
-        <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Reports</a>
-        <div class="dropdown-menu">
-            <a class="dropdown-item" href="{{ url_for('score') }}">Scores</a>
-            <a class="dropdown-item" href="{{ url_for('default') }}">Default Creds</a>
-        </div>
-    </li>
-    {% endif %}
-    {% if current_user.is_authenticated and current_user.name == 'redteam' %}
-    <li class="d-inline-block nav-item dropdown ">
-        <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Action Reports</a>
-        <div class="dropdown-menu">
-            <a class="dropdown-item" href="{{ url_for('rtr') }}">Claim System Access</a>
-            <a class="dropdown-item" href="{{ url_for('ir_overview') }}">Blue Team Incident Reports</a>
-        </div>
-    </li>
+        {% endif %}
+
+        {% if current_user.is_admin %}
+        <li class="d-inline-block nav-item dropdown">
+            <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Grading Stream</a>
+            <div class="dropdown-menu">         
+                <a class="dropdown-item" href="{{ url_for('rtr_overview') }}">Red Team Reports</a>
+                <a class="dropdown-item" href="{{ url_for('ir_overview') }}">Incident Reports</a>
+                <a class="dropdown-item" href="{{ url_for('pcr') }}">Password Change Requests</a>
+            </div>
+        </li>
+        <li class="d-inline-block nav-item dropdown {% block reporting %}{% endblock %}">
+            <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Scores and Logs</a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="{{ url_for('score') }}">Scores</a>
+                <a class="dropdown-item" href="{{ url_for('score_log') }}">Score Trends</a>
+                <a class="dropdown-item" href="{{ url_for('default') }}">Default Creds</a>
+                <a class="dropdown-item" href="{{ url_for('revert_log') }}">Revert Log</a>
+                <a class="dropdown-item" href="{{ url_for('sla_totals') }}">SLA Totals</a>
+            </div>
+        </li>
+        {% endif %}
+
+        {% if current_user.is_redteam %}
+        <li class="d-inline-block nav-item">
+            <a class="nav-link" href="{{ url_for('rtr') }}">Submit Red Team Report</a>
+        </li>
+        {% endif %}
+
     {% endif %}
 </ul>
 <ul class="navbar-nav navbar-right">

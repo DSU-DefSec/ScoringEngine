@@ -3,6 +3,15 @@
 {% block head %}<meta http-equiv="refresh" content="30">{% endblock %}
 
 {% block content %}
+
+<br/>
+{% if system_id == 'None' %}
+<h1>Red Team Reports</h1>
+{% else %}
+<h1>Red Team Reports: {{ system_id }}</h1>
+{% endif %}
+<br/>
+
 <script>
     function clickDelete(id) {
         idInput = document.getElementById('reqId');

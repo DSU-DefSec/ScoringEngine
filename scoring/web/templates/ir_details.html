@@ -3,61 +3,58 @@
 {% block content %}
 
 <br>
-<h3 class="text-center">Red Team Report Details</h3>
+<h3 class="text-center">Incident Report Details</h3>
 
 <div class="col-8 offset-2">
     <div>
         <span><strong>Status:</strong></span>
-        {% if rtr.status == 0 %}
+        {% if ir.status == 0 %}
         <span class="text-success"><strong>Complete</strong></span>
-        {% elif rtr.status == 1 %}
+        {% elif ir.status == 1 %}
         <span class="text-primary"><strong>Pending</strong></span>
-        {% elif rtr.status == 2 %}
+        {% elif ir.status == 2 %}
         <span class="text-warning"><strong>Awaiting Approval</strong></span>
-        {% elif rtr.status == 3 %}
+        {% elif ir.status == 3 %}
         <span class="text-danger"><strong>Denied</strong></span>
         {% endif %}
     </div>
-    <div class="float-right">
-        <span><strong>Completion Time:</strong></span>
-        <span>
-        {% if rtr.completed is none %}
-        -
-        {% else %}
-        {{ rtr.completed }}
-        {% endif %}
-        </span>
-    </div>
     <div>
         <span><strong>Submission Time:</strong></span>
-        <span>{{ rtr.submitted }}</span>
+        <span>{{ ir.submitted }}</span>
     </div>
     <div>
-    <span><strong>Service/Domain:</strong></span>
-    {% if rtr.check_id is none %}
-    <span>{{ domains[rtr.domain_id] }}</span>
-    {% else %}
-    <span>
-    {% set c=checks[rtr.check_id] %}
-    {{ c.name }}
-    </span>
-    {% endif %}
+        <span><strong>Completion Time:</strong></span>
+        <span>
+        {% if ir.completed is none %}
+        -
+        {% else %}
+        {{ ir.completed }}
+        {% endif %}
     </div>
+        <div>
+        <span><strong>System:</strong></span>
+        <span>{{ ir.system_id }}</span>
+        </div>
+        <div>
+        <span><strong>Type of breach:</strong></span>
+        <span>{{ ir.btype }}</span>
+        </div>
+        <div>
+        <span><strong>Point gain:</strong></span>
+        <span>{{ ir.point_gain }}</span>
+    </div>
+
 </div>
 
 <div class="col-8 offset-2 mt-2">
 <table class="table table-striped table-bordered">
     <thead class="thead-dark">
-        <th class="col-4">Username</th>
-        <th class="col-4">New Password</th>
+        <th class="col-4">Description</th>
     </thead>
     <tbody>
-        {% for cred in rtr.creds %}
         <tr>
-            <td>{{ cred[0] }}</td>
-            <td>{{ cred[1] }}</td>
+            <td>{{ ir.description }}</td>
         </tr>
-        {% endfor %}
     </tbody>
 </table>
 </div>
@@ -83,29 +80,28 @@ window.onload = function () {
 }
 </script>
 
-<form method="post" action="rtr_details">
+<form method="post" action="ir_details">
 <div class="border rounded" id="comment_container">
     <div class="float-right col-6 mt-1">
         <span class=""><strong><u>Admin Comments</u></strong></span>
         {% if current_user.is_admin %}
-        <textarea name="admin_comment" id="admin_comment" class="col-12" style="height:100%; resize:none;" onkeyup="textAreaAdjust(this)">{{ rtr.admin_comment }}</textarea>
+        <textarea name="admin_comment" id="admin_comment" class="col-12" style="height:100%; resize:none;" onkeyup="textAreaAdjust(this)">{{ ir.admin_comment }}</textarea>
         {% else %}
-        <p class="">{{ rtr.admin_comment }}</p>
+        <p class="">{{ ir.admin_comment }}</p>
         {% endif %}
     </div>
     
-    <br>
     <div class="col-6 mt-1">
         <span class=""><strong><u>Team Comments</u></strong></span>
         {% if not current_user.is_admin %}
-        <textarea name="team_comment" id="team_comment" class="col-12" style="height:100%; resize:none;" onkeyup="textAreaAdjust(this)">{{ rtr.team_comment }}</textarea>
+        <textarea name="team_comment" id="team_comment" class="col-12" style="height:100%; resize:none;" onkeyup="textAreaAdjust(this)">{{ ir.team_comment }}</textarea>
         {% else %}
-        <p class="">{{ rtr.team_comment }}</p>
+        <p class="">{{ ir.team_comment }}</p>
         {% endif %}
     </div>
 </div>
 
-    <input type="hidden" id="reqId" name="reqId" value="{{rtr.id}}"/>
+    <input type="hidden" id="reqId" name="reqId" value="{{ir.id}}"/>
     {% if current_user.is_admin %}
     <div class="jusitfy-content-center">
         <div class="col-6 float-right">
@@ -119,7 +115,7 @@ window.onload = function () {
     <div class="col-12">
         <input type="submit" value="Save Comments" class="col-12 btn btn-success"/>
     </div>
-   
+
 </form>
 
 {% endblock %}

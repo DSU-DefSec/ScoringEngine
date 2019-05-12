@@ -151,6 +151,39 @@ CREATE TABLE `rtr` (
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
        ON DELETE CASCADE);
 
+DROP TABLE IF EXISTS `ir`;
+CREATE TABLE `ir` (
+    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `team_id` INT NOT NULL,
+    `system_id` VARCHAR(255) DEFAULT '',
+    `btype` VARCHAR(255) DEFAULT '',
+    `point_gain` INT,
+    `submitted` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `completed` TIMESTAMP NULL,
+    `status` INT NOT NULL,
+    `description` VARCHAR(4095) DEFAULT '',
+    `team_comment` VARCHAR(4095) DEFAULT '',
+    `admin_comment` VARCHAR(4095) DEFAULT '',
+    FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
+       ON DELETE CASCADE);
+
+DROP TABLE IF EXISTS `inject`;
+CREATE TABLE `inject` (
+    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `team_id` INT NOT NULL,
+    `system_id` VARCHAR(255) DEFAULT '',
+    `btype` VARCHAR(255) DEFAULT '',
+    `point_value` INT,
+    `points_given` INT,
+    `submitted` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `completed` TIMESTAMP NULL,
+    `status` INT NOT NULL,
+    `description` VARCHAR(4095) DEFAULT '',
+    `team_comment` VARCHAR(4095) DEFAULT '',
+    `admin_comment` VARCHAR(4095) DEFAULT '',
+    FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
+       ON DELETE CASCADE);
+
 DROP TABLE IF EXISTS `default_creds_log`;
 CREATE TABLE `default_creds_log` (
     `time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

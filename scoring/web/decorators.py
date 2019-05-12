@@ -71,6 +71,23 @@ def deny_redteam(f):
         return f(*args, **kwargs)
     return wrapped
 
+def blueteam_required(f):
+    """
+    Decorator requiring that the user who requested the website is the blue team.
+
+    Agruments:
+        f (function): The function to restrict access to
+
+    Returns:
+        (function): The wrapped function
+    """
+    @wraps(f)
+    def wrapped(*args, **kwargs):
+        if flask_login.current_user.is_redteam or flask_login.current_user.is_admin:
+            return render_template('access_denied.html')
+        return f(*args, **kwargs)
+    return wrapped
+
 def local_only(f):
     """
     Decorator requiring that the request is coming from localhost.

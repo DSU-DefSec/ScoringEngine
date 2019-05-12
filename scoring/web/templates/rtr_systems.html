@@ -3,16 +3,9 @@
 
 {% block content %}
 
-
 <br/>
 <h1>Claim Access to Systems</h1>
 <br/>
-
-{% if success %}
-<div class="alert alert-success">
-    <strong>Successfully submitted!</strong>
-</div>
-{% endif %}
 
 <style>
 #system-table {
@@ -33,7 +26,10 @@
     <thead class="thead-dark">
         <th>System</th>
         <th>Claim Access</th>
-        <th>Previous Reports</th>
+        <th><a href="{{ url_for('rtr_overview') }}" style="color:aliceblue">All Previous Reports</a>
+                         
+            
+        </th>
     </thead>
     <tbody>
         {% for system in systems %}
@@ -47,6 +43,7 @@
             </td>
             <td>
                 <form action="{{ url_for('rtr_overview') }}" method="get">
+                    <input type="hidden" id="system" name="system_id" value="{{ system.name }}"/>
                     <button class="btn btn-primary">
                         View Reports
                     </button>

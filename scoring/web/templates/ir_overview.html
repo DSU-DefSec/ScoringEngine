@@ -1,1 +1,105 @@
-todo
+{% extends 'base.html' %}
+{% block ir %}active{% endblock %}
+{% block head %}<meta http-equiv="refresh" content="30">{% endblock %}
+
+{% block content %}
+
+<br/>
+{% if system_id == 'None' %}
+<h1>Incident Reports</h1>
+{% else %}
+<h1>Incident Reports: {{ system_id }}</h1>
+{% endif %}
+<br/>
+
+<script>
+    function clickDelete(id) {
+        idInput = document.getElementById('reqId');
+        idInput.value = id;
+        $('#confirmModal').modal('show');
+    }
+</script>
+
+<table class="table">
+    <thead>
+        <th>Team Number</th>
+        <th>Submission Time</th>
+        <th>Completion Time</th>
+        <th>System</th>
+        <th>Possible Points</th>
+        <th>Status</th>
+        {% if not current_user.is_admin %}        
+	    <th>
+            <a href="{{ url_for('ir') }}" class="btn btn-success">
+                New Request
+            </a>
+        </th>
+        {% else %}
+        <th>View Report</th>
+        {% endif %}
+    </thead>
+    <tbody>
+        {% for ir in irs %}
+        <tr>
+            <td>{{ ir.team_num[0][0] }}</td>
+            <td>{{ ir.submitted }}</td>
+            <td>
+            {% if ir.completed is none %}
+                -
+            {% else %}
+                {{ ir.completed }}
+            {% endif %}
+            </td>
+            <td>
+            {{ ir.system_id }}
+            </td>
+            <td>
+            {{ ir.point_gain }}
+            </td>
+            {% if ir.status == 0 %}
+            <td class="text-success"><strong>Complete</strong></td>
+            {% elif ir.status == 1 %}
+            <td class="text-primary"><strong>Pending</strong></td>
+            {% elif ir.status == 2 %}
+            <td class="text-warning"><strong>Awaiting Approval</strong></td>
+            {% elif ir.status == 3 %}
+            <td class="text-danger"><strong>Denied</strong></td>
+            {% endif %}
+            <td>
+                <a href="{{ url_for('ir_details') }}?id={{ir.id}}" class="btn btn-primary">
+                    View
+                </a>
+                {% if ir.status == 1 and not current_user.is_admin %}
+                    <button class="btn btn-danger" onclick='clickDelete({{ ir.id }})'>
+                        <i class="fas fa-trash"></i>
+                    </button>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmModalLabel">Confirm Deletion</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this incident report?
+      </div>
+      <div class="modal-footer">
+        <form method="post" action="{{ url_for('ir_overview') }}" id="delete-ir">
+            <input type="hidden" id="reqId" name="reqId" value="0"/>
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

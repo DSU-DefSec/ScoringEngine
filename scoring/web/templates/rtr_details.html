@@ -31,17 +31,17 @@
         {{ rtr.completed }}
         {% endif %}
     </div>
-    <div>
-    <span><strong>System:</strong></span>
-    <span>{{ rtr.system_id }}</span>
-    </div>
-    <div>
-    <span><strong>Type of breach:</strong></span>
-    <span>{{ rtr.btype }}</span>
-    </div>
-    <div>
-    <span><strong>Point penalty:</strong></span>
-    <span>{{ rtr.point_penalty }}</span>
+        <div>
+        <span><strong>System:</strong></span>
+        <span>{{ rtr.system_id }}</span>
+        </div>
+        <div>
+        <span><strong>Type of breach:</strong></span>
+        <span>{{ rtr.btype }}</span>
+        </div>
+        <div>
+        <span><strong>Point penalty:</strong></span>
+        <span>{{ rtr.point_penalty }}</span>
     </div>
 
 </div>
@@ -81,20 +81,17 @@ window.onload = function () {
 </script>
 
 <form method="post" action="rtr_details">
-
-<div>
+    <div>
+        <br>
+        <span class=""><strong><u>Admin Comments</u></strong></span>
+        {% if current_user.is_admin %}
+        <textarea name="admin_comment" id="admin_comment" class="col-12" style="height:100%; resize:none;" onkeyup="textAreaAdjust(this)">{{ rtr.admin_comment }}</textarea>
+        {% else %}
+        <p class="">{{ rtr.admin_comment }}</p>
+        {% endif %}
+        <br>
+    </div>
     <br>
-    <span class=""><strong><u>Admin Comments</u></strong></span>
-    {% if current_user.is_admin %}
-    <textarea name="admin_comment" id="admin_comment" class="col-12" style="height:100%; resize:none;" onkeyup="textAreaAdjust(this)">{{ rtr.admin_comment }}</textarea>
-    {% else %}
-    <p class="">{{ rtr.admin_comment }}</p>
-    {% endif %}
-    <br>
-</div>
-<br>
-
-
     <input type="hidden" id="reqId" name="reqId" value="{{rtr.id}}"/>
     {% if current_user.is_admin %}
     {% if rtr.status == 1 or rtr.status == 2 %}
@@ -111,9 +108,7 @@ window.onload = function () {
     <div class="col-12">
         <input type="submit" value="Save Comments" class="col-12 btn btn-success"/>
     </div>
-    {% endif %}
-
-   
+    {% endif %}   
 </form>
 
 {% endblock %}

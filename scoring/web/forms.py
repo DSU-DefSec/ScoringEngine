@@ -100,6 +100,25 @@ class RedTeamActionReportForm(FlaskForm):
         self.team.choices=[(t.id, t.name) for t in wm.teams]
         self.btype.choices=[('root', 'Obtained root level access'), ('user', 'Obtained user level access'), ('userids', 'Obtained userids and passwords (encrypted or unencrypted)'), ('sensitive_files', 'Recovered sensitive files or pieces of information'), ('pii', 'Recovered customer PII from system'), ('other', 'Other')]
 
+class IncidentReportForm(FlaskForm):
+    """
+    A form for the blue team to file an incident report.
+
+    Attributes:
+        btype (SelectField): Field for selecting the type of breach
+        describe (TextAreaField): Field for selecting the credential's domain
+        wm (WebModel): The web model
+    """
+    btype = SelectField('Type of Action')
+    describe = TextAreaField('Description of Action')
+    # Todo: add file upload (flask-upload?)
+
+    def __init__(self, wm):
+        super(IncidentReportForm, self).__init__()
+        self.wm = wm
+        # Add options
+        self.btype.choices=[('root', 'Obtained root level access'), ('user', 'Obtained user level access'), ('userids', 'Obtained userids and passwords (encrypted or unencrypted)'), ('sensitive_files', 'Recovered sensitive files or pieces of information'), ('pii', 'Recovered customer PII from system'), ('other', 'Other')]
+
 
 class PasswordResetForm(FlaskForm):
     """

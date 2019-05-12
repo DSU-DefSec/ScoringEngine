@@ -3,6 +3,9 @@
 
 {% block content %}
 <br/>
+<h2>System Actions</h2>
+<br/>
+
 {% if not errors is none %}
     <div class="alert alert-{% if errors == '' %}success{% else %}danger{% endif %}" role="alert">
         {% if errors == '' %}

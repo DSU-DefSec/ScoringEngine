@@ -33,19 +33,19 @@ class ScoringEngine(object):
                 self.log_score()
                 self.check()
                  # Calculate SLAs only after all checks are done
-                sla_calculator = Timer(wait, self.calc_sla, args=(wait,))
+                sla_calculator = Timer(wait-5, self.calc_sla, args=(wait,))
                 sla_calculator.start()
             else:
-                print("Stopped")
+                logging.info("Stopped due to 'running' value being false.")
                 return
 
-            print("Default Interval: " + str(interval))
-            print("Jitter (delay): " + str(offset))
-            print("Wait Until Next Check: " + str(wait))
+            logging.info("Default Interval: %s", str(interval))
+            logging.info("Jitter (delay): %s", str(offset))
+            logging.info("Wait Until Next Check: %s", str(wait))
             time.sleep(wait)
 
     def check(self):
-        logging.info("Beginning new round of checks.")
+        logging.info("Spawning new round of checks.")
         self.em.reload_credentials()
 
         check_round = db.execute('INSERT INTO check_log () VALUES ()')
@@ -55,7 +55,6 @@ class ScoringEngine(object):
                     system.check(check_round, self.em.teams)
                 else:
                     system.check(check_round, [self.em.teams[self.team_num]])
-        logging.info("Round of checks has concluded.")
 
     def log_default_creds(self):
         cmd = ('INSERT INTO default_creds_log (team_id, perc_default) '
@@ -68,8 +67,8 @@ class ScoringEngine(object):
             db.insert('score_log', ['team_id', 'service_points', 'sla_violations', 'inject_points', 'redteam_points', 'ir_points'], (team_id, service_points, sla_violations, inject_points, redteam_points, ir_points,))
 
     def calc_sla(self, wait):
-        down_counts = {}
         for team in self.em.teams:
+            down_counts = {}
             results = db.get('result', ['time', 'check_id', 'result'], where='team_id=%s', orderby='time ASC', args=(team.id,))
             logging.info("Calculating SLAs for team %s.", str(team.team_num))
             sla_counter = 0

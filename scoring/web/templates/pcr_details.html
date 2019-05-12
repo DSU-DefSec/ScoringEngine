@@ -83,5 +83,23 @@ window.onload = function () {
 }
 </script>
 
+<form method="post" action="pcr_details">
+    
+    <input type="hidden" id="reqId" name="reqId" value="{{pcr.id}}"/>
+    {% if current_user.is_admin %}
+    {% if pcr.status == 1 or pcr.status == 2 %}
+    <div class="jusitfy-content-center">
+        <div class="col-6 float-right">
+            <input type="submit" name="approval" value="Close" class="mt-1 mb-5 col-12 btn btn-danger"/>
+        </div>
+        <div class="col-6">
+            <input type="submit" name="approval" value="Push Through" class="mt-1 mb-5 col-12 btn btn-success"/>
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
+    
+       
+</form>
 
 {% endblock %}

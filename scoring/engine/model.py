@@ -1,11 +1,14 @@
 from threading import Thread, Timer
 from enum import IntEnum
 from time import sleep
+import logging
 import datetime
 import random
 import copy
 import json
 import db
+
+log = logging.getLogger(__name__)
 
 class Team(object):
     """
@@ -216,6 +219,7 @@ class Check(object):
                 the check
             result (bool): The result of the check
         """
+        # Insert value into DB
         cmd = ("INSERT INTO result (check_id, check_io_id, team_id, "
 	       "check_round, time, poll_input, poll_result, result) "
                "VALUES (%s, %s, %s, %s, NOW(), %s, %s, %s)")
@@ -229,6 +233,14 @@ class Check(object):
             return
         db.execute(cmd, (self.id, check_io_id, team_id, check_round,
                          poll_input, poll_result, result))
+        
+        #  Increment service score in DB
+        if result == True:
+            new_service_score = str(db.get('team', ['service_points'], \
+                where='id=%s', args=(team_id,))[0][0] + 1)
+            db.modify('team', 'service_points=%s', (new_service_score, \
+                str(team_id)), where='id=%s')
+            log.debug('Incremented service score for team id %s.', str(team_id))
 
 
 class CheckIO(object):
@@ -489,7 +501,7 @@ class RedTeamReport(ScoringRequest):
         ScoringRequest.__init__(self, team_id, status, id, submitted, completed)
         self.system_id = system_id
         self.btype = btype
-        self.description = description;
+        self.description = description
         self.point_penalty = point_penalty
         self.admin_comment = admin_comment
         self.dbname = 'rtr'
@@ -535,7 +547,6 @@ class RedTeamReport(ScoringRequest):
         """           
         updated_redteam_points = db.get('team', ['redteam_points'], where='id=%s', args=(team.id))[0][0] + self.point_penalty
         db.modify('team', 'redteam_points=%s', (updated_redteam_points, team.id), where='id=%s')
-        db.execute(cmd)
         self.completed = datetime.datetime.now()
         db.modify(self.dbname, 'completed=%s', (self.completed, self.id), where='id=%s')
         self.set_status(REQStatus.COMPLETE)
@@ -545,47 +556,50 @@ class IncidentReport(ScoringRequest):
     A submission of a blue team incident report.
 
     Attributes:
-        team_id (int): ID of the team that the request is for # todo: make this range so red teamers don't have to go one by one for a large exploit
+        team_id (int): ID of the team that the request is for
         status (REQStatus): The status of the request
         submitted (datetime): Submission time for the request
         completed (datetime): Completition time for the request
         id (int): ID of the request
-        point_penalty (int): Point penalty of the red team action
-        system_id (int): ID of the system compromised
-        team_comment (str): String of team's comment on RTR
-        admin_comment (str): String of admin's comment on RTR
+        btype (str): Type of breach
+        point_gain (int): Point gain of the incident report
+        system_id (int): ID of the system of the report
+        team_comment (str): String of team's comment on IR
+        admin_comment (str): String of admin's comment on IR
     """
-    def __init__(self, team_id, status, creds, id=None, check_id=None, domain_id=None, submitted=None, completed=None, team_comment='', admin_comment=''):
+    def __init__(self, team_id, status, system_id, btype, point_gain=0, submitted=None, completed=None, id=None, description='', team_comment='', admin_comment=''):
         ScoringRequest.__init__(self, team_id, status, id, submitted, completed)
-        self.system_id = check_id
+        self.system_id = system_id
+        self.btype = btype
+        self.description = description
+        self.point_gain = point_gain
         self.team_comment = team_comment
         self.admin_comment = admin_comment
-        self.dbname = 'rtr'
+        self.dbname = 'ir'
         if id is None:
             self.save()
 
-    def load(rtr_id):
+    def load(ir_id):
         """
-        Load a RedTeamRequest with the given ID.
+        Load an IncidentReport with the given ID.
 
         Arguments:
-            rtr_id (int): ID of RedTeamRequest in database
+            ir_id (int): ID of IncidentReport in database
 
         Returns:
-            PasswordChangeRequest: The password change request with the given ID
+            IncidentReport: The report with the given ID
         """
-        pcr_data = db.get('rtr', ['*'], where='id=%s', args=[pcr_id])[0]
-        id, team_id, check_id, domain_id, submitted, completed, status, creds, team_comment, admin_comment = pcr_data
-        creds = json.loads(creds)
-        pcr = PasswordChangeRequest(team_id, status, creds, id, check_id, domain_id, submitted, completed, team_comment, admin_comment)
-        return pcr
+        ir_data = db.get('ir', ['*'], where='id=%s', args=[ir_id])[0]
+        id, team_id, system_id, btype, point_gain, submitted, completed, status, description, team_comment, admin_comment = ir_data
+        ir = IncidentReport(team_id, status, system_id, btype, point_gain, submitted, completed, id, description, team_comment, admin_comment)
+        return ir
 
     def save(self):
         """
-        Save this new password change request to the database.
+        Save this new red team report to the database.
         """
-        columns = ['team_id', 'check_id', 'domain_id', 'submitted', 'completed', 'status', 'creds']
-        data = [self.team_id, self.check_id, self.domain_id, self.submitted, self.completed, int(self.status), json.dumps(self.creds)]
+        columns = ['team_id', 'system_id', 'btype', 'point_gain', 'submitted', 'completed', 'status', 'description', 'team_comment', 'admin_comment']
+        data = [self.team_id, self.system_id, self.btype, self.point_gain, self.submitted, self.completed, int(self.status), self.description, self.team_comment, self.admin_comment]
         self.id = db.insert(self.dbname, columns, data)
 
     def set_team_comment(self, team_comment):
@@ -608,11 +622,12 @@ class IncidentReport(ScoringRequest):
         self.admin_comment = admin_comment
         db.modify(self.dbname, 'admin_comment=%s', (admin_comment, self.id), where='id=%s')
 
-    def service_request(self):
+    def service_request(self, team):
         """
-        Service this request, applying or denying the point deduction and updating the status.
+        Service this request, applying or denying the point gain and updating the status.
         """           
-        # code
+        updated_ir_points = db.get('team', ['ir_points'], where='id=%s', args=(team.id))[0][0] + self.point_gain
+        db.modify('team', 'ir_points=%s', (updated_ir_points, team.id), where='id=%s')
         self.completed = datetime.datetime.now()
         db.modify(self.dbname, 'completed=%s', (self.completed, self.id), where='id=%s')
         self.set_status(REQStatus.COMPLETE)

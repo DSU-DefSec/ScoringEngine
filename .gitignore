@@ -8,7 +8,7 @@ instance/
 dist/
 build/
 *.egg-info/
-~
+app.log
 
 scoring/checkfiles/*
 !scoring/checkfiles/.gitkeep

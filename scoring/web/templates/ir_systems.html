@@ -1,1 +1,56 @@
-todo
+{% extends 'base.html' %}
+{% block systems %}active{% endblock %}
+
+{% block content %}
+
+<br/>
+<h2>Issue Incident Reports for a System</h2>
+<br/>
+
+<style>
+#system-table {
+    width:75%;
+    margin: auto;
+}
+
+#system-table td,th {
+    font-weight: bold;
+}
+
+#system-table button {
+    display: block;
+}
+</style>
+
+<table class="table" id="system-table">
+    <thead class="thead-dark">
+        <th>System</th>
+        <th>File an Incident Report</th>
+        <th><a href="{{ url_for('ir_overview') }}" style="color:white">All Previous Reports</a>          
+            
+        </th>
+    </thead>
+    <tbody>
+        {% for system in systems %}
+        <tr>
+            <td>{{ system.name }}</td>
+            <td>
+                <form method="get" action="{{ url_for('ir_submit') }}">
+                    <input type="hidden" id="system" name="system_id" value="{{ system.name }}"/>
+                    <button type="submit" class="btn btn-success">Submit Incident Report</button>
+                </form>                    
+            </td>
+            <td>
+                <form action="{{ url_for('ir_overview') }}" method="get">
+                    <input type="hidden" id="system" name="system_id" value="{{ system.name }}"/>
+                    <button class="btn btn-primary">
+                        View Reports
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
