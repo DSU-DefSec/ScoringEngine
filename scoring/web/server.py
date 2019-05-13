@@ -2,11 +2,15 @@
 
 # Flask and system imports
 import flask
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, send_file
 import flask_login
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from urllib.parse import urlparse, urljoin
+from werkzeug.utils import secure_filename
+import os
 import datetime
+import uuid
+from pathlib import Path
 
 # Custom imports
 from engine.model import PasswordChangeRequest, RedTeamReport, IncidentReport, REQStatus
@@ -456,9 +460,14 @@ def rtr_submit():
     form = RedTeamActionReportForm(wm)
     if request.method == 'POST':
         if form.validate_on_submit():
-            success = True
+            filedata = form.evidence.data
+            filename = secure_filename(filedata.filename)
+            filepath = "/opt/scoring/scoring/files/" + uuid.uuid4().hex + "-" + str(filename)
+            filedata.save(filepath)
             team_id = form.team.data
             btype = form.btype.data
+            description = form.describe.data
+            
             if btype == 'root':
                 point_penalty = 100
             elif btype == 'user':
@@ -469,14 +478,13 @@ def rtr_submit():
                 point_penalty = 25
             elif btype == 'pii':
                 point_penalty = 200
-            elif btype == 'other':
-                point_penalty = 50
             else:
                 point_penalty = 0
 
-            description = form.describe.data
-            rtr = RedTeamReport(team_id, int(REQStatus.PENDING), system_id, btype, description=description, point_penalty=point_penalty)
+            rtr = RedTeamReport(team_id, int(REQStatus.PENDING), system_id, btype, \
+                filepath=filepath, description=description, point_penalty=point_penalty)
             return redirect(url_for('rtr'))
+
     return render_template('rtr_submit.html', form=form, rtr_id=rtr_id, system_id=system_id)     
 
 @app.route('/rtr_details', methods=['GET', 'POST'])
@@ -484,18 +492,18 @@ def rtr_submit():
 @redorwhite_required
 def rtr_details():
     """
-    Location to view and edit red team action reports.
+    Location to view and approve/deny red team action reports.
     """
     user = flask_login.current_user
     if request.method == 'GET':
         rtr_id = request.args.get('id')
         rtr = RedTeamReport.load(rtr_id)
-        domains = {d.id:d for d in wm.domains}
-        checks = {c.id:c for c in wm.checks}
-        return render_template('rtr_details.html', rtr=rtr, checks=checks, domains=domains)
-
+        return render_template('rtr_details.html', rtr=rtr)
 
     elif request.method == 'POST':
+        if 'filepath' in request.form:
+            filepath = request.form['filepath']
+            return send_file(filepath, attachment_filename=Path(filepath).name)
         rtr_id = request.form['reqId']
         rtr = RedTeamReport.load(rtr_id)
         if user.is_admin:
@@ -510,6 +518,7 @@ def rtr_details():
                         rtr.set_status(status)
             comment = request.form['admin_comment']
             rtr.set_admin_comment(comment)
+
         return redirect(url_for('rtr_details') + '?id={}'.format(rtr_id))
 
 @app.route('/ir', methods=['GET', 'POST'])

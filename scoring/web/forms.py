@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import *
 from wtforms.validators import *
 import bcrypt
@@ -90,7 +91,7 @@ class RedTeamActionReportForm(FlaskForm):
     team = SelectField('Team', coerce=int)
     btype = SelectField('Type of Action')
     describe = TextAreaField('Description of Action')
-    # Todo: add file upload (flask-upload?)
+    evidence = FileField('Evidence', validators=[FileRequired()])
 
     def __init__(self, wm):
         super(RedTeamActionReportForm, self).__init__()

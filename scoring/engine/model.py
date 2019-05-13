@@ -497,12 +497,14 @@ class RedTeamReport(ScoringRequest):
         id (int): ID of the request
         admin_comment (str): String of admin's comment on the report
     """
-    def __init__(self, team_id, status, system_id, btype, point_penalty=0, submitted=None, completed=None, id=None, description='', admin_comment=''):
+    def __init__(self, team_id, status, system_id, btype, point_penalty=0, \
+        submitted=None, completed=None, id=None, filepath='', description='', admin_comment=''):
         ScoringRequest.__init__(self, team_id, status, id, submitted, completed)
         self.system_id = system_id
         self.btype = btype
-        self.description = description
         self.point_penalty = point_penalty
+        self.filepath = filepath
+        self.description = description
         self.admin_comment = admin_comment
         self.dbname = 'rtr'
         if id is None:
@@ -519,17 +521,27 @@ class RedTeamReport(ScoringRequest):
             RedTeamRequest: The report with the given ID
         """
         rtr_data = db.get('rtr', ['*'], where='id=%s', args=[rtr_id])[0]
-        id, team_id, system_id, btype, point_penalty, submitted, completed, status, description, admin_comment = rtr_data
-        rtr = RedTeamReport(team_id, status, system_id, btype, point_penalty, submitted, completed, id, description, admin_comment)
+        id, team_id, system_id, btype, point_penalty, submitted, completed, status, filepath, description, admin_comment = rtr_data
+        rtr = RedTeamReport(team_id, status, system_id, btype, point_penalty, submitted, completed, id, filepath, description, admin_comment)
         return rtr
 
     def save(self):
         """
         Save this new red team report to the database.
         """
-        columns = ['team_id', 'system_id', 'btype', 'point_penalty', 'submitted', 'completed', 'status', 'description', 'admin_comment']
-        data = [self.team_id, self.system_id, self.btype, self.point_penalty, self.submitted, self.completed, int(self.status), self.description, self.admin_comment]
+        columns = ['team_id', 'system_id', 'btype', 'point_penalty', 'submitted', 'completed', 'status', 'filepath', 'description', 'admin_comment']
+        data = [self.team_id, self.system_id, self.btype, self.point_penalty, self.submitted, self.completed, int(self.status), self.filepath, self.description, self.admin_comment]
         self.id = db.insert(self.dbname, columns, data)
+
+    def set_filepath(self, filepath):
+        """
+        Set the filepath for this request and save it to the database.
+
+        Arguments:
+            filepath (str): New filepath
+        """
+        self.filepath = filepath
+        db.modify(self.dbname, 'filepath=%s', (filepath, self.id), where='id=%s')
 
     def set_admin_comment(self, admin_comment):
         """

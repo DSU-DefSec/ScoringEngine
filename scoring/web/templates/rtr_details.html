@@ -55,6 +55,16 @@
         <tr>
             <td>{{ rtr.description }}</td>
         </tr>
+        {% if rtr.filename != '' %}
+        <tr>
+            <td>
+                <form method="POST" action="{{ url_for('rtr_details') }}">
+                    <input type="hidden" id="system" name="filepath" value="{{ rtr.filepath }}"/>
+                    <button type="submit" class="btn btn-success">Download uploaded evidence</button>
+                </form>
+            </td>
+        </tr>
+        {% endif %}
     </tbody>
 </table>
 </div>

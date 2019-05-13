@@ -146,6 +146,7 @@ CREATE TABLE `rtr` (
     `submitted` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `completed` TIMESTAMP NULL,
     `status` INT NOT NULL,
+    `filepath` VARCHAR(255) DEFAULT '',
     `description` VARCHAR(4095) DEFAULT '',
     `admin_comment` VARCHAR(4095) DEFAULT '',
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)

@@ -10,6 +10,7 @@ build/
 *.egg-info/
 app.log
 
+scoring/files
 scoring/checkfiles/*
 !scoring/checkfiles/.gitkeep
 !scoring/checkfiles/expected/.gitkeep
