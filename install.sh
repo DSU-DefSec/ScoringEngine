@@ -62,7 +62,7 @@ echo -e "$plus Installing web software..."
 
 echo -e "$plus Configuring nginx..."
     cp install/scoring.site /etc/nginx/sites-available/
-    rm /etc/nginx/sites-enabled/scoring.site
+    rm -f /etc/nginx/sites-enabled/scoring.site
     ln -s /etc/nginx/sites-available/scoring.site /etc/nginx/sites-enabled/
     cp -f ./install/nginx.conf /etc/nginx/nginx.conf
     if [ -f /etc/nginx/sites-enabled/default ]; then rm /etc/nginx/sites-enabled/default; fi 
