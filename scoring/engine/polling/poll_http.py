@@ -1,3 +1,4 @@
+import time, timeout_decorator
 import requests
 from requests.exceptions import *
 import re
@@ -23,6 +24,7 @@ class HttpPollResult(PollResult):
 
 class HttpPoller(FilePoller):
     
+    @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
         try:
             proto = poll_input.proto

@@ -1,3 +1,4 @@
+import time, timeout_decorator
 import socket
 
 from .poller import PollInput, PollResult
@@ -20,6 +21,7 @@ class SmbPollResult(PollResult):
 
 class SmbPoller(FilePoller):
 
+    @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
         username = poll_input.credentials.username
         password = poll_input.credentials.password
@@ -32,6 +34,8 @@ class SmbPoller(FilePoller):
         f.close()
         cmd = 'get "{}" "{}"'.format(poll_input.path, f.name)
         smbcli = ['smbclient', '-U', username, share, password, '-c', cmd]
+        if username == 'dsu':
+            smbcli = smbcli[:1] + smbcli[3:]
         if not domain is None:
             smbcli.extend(['-W', domain.domain])
         try:

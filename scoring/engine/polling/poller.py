@@ -1,4 +1,5 @@
 from ..timeout import timeout
+import time, timeout_decorator
 import copy
 
 class PollInput(object):
@@ -86,7 +87,7 @@ class Poller(object):
             poll_result = PollResult(e)
         return poll_result
 
-    @timeout(20)
+    @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
         """Poll a service and return a PollResult.
 

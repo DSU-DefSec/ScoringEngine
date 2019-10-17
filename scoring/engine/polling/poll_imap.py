@@ -1,3 +1,4 @@
+import time, timeout_decorator
 from imaplib import IMAP4
 import socket
 from .poller import PollInput, PollResult, Poller
@@ -17,6 +18,7 @@ class ImapPollResult(PollResult):
 
 class ImapPoller(Poller):
 
+    @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
         username = poll_input.credentials.username
         username = '{}@falsecod.com'.format(username)
