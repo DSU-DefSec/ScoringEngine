@@ -34,8 +34,6 @@ class SmbPoller(FilePoller):
         f.close()
         cmd = 'get "{}" "{}"'.format(poll_input.path, f.name)
         smbcli = ['smbclient', '-U', username, share, password, '-c', cmd]
-        if username == 'dsu':
-            smbcli = smbcli[:1] + smbcli[3:]
         if not domain is None:
             smbcli.extend(['-W', domain.domain])
         try:
