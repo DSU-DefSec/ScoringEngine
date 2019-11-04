@@ -5,19 +5,21 @@ import re
 from .poller import PollInput, PollResult, Poller
 from .file_poller import FilePoller
 import urllib3
+from bs4 import BeautifulSoup
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class HttpPollInput(PollInput):
 
-    def __init__(self, proto, path, host=None, server=None, port=None):
+    def __init__(self, proto, path, host=None, user_field=None, pass_field=None, server=None, port=None):
         super(HttpPollInput, self).__init__(server, port)
         self.proto = proto
         self.path = path
         self.host = host
+        self.user_field = user_field
+        self.pass_field = pass_field
 
 class HttpPollResult(PollResult):
-
     def __init__(self, file_name, exceptions):
         super(HttpPollResult, self).__init__(exceptions)
         self.file_name = file_name
@@ -30,32 +32,30 @@ class HttpPoller(FilePoller):
             proto = poll_input.proto
             server = poll_input.server
 
-            # Temp fix: Remove after comp!
-            if server in ['10.0.1.90', '10.0.1.95']: #, '10.0.2.90', '10.0.2.95']:
-                server  = server.split('.')
-                server[1] = '10'
-                server = '.'.join(server)
-
             port = poll_input.port
             path = poll_input.path
             url = '{}://{}/{}'.format(proto, server, path)
             if poll_input.host is None:
-                r = requests.get(url, verify=False)
+                headers = {}
             else:
-                r = requests.get(url, headers={'Host': poll_input.host}, verify=False, allow_redirects=False)
-                if 'Location' in r.headers:
-                    url_parts = urllib3.util.parse_url(r.headers['Location'])
-                    url = ''
-                    if not url_parts.scheme is None:
-                        url += url_parts.scheme + '://'
-                    url += poll_input.server
-                    url += url_parts.path
-                    r = requests.get(url, headers={'Host': url_parts.host}, verify=False)
-
+                headers = {'Host': poll_input.host}
+            
+            session = requests.Session()
+            r = session.get(url, headers=headers, verify=False, allow_redirects=False)
+#            while 'Location' in r.headers:
+#                url_parts = urllib3.util.parse_url(r.headers['Location'])
+#                suburl = ''
+#                if not url_parts.scheme is None:
+#                    suburl += url_parts.scheme + '://'
+#                suburl += poll_input.server
+#                suburl += url_parts.path
+#                r = sesssion.get(suburl, headers=headers, verify=False)
             r.raise_for_status()
 
             content = r.text
-            content = re.sub(r'10.0.[0-9]', '', content)
+
+            if not poll_input.user_field is None:
+                content = perform_login(poll_input, session, headers, url, content)
 
             f = self.open_file('html')
             f.write(content.encode('utf-8'))
@@ -66,3 +66,28 @@ class HttpPoller(FilePoller):
         except Exception as e:
             result = HttpPollResult(None, e)
             return result
+
+def perform_login(poll_input, session, headers, url, content):
+    username = poll_input.credentials.username
+    password = poll_input.credentials.password
+    soup = BeautifulSoup(content, 'html.parser')
+    data = {poll_input.user_field: username, poll_input.pass_field: password}
+    
+    for field in soup.find_all(type='hidden'):
+        if not field.get('value') is None:
+            data[field['name']] = field['value']
+
+    r = session.post(url, data, headers=headers, allow_redirects=False)
+    r.raise_for_status()
+
+    while 'Location' in r.headers:
+        url_parts = urllib3.util.parse_url(r.headers['Location'])
+        suburl = ''
+        if not url_parts.scheme is None:
+            suburl += url_parts.scheme + '://'
+        suburl += poll_input.server
+        suburl += url_parts.path
+        r = session.get(suburl, headers=headers, verify=False, allow_redirects=False)
+    r.raise_for_status()
+
+    return r.text
