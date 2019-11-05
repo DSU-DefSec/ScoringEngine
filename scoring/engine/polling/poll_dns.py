@@ -1,3 +1,4 @@
+import time, timeout_decorator
 from dns import resolver
 from dns.resolver import *
 from .poller import PollInput, PollResult, Poller
@@ -34,6 +35,7 @@ class DnsPoller(Poller):
     This Poller uses a DNS stub resolver to perform DNS queries against
     a server.
     """
+    @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
         res = resolver.Resolver()
         res.nameservers = [poll_input.server]

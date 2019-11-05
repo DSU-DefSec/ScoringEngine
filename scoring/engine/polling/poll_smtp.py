@@ -1,3 +1,4 @@
+import time, timeout_decorator
 from smtplib import *
 import socket
 import random
@@ -21,6 +22,7 @@ class SmtpPollResult(PollResult):
 
 
 class SmtpPoller(Poller):
+    @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
         from_user = random.choice(poll_input.users)
         to_user = random.choice(poll_input.users)

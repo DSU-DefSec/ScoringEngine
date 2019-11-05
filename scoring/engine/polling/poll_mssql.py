@@ -1,3 +1,4 @@
+import time, timeout_decorator
 import pymssql
 import socket
 
@@ -18,6 +19,7 @@ class MssqlPollResult(PollResult):
 
 class MssqlPoller(Poller):
 
+    @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
         username = poll_input.credentials.username
         password = poll_input.credentials.password

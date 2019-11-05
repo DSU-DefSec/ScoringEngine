@@ -1,0 +1,176 @@
+settings:
+    running: 1
+    revert_penalty: 350
+    webserver_ip: 127.0.0.1
+    polling:
+        interval: 20
+        jitter: 0
+        timeout: 20
+    pcr:
+        approval_window: 0
+        service_interval: 0
+        service_jitter: 0
+
+web_admins:
+    admin: admin
+
+teams:
+    Team1:
+        team_num: 1
+        user:
+            username: team1
+            password: Password1!
+
+vapps:
+    LinuxChecklist:
+        subnet: "192.168.{}.0"
+        netmask: 255.255.255.0
+        systems:
+            pfSense:
+                host: 1
+            WEB:
+                host: 100
+                checks:
+                    web-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            name-http:
+                                input:
+                                    proto: http
+                                    path: ""
+                                    host: "www.defsec.vnet"
+                                output:
+                                    tolerance: 0.05
+                                    file: www.html
+                    web-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            web-ssh:
+                                input:
+                                    task: dirname `pwd`
+                                output: 
+                                    output: /home
+            SHARE:
+                host: 50
+                checks:
+                    share-ftp:
+                        type: ftp
+                        port: 21
+                        checker: hash_match
+                        ios:
+                            share-ftp:
+                                input:
+                                    filepath: file.txt
+                                output:
+                                    hash: 6df3779f3a62d6922353ac8b9ec669e17acbba09
+                    share-smb:
+                        type: smb
+                        port: 445
+                        checker: hash_match
+                        ios:
+                            share-smb:
+                                input:
+                                    hostname: centos
+                                    sharename: share
+                                    path: file.txt
+                                output:
+                                    hash: 6df3779f3a62d6922353ac8b9ec669e17acbba09
+credentials:
+    default_password: 'Password1!'
+    local:
+        olga.avila:
+            ios: ['web-ssh', 'share-ftp', 'share-smb']
+        loren.petersen:
+            ios: ['web-ssh']
+        irma.kirby:
+            ios: ['web-ssh', 'share-ftp', 'share-smb']
+        rodolfo.espinoza:
+            ios: ['web-ssh', 'share-ftp']
+        elva.anderson:
+            ios: ['web-ssh']
+        goldie.mckenzie:
+            ios: ['web-ssh', 'share-smb']
+        olga.beasley:
+            ios: ['web-ssh']
+        aubrey.lancaster:
+            ios: ['web-ssh', 'share-ftp']
+        francis.norris:
+            ios: ['web-ssh', 'share-ftp', 'share-smb']
+        carla.hebert:
+            ios: ['web-ssh', 'share-ftp', 'share-smb']
+        morris.tran:
+            ios: ['web-ssh', 'share-smb']
+        eric.rogers:
+            ios: ['web-ssh', 'share-ftp']
+        susie.robbins:
+            ios: ['web-ssh', 'share-smb']
+        gregory.stout:
+            ios: ['web-ssh']
+        virgil.gray:
+            ios: ['web-ssh']
+        milton.mills:
+            ios: ['web-ssh', 'share-ftp']
+        walter.mclaughlin:
+            ios: ['web-ssh', 'share-smb']
+        darlene.navarro:
+            ios: ['web-ssh', 'share-smb']
+        angelo.byrd:
+            ios: ['web-ssh', 'share-smb']
+        fernando.conway:
+            ios: ['web-ssh', 'share-ftp']
+        russell.bush:
+            ios: ['web-ssh', 'share-smb']
+        penny.hamilton:
+            ios: ['web-ssh', 'share-smb']
+        walter.frazier:
+            ios: ['web-ssh']
+        corey.patton:
+            ios: ['web-ssh', 'share-smb']
+        nichole.norton:
+            ios: ['web-ssh', 'share-ftp']
+        christopher.alvarado:
+            ios: ['share-ftp', 'share-smb']
+        billie.marks:
+            ios: ['share-ftp']
+        allan.roy:
+            ios: ['share-ftp']
+        lupe.moran:
+            ios: ['share-ftp']
+        bertha.thomas:
+            ios: ['share-ftp']
+        emma.bass:
+            ios: ['share-ftp', 'share-smb']
+        sophie.mclean:
+            ios: ['share-ftp', 'share-smb']
+        jerome.holden:
+            ios: ['share-ftp', 'share-smb']
+        ida.foreman:
+            ios: ['share-ftp', 'share-smb']
+        stuart.crane:
+            ios: ['share-ftp']
+        alberto.holman:
+            ios: ['share-ftp']
+        kendra.moss:
+            ios: ['share-ftp', 'share-smb']
+        victoria.weaver:
+            ios: ['share-ftp']
+        curtis.manning:
+            ios: ['share-ftp']
+        tracie.rosario:
+            ios: ['share-ftp']
+        annie.mack:
+            ios: ['share-smb']
+        gilbert.mckee:
+            ios: ['share-smb']
+        sandy.harper:
+            ios: ['share-smb']
+        helen.simon:
+            ios: ['share-smb']
+        jesus.holland:
+            ios: ['share-smb']
+        leroy.becker:
+            ios: ['share-smb']
