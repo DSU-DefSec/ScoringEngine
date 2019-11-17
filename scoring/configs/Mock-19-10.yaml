@@ -1,0 +1,381 @@
+settings:
+    running: 1
+    revert_penalty: 350
+    webserver_ip: 10.20.0.5
+    polling:
+        interval: 90
+        jitter: 0
+        timeout: 20
+    pcr:
+        approval_window: 0
+        service_interval: 0
+        service_jitter: 0
+
+web_admins:
+    admin: mysql3306
+
+teams:
+    Team1:
+        team_num: 1
+        user:
+            username: team1
+            password: MemberPreview
+    Team2:
+        team_num: 2
+        user:
+            username: team2
+            password: PowerfulGained
+    Team3:
+        team_num: 3
+        user:
+            username: team3
+            password: GlobalFailure
+    Team4:
+        team_num: 4
+        user:
+            username: team4
+            password: RoomsUnix
+
+vapps:
+    Mock:
+        subnet: "10.10.{}.0"
+        netmask: 255.255.255.0
+        systems:
+            pfSense:
+                host: 1
+            DC:
+                host: 10
+                checks:
+                    DC-ldap:
+                        type: ldap
+                        port: 389
+                        checker: match_ldap_output
+                        ios:
+                            dc-ldap:
+                                input:
+                                    base: cn=Users,dc=CRYSTALS,dc=LIFE
+                                    filter: (sAMAccountName=hamel.rispine)
+                                    attributes: [objectGUID]
+                                output:
+                                    objectGUID: [rhofYJZQnUiKOu0XA4YKGg==]
+                    DC-dns:
+                        type: dns
+                        port: 53
+                        checker: any_match
+                        ios:
+                            dns-www:
+                                input:
+                                    record_type: A
+                                    query: ftp.crystals.life
+                                output:
+                                    answer: [130]
+                            dns-owncloud:
+                                input:
+                                    record_type: A
+                                    query: owncloud.crystals.life
+                                output:
+                                    answer: [100]
+                            dns-share:
+                                input:
+                                    record_type: A
+                                    query: share.crystals.life
+                                output:
+                                    answer: [20]
+            SHARE:
+                host: 20
+                checks:
+                    SHARE-smb:
+                        type: smb
+                        port: 445
+                        checker: hash_match
+                        ios:
+                            share-smb:
+                                input:
+                                    hostname: Share
+                                    sharename: data
+                                    path: crystals.csv
+                                output:
+                                    hash: f2d4944e675209291ac1e5d51460a73cfe2febde
+            ECOM:
+                host: 30
+                checks:
+                    ECOM-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            ecom-http:
+                                input:
+                                    proto: http
+                                    path: "abantecart/"
+                                    host: "ecom.crystals.life"
+                                output:
+                                    tolerance: 0.05
+                                    file: ecom.html
+            CLIENT:
+                host: 40
+                checks:
+                    CLIENT-rdp:
+                        type: rdp
+                        port: 3389
+                        checker: authenticated
+                        ios:
+                            xp-rdp:
+                                input:
+                                output:
+            OWN:
+                host: 100
+                checks:
+                    OWN-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            owncloud-http:
+                                input:
+                                    proto: http
+                                    path: "index.php/login"
+                                    host: "owncloud.crystals.life"
+                                    user_field: "user"
+                                    pass_field: "password"
+                                output:
+                                    tolerance: 0.05
+                                    file: owncloud.html
+            SAMBA:
+                host: 110
+                checks:
+                    SAMBA-smb:
+                        type: smb
+                        port: 445
+                        checker: hash_match
+                        ios:
+                            lin2-smb:
+                                input:
+                                    hostname: Share
+                                    sharename: FileShare
+                                    path: crystal_info.txt
+                                output:
+                                    hash: 583169550d5719d6eaece8ba604125d3bdeb9b98
+            GUI:
+                host: 120
+                checks:
+                    GUI-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            lin3-ssh:
+                                input:
+                                    task: "echo -e '123\n456' | grep 1"
+                                output: 
+                                    output: "123"
+            FTP:
+                host: 130
+                checks:
+                    FTP-ftp:
+                        type: ftp
+                        port: 21
+                        checker: hash_match
+                        ios:
+                            lin4-ftp:
+                                input:
+                                    filepath: ftp/Payroll_info.csv
+                                output:
+                                    hash: e94806222674260e27ce182a71b38ed7b027709c
+                    FTP-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            lin4-ssh:
+                                input:
+                                    task: "getent passwd | head -n 1 | cut -d ':' -f 1"
+                                output: 
+                                    output: root
+credentials:
+    default_password: Password1!
+    local:
+        admin:
+            ios: ['owncloud-http']
+        missy.pues:
+            ios: ['lin2-smb', 'lin4-ftp']
+        robert.stainland:
+            ios: ['lin2-smb', 'lin4-ftp']
+        kiel.furmagier:
+            ios: ['lin2-smb', 'lin3-ssh', 'lin4-ftp']
+        chantalle.chansonne:
+            ios: ['lin2-smb', 'lin4-ssh']
+        leila.mussilli:
+            ios: ['lin2-smb', 'lin3-ssh', 'lin4-ftp']
+        noell.copin:
+            ios: ['lin2-smb', 'lin4-ftp', 'lin4-ssh']
+        penni.melin:
+            ios: ['lin2-smb', 'lin4-ftp']
+        rudolfo.harbar:
+            ios: ['lin2-smb', 'lin3-ssh']
+        devan.izac:
+            ios: ['lin2-smb']
+        rickie.bloodworth:
+            ios: ['lin2-smb', 'lin4-ftp']
+        adela.questier:
+            ios: ['lin2-smb', 'lin3-ssh', 'lin4-ssh']
+        violante.cazalet:
+            ios: ['lin2-smb', 'lin4-ssh']
+        paddy.itzkovitch:
+            ios: ['lin2-smb']
+        millard.boij:
+            ios: ['lin2-smb', 'lin3-ssh', 'lin4-ssh']
+        dwain.spenley:
+            ios: ['lin2-smb', 'lin4-ssh']
+        loise.peidro:
+            ios: ['lin2-smb', 'lin3-ssh']
+        jodie.painter:
+            ios: ['lin2-smb', 'lin3-ssh']
+        vicky.vlies:
+            ios: ['lin2-smb', 'lin3-ssh']
+        alonzo.balogun:
+            ios: ['lin2-smb', 'lin3-ssh', 'lin4-ssh']
+        dael.stutard:
+            ios: ['lin2-smb', 'lin3-ssh']
+        allix.sigert:
+            ios: ['lin2-smb', 'lin3-ssh', 'lin4-ssh']
+        harwilll.broadberry:
+            ios: ['lin2-smb', 'lin4-ftp', 'lin4-ssh']
+        murry.gantzman:
+            ios: ['lin2-smb']
+        elmo.leyborne:
+            ios: ['lin2-smb', 'lin4-ftp']
+        silvana.barson:
+            ios: ['lin2-smb']
+        timoteo.ensten:
+            ios: ['lin3-ssh']
+        burt.brand:
+            ios: ['lin3-ssh', 'lin4-ftp']
+        harmonia.houndesome:
+            ios: ['lin3-ssh', 'lin4-ftp', 'lin4-ssh']
+        othilie.dendon:
+            ios: ['lin3-ssh', 'lin4-ftp', 'lin4-ssh']
+        aloise.kenderdine:
+            ios: ['lin3-ssh', 'lin4-ssh']
+        trent.smedmore:
+            ios: ['lin3-ssh', 'lin4-ftp', 'lin4-ssh']
+        owen.colbrun:
+            ios: ['lin3-ssh', 'lin4-ssh']
+        greg.shellard:
+            ios: ['lin3-ssh', 'lin4-ftp']
+        van.angier:
+            ios: ['lin3-ssh', 'lin4-ftp', 'lin4-ssh']
+        berri.daish:
+            ios: ['lin3-ssh', 'lin4-ssh']
+        buddy.pesek:
+            ios: ['lin3-ssh', 'lin4-ftp']
+        heath.frohock:
+            ios: ['lin3-ssh', 'lin4-ftp', 'lin4-ssh']
+        katy.screeton:
+            ios: ['lin3-ssh', 'lin4-ssh']
+        niki.salt:
+            ios: ['lin3-ssh', 'lin4-ftp']
+        lizbeth.mcaster:
+            ios: ['lin4-ftp']
+        verla.lacheze:
+            ios: ['lin4-ftp']
+        laureen.spier:
+            ios: ['lin4-ftp']
+        hamel.rispine:
+            ios: ['lin4-ftp', 'lin4-ssh']
+        natale.skrzynski:
+            ios: ['lin4-ftp', 'lin4-ssh']
+        eamon.cowap:
+            ios: ['lin4-ftp', 'lin4-ssh']
+        katha.fresson:
+            ios: ['lin4-ftp', 'lin4-ssh']
+        elyssa.vodden:
+            ios: ['lin4-ssh']
+        jolene.carlon:
+            ios: ['lin4-ssh']
+        lisabeth.oldknow:
+            ios: ['lin4-ssh']
+    domain:
+        CRYSTALS.LIFE:
+            fidelity.chesworth:
+                ios: ['dc-ldap', 'share-smb']
+            silvana.barson:
+                ios: ['dc-ldap']
+            niki.salt:
+                ios: ['dc-ldap', 'xp-rdp']
+            vicky.vlies:
+                ios: ['dc-ldap']
+            leila.mussilli:
+                ios: ['dc-ldap']
+            penni.melin:
+                ios: ['dc-ldap']
+            othilie.dendon:
+                ios: ['dc-ldap', 'share-smb']
+            dael.stutard:
+                ios: ['dc-ldap', 'share-smb']
+            laureen.spier:
+                ios: ['dc-ldap']
+            shannah.chaster:
+                ios: ['dc-ldap', 'share-smb']
+            millard.boij:
+                ios: ['dc-ldap', 'share-smb']
+            kain.danaher:
+                ios: ['dc-ldap']
+            dwain.spenley:
+                ios: ['dc-ldap']
+            lizbeth.mcaster:
+                ios: ['dc-ldap']
+            noell.copin:
+                ios: ['dc-ldap', 'share-smb']
+            devan.izac:
+                ios: ['dc-ldap', 'share-smb']
+            timoteo.ensten:
+                ios: ['dc-ldap']
+            katy.screeton:
+                ios: ['dc-ldap']
+            owen.colbrun:
+                ios: ['dc-ldap', 'share-smb']
+            jodie.painter:
+                ios: ['dc-ldap']
+            lisabeth.oldknow:
+                ios: ['dc-ldap']
+            greg.shellard:
+                ios: ['dc-ldap']
+            rudolfo.harbar:
+                ios: ['dc-ldap']
+            missy.pues:
+                ios: ['dc-ldap']
+            robert.stainland:
+                ios: ['dc-ldap', 'share-smb']
+            violante.cazalet:
+                ios: ['share-smb']
+            hamel.rispine:
+                ios: ['share-smb']
+            esma.brindley:
+                ios: ['share-smb']
+            buddy.pesek:
+                ios: ['share-smb']
+            penny.hawkswell:
+                ios: ['share-smb']
+            allix.sigert:
+                ios: ['share-smb']
+            berri.daish:
+                ios: ['share-smb']
+            murry.gantzman:
+                ios: ['share-smb']
+            natale.skrzynski:
+                ios: ['share-smb']
+            adela.questier:
+                ios: ['share-smb']
+            kiel.furmagier:
+                ios: ['share-smb']
+            elmo.leyborne:
+                ios: ['share-smb']
+            chantalle.chansonne:
+                ios: ['share-smb']
+            verla.lacheze:
+                ios: ['share-smb']
+            harmonia.houndesome:
+                ios: ['share-smb']
+            alonzo.balogun:
+                ios: ['share-smb']
