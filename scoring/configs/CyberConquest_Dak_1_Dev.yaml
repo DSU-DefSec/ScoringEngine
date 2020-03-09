@@ -1,0 +1,48 @@
+settings:
+    running: 1
+    revert_penalty: 0
+    webserver_ip: 10.20.0.2
+    polling:
+        interval: 120
+        jitter: 30
+        timeout: 20
+    pcr:
+        approval_window: 0
+        service_interval: 0
+        service_jitter: 0
+
+web_admins:
+    admin: admin
+
+teams:
+    Test:
+        team_num: 1
+        user:
+            username: team1
+            password: team1 
+vapps:
+    CyberConquest:
+        subnet: "10.10.{}.0"
+        netmask: 255.255.255.0
+        systems:
+            pfSense:
+                host: 1
+            Silk-Monitor:
+                host: 50
+                checks:
+                    Silk-SSH:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            silk-ssh:
+                                input: 
+                                    task: "echo $((3 + 23))"
+                                output:
+                                    output: "26"
+
+credentials:
+    default_password: Password1!
+    local:
+        thalia.nani:
+            ios: ['silk-ssh']
