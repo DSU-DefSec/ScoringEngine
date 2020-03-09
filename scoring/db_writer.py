@@ -56,7 +56,7 @@ def write_systems(vapps):
     for base_name, vapp_data in vapps.items():
         for system,system_data in vapp_data['systems'].items():
             host = system_data['host']
-            db.insert('system', ['system', 'vapp', 'host'], (system, base_name, host,))
+            db.insert('system_tbl', ['system_row', 'vapp', 'host'], (system, base_name, host,))
 
 def write_teams(teams):
     """
@@ -137,12 +137,12 @@ def write_checks(vapps):
                     check_type = check_data['type']
                     port = check_data['port']
                     checker = check_data['checker']
-        
+
                     poller = get_poller(check_type)
                     checker = get_checker(check_type, checker)
-            
+
                     db_id = db.insert('service_check',
-                        ['name', 'port', 'check_function', 'poller', 'system'],
+                        ['name', 'port', 'check_function', 'poller', 'system_row'],
                         (name, port, checker, poller, system))
                     check_ids[name] = db_id
     return check_ids
@@ -172,7 +172,7 @@ def write_check_ios(vapps, check_ids):
                         expected = check_io_data['output']
                         expected = json.dumps(expected)
                         cid = check_ids[check]
-                
+
                         db_id = db.insert('check_io',
                             ['input', 'expected', 'check_id'],
                             (poll_input, expected, cid))

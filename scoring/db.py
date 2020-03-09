@@ -16,7 +16,7 @@ def connect():
     Returns:
         Connection: A connection to the database
     """
-    connection = pymysql.connect(host=host, 
+    connection = pymysql.connect(host=host,
             user=user, password=password)
     return connection
 
@@ -102,7 +102,7 @@ def reset_all_tables():
     """
     reset_table('settings')
     reset_table('vapp')
-    reset_table('system')
+    reset_table('system_tbl')
     reset_table('team')
     reset_table('users')
     reset_table('domain')
@@ -125,7 +125,7 @@ def insert(table, columns, args):
         args (List(str)): List of pieces of data corresponding to the columns
 
     Returns:
-        int: The ID of the inserted row 
+        int: The ID of the inserted row
     """
     columns = ','.join(columns)
     vals = ', '.join(['%s']*len(args))

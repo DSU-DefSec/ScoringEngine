@@ -2,7 +2,7 @@ USE `scoring`;
 SET foreign_key_checks = 0;
 
 DROP TABLE IF EXISTS `settings`;
-CREATE TABLE `settings` ( 
+CREATE TABLE `settings` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `skey` VARCHAR(255) NOT NULL,
     `value` VARCHAR(255) NOT NULL);
@@ -13,9 +13,9 @@ CREATE TABLE `vapp` (
     `subnet` VARCHAR(15) NOT NULL,
     `netmask` VARCHAR(15) NOT NULL);
 
-DROP TABLE IF EXISTS `system`;
-CREATE TABLE `system` (
-    `system` VARCHAR(255) PRIMARY KEY,
+DROP TABLE IF EXISTS `system_tbl`;
+CREATE TABLE `system_tbl` (
+    `system_row` VARCHAR(255) PRIMARY KEY,
     `vapp` VARCHAR(255) NOT NULL,
     `host` INT NOT NULL,
     FOREIGN KEY (`vapp`) REFERENCES `vapp`(`base_name`)
@@ -27,7 +27,7 @@ CREATE TABLE `team` (
     `name` VARCHAR(255) NOT NULL UNIQUE,
     `team_num` INT NOT NULL UNIQUE
     );
-        
+
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -37,16 +37,16 @@ CREATE TABLE `users` (
     `is_admin` BOOL NOT NULL,
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
         ON DELETE CASCADE);
-    
+
 DROP TABLE IF EXISTS `service_check`;
 CREATE TABLE `service_check` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL UNIQUE,
-    `system` VARCHAR(255) NOT NULL,
+    `system_row` VARCHAR(255) NOT NULL,
     `port` INT NOT NULL,
     `check_function` VARCHAR(255) NOT NULL,
     `poller` VARCHAR(255) NOT NULL,
-    FOREIGN KEY (`system`) REFERENCES `system`(`system`)
+    FOREIGN KEY (`system_row`) REFERENCES `system_tbl`(`system_row`)
         ON DELETE CASCADE);
 
 DROP TABLE IF EXISTS `domain`;
@@ -145,7 +145,7 @@ DROP TABLE IF EXISTS `revert_log`;
 CREATE TABLE `revert_log` (
     `time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `team_id` INT NOT NULL,
-    `system` VARCHAR(255),
+    `system_row` VARCHAR(255),
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
         ON DELETE CASCADE);
 
