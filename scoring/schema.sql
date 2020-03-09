@@ -154,24 +154,24 @@ CREATE TABLE `persistence_log` (
     `time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `defender` INT NOT NULL,
     `attacker` INT NOT NULL,
-    `system` VARCHAR(255),
+    `system_row` VARCHAR(255),
     FOREIGN KEY (`defender`) REFERENCES `team`(`id`)
         ON DELETE CASCADE,
     FOREIGN KEY (`defender`) REFERENCES `team`(`id`)
         ON DELETE CASCADE,
-    FOREIGN KEY (`system`) REFERENCES `system`(`system`)
+    FOREIGN KEY (`system_row`) REFERENCES `system_tbl`(`system_row`)
         ON DELETE CASCADE);
 
 DROP TABLE IF EXISTS `persistence`;
-CREATE TABLE `persistence` ( 
+CREATE TABLE `persistence` (
     `id` INT PRIMARY KEY AUTO_INCREMENT,
     `owner` INT NOT NULL,
-    `system` VARCHAR(255) NOT NULL,
+    `system_row` VARCHAR(255) NOT NULL,
     `attacker` INT NOT NULL,
     `active` BOOL NOT NULL DEFAULT 0,
     FOREIGN KEY (`owner`) REFERENCES `team`(`id`)
         ON DELETE CASCADE,
-    FOREIGN KEY (`system`) REFERENCES `system`(`system`)
+    FOREIGN KEY (`system_row`) REFERENCES `system_tbl`(`system_row`)
         ON DELETE CASCADE,
     FOREIGN KEY (`attacker`) REFERENCES `team`(`id`)
         ON DELETE CASCADE);
