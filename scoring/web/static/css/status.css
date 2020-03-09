@@ -1,0 +1,67 @@
+div.container {
+    width: 90%;
+}
+
+table th {
+    text-align: center;
+}
+
+table td {
+//    width: 14.29%;
+}
+
+table td.pass {
+    background-color: LightGreen;
+}
+
+table td.fail {
+    background-color: LightCoral;
+}
+
+table td.team-name {
+    width: 10%;
+    vertical-align: middle;
+    text-align: center;
+    font-weight: bold;
+}
+
+table td.persistence {
+    width: 15%;
+}
+
+td.check-name {
+    text-align: center;
+}
+
+td img {
+    width: 22%;
+}
+
+td.team-name img {
+    display: block;
+    margin:auto;
+    margin-bottom: 10%;
+    width: 30%;
+}
+
+img.team2 {
+    filter: hue-rotate(25deg) saturate(100%) brightness(250%);
+}
+img.team3 {
+    filter: hue-rotate(60deg) saturate(100%) brightness(300%);
+}
+img.team4 {
+    filter: hue-rotate(120deg);
+}
+img.team5 {
+    filter: hue-rotate(230deg);
+}
+img.team6 {
+    filter: hue-rotate(280deg);
+}
+img.team7 {
+    filter: hue-rotate(320deg) brightness(0%);
+}
+img.team8 {
+    filter: hue-rotate(180deg) brightness(200%);
+}

@@ -29,6 +29,8 @@ def load_config(filename):
     db_writer.write_systems(vapps)
     print("Writing teams to DB...")
     team_ids = db_writer.write_teams(teams)
+    print("Initializing persistence...")
+    db_writer.write_persistence()
     print("Writing users to DB...")
     user_ids = db_writer.write_web_users(admins, teams, team_ids)
     print("Writing domains to DB...")

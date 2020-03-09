@@ -24,9 +24,12 @@ def get_checker(check_type, check_function):
         'ldap':  'ldap_check',
         'dns':   'dns_check',
         'log':   'log_check',
+        'nfs':   'nfs_check',
     }
     if check_function == 'authenticated':
         check_module = 'auth_check'
+    elif check_function == 'noerror':
+        check_module = 'exceptions'
     else:
         check_module = check_modules[check_type]
 
@@ -71,9 +74,15 @@ def write_teams(teams):
     team_ids = {}
     for name, team_data in teams.items():
         team_num = team_data['team_num']
-        db_id = db.insert('team', ['name', 'team_num'], (name, team_num,))
-        team_ids[name] = db_id
+        db.insert('team', ['id', 'name'], (team_num, name,))
+        db.insert('score', ['team_id', 'score'], (team_num, 0,))
+        team_ids[name] = team_num
     return team_ids
+
+def write_persistence():
+    cmd = ("INSERT INTO persistence (owner, system, attacker) SELECT t1.id,system,t2.id FROM "
+           "team t1 JOIN system JOIN team t2")
+    db.execute(cmd)
 
 def write_web_users(admins, teams, team_ids):
     """

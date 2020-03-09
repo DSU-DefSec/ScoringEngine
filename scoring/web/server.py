@@ -3,6 +3,10 @@
 from .web_model import WebModel
 import flask
 from flask import Flask, render_template, request, redirect, url_for
+
+app = Flask(__name__)
+app.secret_key = 'this is a secret'
+
 from urllib.parse import urlparse, urljoin
 import datetime
 from .forms import *
@@ -16,9 +20,8 @@ from .decorators import *
 import db
 import re
 import ialab
+from .util import filters
 
-app = Flask(__name__)
-app.secret_key = 'this is a secret'
 
 wm = WebModel()
 wm.load_db()
@@ -44,11 +47,12 @@ def status():
     """
     Render the main status page.
     """
+    wm.reload_persistence()
     teams = wm.teams
-    checks = wm.checks
-    checks.sort(key=lambda c: c.name)
+    systems = wm.systems
+    systems.sort(key=lambda s: s.name)
     results = wm.latest_results()
-    teams.sort(key=lambda t: t.name)
+    teams.sort(key=lambda t: t.id)
     times = []
     for team_id,team_results in results.items():
         for check_id,result in team_results.items():
@@ -57,7 +61,29 @@ def status():
         last_time = ''
     else:
         last_time = max(times)
-    return render_template('status.html', teams=teams, checks=checks, results=results, last_time=last_time)
+    return render_template('status.html', teams=teams, systems=systems, results=results, last_time=last_time)
+
+@app.route('/leaderboard')
+def leaderboard():
+    teams = wm.teams
+    ranking_rows = db.get('score', ['team_id', 'score'], orderby='score DESC')
+    rankings = []
+    rank = 1
+    for team_id, score in ranking_rows:
+        ranking = {}
+        ranking['rank'] = rank
+        for team in teams:
+            if team.id == team_id:
+                ranking['team'] = team.name
+                break
+        ranking['score'] = '{:,}'.format(score)
+        rankings.append(ranking)
+        rank += 1
+    for i in range(1, len(rankings)):
+        if rankings[i]['score'] == rankings[i-1]['score']:
+            rankings[i]['rank'] = rankings[i-1]['rank']
+
+    return render_template('leaderboard.html', rankings=rankings)
 
 @app.route('/credentials', methods=['GET'])
 @login_required
@@ -168,9 +194,9 @@ def new_pcr():
                     password = re.sub('\s+', '', ':'.join(line[1:]))
                     creds.append((username, password))
             pcr = PasswordChangeRequest(team_id, PCRStatus.PENDING, creds, check_id=check_id, domain_id=domain_id)
-            conflict = pcr.conflicts(window)
-            if conflict:
-                pcr.set_status(PCRStatus.APPROVAL)
+#            conflict = pcr.conflicts(window)
+#            if conflict:
+#                pcr.set_status(PCRStatus.APPROVAL)
             pcr_id = pcr.id
             return redirect(url_for('pcr'))
     return render_template('pcr_new.html', form=form, window=window, pcr_id=pcr_id, success=success, conflict=conflict)
@@ -323,7 +349,7 @@ def systems():
         team = [t for t in wm.teams if t.id == tid][0]
         system = [s for s in wm.systems if s.name == system][0]
         vapp = system.vapp.base_name
-        vapp = '{}_{}'.format(team.name, vapp)
+        vapp = 'Team{}_{}'.format(team.id, vapp)
         print(vapp, system.name)
 
         if request.form['action'] == 'power on':
@@ -333,7 +359,19 @@ def systems():
         elif request.form['action'] == 'restart':
             errors = ialab.restart(vapp, system.name)
         elif request.form['action'] == 'revert':
-            errors = ialab.revert(vapp, system.name)
+            last_revert = db.get('revert_log', ['time'], where='team_id=%s AND system=%s', orderby='time DESC', args=[tid, system.name])
+            if len(last_revert) != 0:
+                last_revert = last_revert[0][0]
+            else:
+                last_revert = datetime.datetime.fromtimestamp(0)
+
+            next_revert = last_revert + datetime.timedelta(minutes=10)
+            if next_revert > datetime.datetime.now():
+                to_next_revert = next_revert - datetime.datetime.now() - datetime.timedelta(hours=6)
+                errors = '{} was reverted less than 10 minutes ago ({}). Next revert allowed at {} (in {})'.format(system.name, last_revert, next_revert, to_next_revert)
+            else:
+                errors = ialab.revert(vapp, system.name)
+
             if errors == '':
                 db.insert('revert_log', ['team_id', 'system'], [tid, system.name])
     systems = wm.systems

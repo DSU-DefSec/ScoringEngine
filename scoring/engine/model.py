@@ -17,10 +17,9 @@ class Team(object):
         netmask (IP): Netmask of the subnet
         vapp (str): Name of team vApp
     """
-    def __init__(self, id, name, team_num):
+    def __init__(self, id, name):
         self.id = int(id)
         self.name = name
-        self.team_num = team_num
 
     def __str__(self):
         return self.name
@@ -100,6 +99,14 @@ class System(object):
         self.vapp = vapp
         self.host = host
         self.checks = checks
+        self.persistence = {}
+
+    def reload_persistence(self):
+        pers = db.get('persistence', ['owner', 'attacker','active'], where='system=%s', args=[self.name])
+        for owner,attacker,active in pers:
+            if owner not in self.persistence:
+                self.persistence[owner] = {}
+            self.persistence[owner][attacker] = active
 
     def check(self, check_round, teams):
         """
@@ -191,8 +198,14 @@ class Check(object):
         except:
             result = False
         team_id = poll_input.team.id
-        self.store_result(check_round, check_io_id, team_id, poll_input,
-                          poll_result, result)
+        res_id = self.store_result(check_round, check_io_id, team_id, poll_input,
+                                   poll_result, result)
+        if res_id != -1:
+            defender, attackers = self.get_persistence(res_id)
+            if self.system.checks[0].id == self.id:
+                self.update_persistence(defender, attackers)
+            if result:
+                self.update_scores(defender, attackers)
 
     def store_result(self, check_round, check_io_id, team_id, poll_input,
                      poll_result, result):
@@ -220,10 +233,46 @@ class Check(object):
             print("Dump failed: {}".format(str(e)))
             print(poll_result.__class__.__name__)
             print(poll_result.__dict__)
-            return
-        db.execute(cmd, (self.id, check_io_id, team_id, check_round,
-                         poll_input, poll_result, result))
+            return -1
+        res_id = db.execute(cmd, (self.id, check_io_id, team_id, check_round,
+                                  poll_input, poll_result, result))
+        return res_id
 
+    def get_persistence(self, res_id):
+        # Gather relevant data from DB
+        last_res = db.get('result', ['team_id','check_round','time','result'], where='id=%s', args=[res_id])
+        defender,check_round,end_time,result = last_res[0]
+
+        start_time = db.get('result', ['time'], where='check_round=%s AND check_id=%s', args=[check_round-1, self.id])
+        if len(start_time) == 0:
+            start_time = 0
+        else:
+            start_time = start_time[0][0]
+        system = self.system.name
+
+        # Find attackers with persistence on the system since last check
+        where = 'defender=%s AND time > %s AND time < %s AND system=%s'
+        groupby = 'attacker'
+        attackers = db.get('persistence_log', ['attacker'], where=where, groupby=groupby, args=[defender, start_time, end_time, system])
+        attackers = [a[0] for a in attackers if a[0] != defender]
+        return defender, attackers
+
+    def update_scores(self, defender, attackers):
+        # Calculate point split
+        teams = attackers + [defender]
+        split = len(teams) * len(self.system.checks)
+        points = 100 / split
+
+        # Update scores
+        for team in teams:
+            db.modify('score', 'score=score+%s', where='team_id=%s', args=[points, team])
+
+    def update_persistence(self, defender, attackers):
+        system = self.system.name
+        db.modify('persistence', 'active=0', where='owner=%s AND system=%s', args=[defender, system])
+        for attacker in attackers:
+            db.modify('persistence', 'active=1', where='owner=%s AND system=%s AND attacker=%s', args=[defender, system, attacker])
+            
 
 class CheckIO(object):
     """
@@ -298,7 +347,7 @@ class CheckIO(object):
             team (Team): The team to generate an input for
         """
         poll_input = copy.copy(self.poll_input)
-        server = self.check.system.get_ip(team.team_num)
+        server = self.check.system.get_ip(team.id)
         poll_input.server = server
         poll_input.port = self.check.port
         poll_input.team = team

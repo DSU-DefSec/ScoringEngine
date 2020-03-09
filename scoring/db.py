@@ -20,7 +20,7 @@ def connect():
             user=user, password=password)
     return connection
 
-def get(table, columns, where=None, orderby=None, args=None):
+def get(table, columns, where=None, orderby=None, groupby=None, args=None):
     """
     Execute a SELECT statement on the database and return the matching columns.
 
@@ -41,6 +41,8 @@ def get(table, columns, where=None, orderby=None, args=None):
         cmd += ' WHERE ' + where
     if orderby is not None:
         cmd += ' ORDER BY ' + orderby
+    if groupby is not None:
+        cmd += ' GROUP BY ' + groupby
 
     # Execute command
     connection = connect()

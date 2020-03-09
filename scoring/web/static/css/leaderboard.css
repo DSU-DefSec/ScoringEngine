@@ -1,0 +1,14 @@
+
+table.leaderboard {
+    width: 30%;
+    margin: auto;
+    margin-top: 20px;
+}
+
+table th {
+    text-align: center;
+}
+
+td.rank {
+    text-align: center;
+}

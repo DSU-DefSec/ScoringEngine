@@ -54,6 +54,10 @@ class WebModel(DataModel):
                     results[team.id][check.id] = res
         return results
 
+    def reload_persistence(self):
+        for system in self.systems:
+            system.reload_persistence()
+
     def change_passwords(self, team_id, domain_id, service_id, pwchange):
         """
         Change the passwords for the given credentials.
