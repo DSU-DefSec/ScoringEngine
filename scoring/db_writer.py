@@ -74,14 +74,14 @@ def write_teams(teams):
     team_ids = {}
     for name, team_data in teams.items():
         team_num = team_data['team_num']
-        db.insert('team', ['id', 'name'], (team_num, name,))
+        db.insert('team', ['team_num', 'name'], (team_num, name,))
         db.insert('score', ['team_id', 'score'], (team_num, 0,))
         team_ids[name] = team_num
     return team_ids
 
 def write_persistence():
-    cmd = ("INSERT INTO persistence (owner, system, attacker) SELECT t1.id,system,t2.id FROM "
-           "team t1 JOIN system JOIN team t2")
+    cmd = ("INSERT INTO persistence (owner, system_row, attacker) SELECT t1.id,system_row,t2.id FROM "
+           "team t1 JOIN system_row JOIN team t2")
     db.execute(cmd)
 
 def write_web_users(admins, teams, team_ids):
