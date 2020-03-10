@@ -67,8 +67,8 @@ class DataModel(object):
         """
         teams = {}
         rows = db.getall('team')
-        for team_id, name in rows:
-            team = Team(team_id, name)
+        for team_id, name, team_num in rows:
+            team = Team(team_id, name, team_num)
             teams[team_id] = team
         return teams
 
@@ -192,7 +192,7 @@ class DataModel(object):
             List(Service): A list of systems
         """
         systems = []
-        system_rows = db.getall('system')
+        system_rows = db.getall('system_tbl')
         for system_name, vapp_name, host in system_rows:
             schecks = []
             for check, sid in checks:

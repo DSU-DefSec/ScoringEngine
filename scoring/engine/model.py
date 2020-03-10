@@ -17,9 +17,10 @@ class Team(object):
         netmask (IP): Netmask of the subnet
         vapp (str): Name of team vApp
     """
-    def __init__(self, id, name):
+    def __init__(self, id, name, team_num):
         self.id = int(id)
         self.name = name
+        self.team_num = team_num
 
     def __str__(self):
         return self.name
@@ -102,7 +103,7 @@ class System(object):
         self.persistence = {}
 
     def reload_persistence(self):
-        pers = db.get('persistence', ['owner', 'attacker','active'], where='system=%s', args=[self.name])
+        pers = db.get('persistence', ['owner', 'attacker','active'], where='system_row=%s', args=[self.name])
         for owner,attacker,active in pers:
             if owner not in self.persistence:
                 self.persistence[owner] = {}
@@ -251,7 +252,7 @@ class Check(object):
         system = self.system.name
 
         # Find attackers with persistence on the system since last check
-        where = 'defender=%s AND time > %s AND time < %s AND system=%s'
+        where = 'defender=%s AND time > %s AND time < %s AND system_row=%s'
         groupby = 'attacker'
         attackers = db.get('persistence_log', ['attacker'], where=where, groupby=groupby, args=[defender, start_time, end_time, system])
         attackers = [a[0] for a in attackers if a[0] != defender]
@@ -269,9 +270,9 @@ class Check(object):
 
     def update_persistence(self, defender, attackers):
         system = self.system.name
-        db.modify('persistence', 'active=0', where='owner=%s AND system=%s', args=[defender, system])
+        db.modify('persistence', 'active=0', where='owner=%s AND system_row=%s', args=[defender, system])
         for attacker in attackers:
-            db.modify('persistence', 'active=1', where='owner=%s AND system=%s AND attacker=%s', args=[defender, system, attacker])
+            db.modify('persistence', 'active=1', where='owner=%s AND system_row=%s AND attacker=%s', args=[defender, system, attacker])
             
 
 class CheckIO(object):
