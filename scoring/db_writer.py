@@ -81,7 +81,7 @@ def write_teams(teams):
 
 def write_persistence():
     cmd = ("INSERT INTO persistence (owner, system_row, attacker) SELECT t1.id,system_row,t2.id FROM "
-           "team t1 JOIN system_row JOIN team t2")
+           "team t1 JOIN system_tbl JOIN team t2")
     db.execute(cmd)
 
 def write_web_users(admins, teams, team_ids):
