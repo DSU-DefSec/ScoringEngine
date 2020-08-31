@@ -51,7 +51,7 @@ class PasswordChangeForm(FlaskForm):
     """
     team = SelectField('Team', coerce=int)
     ctype = SelectField('Credential Type')
-    domain = SelectField('Domain', coerce=int)
+    domain = SelectField('Domain', coerce=str)
     check = SelectField('Service', coerce=int)
     pwchange = TextAreaField('Password Changes')
 
@@ -66,7 +66,7 @@ class PasswordChangeForm(FlaskForm):
         self.ctype.choices=[('Local', 'Local'), ('Domain', 'Domain')]
         self.ctype.validators=[InputRequired()]
         
-        self.domain.choices=[(d.id, d.fqdn) for d in wm.domains]
+        self.domain.choices=[(d.fqdn, d.fqdn) for d in wm.domains]
         self.domain.validators=[Optional()]
 
         self.check.choices=[(c.id, c.name) for c in wm.checks]

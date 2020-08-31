@@ -23,9 +23,8 @@ CREATE TABLE `system` (
 
 DROP TABLE IF EXISTS `team`;
 CREATE TABLE `team` (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `name` VARCHAR(255) NOT NULL UNIQUE,
-    `team_num` INT NOT NULL UNIQUE
+    `id` INT PRIMARY KEY,
+    `name` VARCHAR(255) NOT NULL UNIQUE
     );
         
 DROP TABLE IF EXISTS `users`;
@@ -51,8 +50,7 @@ CREATE TABLE `service_check` (
 
 DROP TABLE IF EXISTS `domain`;
 CREATE TABLE `domain` (
-    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `fqdn` VARCHAR(256) NOT NULL UNIQUE);
+    `fqdn` VARCHAR(256) PRIMARY KEY);
 
 DROP TABLE IF EXISTS `check_io`;
 CREATE TABLE `check_io` (
@@ -70,13 +68,13 @@ CREATE TABLE `credential` (
     `password` VARCHAR(255) NOT NULL,
     `team_id` INT NOT NULL,
     `check_id` INT NOT NULL,
-    `domain_id` INT,
+    `domain` VARCHAR(256),
     `is_default` BOOL DEFAULT TRUE,
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
        ON DELETE CASCADE,
     FOREIGN KEY (`check_id`) REFERENCES `service_check`(`id`)
        ON DELETE CASCADE,
-    FOREIGN KEY (`domain_id`) REFERENCES `domain`(`id`)
+    FOREIGN KEY (`domain`) REFERENCES `domain`(`fqdn`)
        ON DELETE CASCADE);
 
 DROP TABLE IF EXISTS `cred_input`;
@@ -119,18 +117,16 @@ CREATE TABLE `pcr` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `team_id` INT NOT NULL,
     `check_id` INT,
-    `domain_id` INT,
+    `domain` VARCHAR(256),
     `submitted` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `completed` TIMESTAMP NULL,
     `status` INT NOT NULL,
     `creds` TEXT NOT NULL,
-    `team_comment` VARCHAR(4095) DEFAULT '',
-    `admin_comment` VARCHAR(4095) DEFAULT '',
     FOREIGN KEY (`team_id`) REFERENCES `team`(`id`)
        ON DELETE CASCADE,
     FOREIGN KEY (`check_id`) REFERENCES `service_check`(`id`)
        ON DELETE CASCADE,
-    FOREIGN KEY (`domain_id`) REFERENCES `domain`(`id`)
+    FOREIGN KEY (`domain`) REFERENCES `domain`(`fqdn`)
        ON DELETE CASCADE);
 
 DROP TABLE IF EXISTS `default_creds_log`;
