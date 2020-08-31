@@ -4,7 +4,8 @@ from .poller import PollInput, PollResult
 from .file_poller import FilePoller
 
 class FtpPollInput(PollInput):
-    """Wrapper for the inputs to a FtpPoller.
+    """
+    Wrapper for the inputs to a FtpPoller.
     
     Attributes:
         filepath (str): Path of file to get
@@ -14,30 +15,33 @@ class FtpPollInput(PollInput):
         self.filepath = filepath
 
 class FtpPollResult(PollResult):
-    """Wrapper for the results of polling an FTP service.
+    """
+    Wrapper for the results of polling an FTP service.
 
     Attributes:
         file (file handle): File retrieved. None if there was an error.
-        exceptions (Exception): Exceptions raised in polling, if any. None
+        exception (Exception): Exceptions raised in polling, if any. None
             if there was no error.
     """
-    def __init__(self, file_name, exceptions):
-        super(FtpPollResult, self).__init__(exceptions)
+    def __init__(self, file_name, exception):
+        super(FtpPollResult, self).__init__(exception)
         self.file_name = file_name
 
 class FtpPoller(FilePoller):
     """
+    A poller for FTP services.
+
+    This poller uses passive FTP to retrieve files.
     """
     @timeout_decorator.timeout(20, use_signals=False)
     def poll(self, poll_input):
         username = poll_input.credentials.username
         password = poll_input.credentials.password
 
-        ftp = ftplib.FTP()
-
         extension = self.get_extension(poll_input.filepath)
         f = self.open_file(extension)
 
+        ftp = ftplib.FTP()
         try:
             ftp.connect(poll_input.server, poll_input.port)
             ftp.login(user=username, passwd=password)

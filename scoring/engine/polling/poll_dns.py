@@ -4,7 +4,8 @@ from dns.resolver import *
 from .poller import PollInput, PollResult, Poller
 
 class DnsPollInput(PollInput):
-    """Wrapper for the inputs to a DnsPoller.
+    """
+    Wrapper for the inputs to a DnsPoller.
     
     Attributes:
         record_type (str): DNS record type to query for.
@@ -17,7 +18,8 @@ class DnsPollInput(PollInput):
         self.query = query
 
 class DnsPollResult(PollResult):
-    """Wrapper for the results of polling a DNS service.
+    """
+    Wrapper for the results of polling a DNS service.
 
     Attributes:
         answer (dns.resolver.Answer): DNS query answer. None if there
@@ -30,7 +32,8 @@ class DnsPollResult(PollResult):
         self.answer = answer
 
 class DnsPoller(Poller):
-    """A Poller for DNS services.
+    """
+    A poller for DNS services.
 
     This Poller uses a DNS stub resolver to perform DNS queries against
     a server.

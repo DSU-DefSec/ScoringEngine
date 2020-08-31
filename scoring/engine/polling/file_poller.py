@@ -10,7 +10,7 @@ class FilePoller(Poller):
 
     def get_extension(self, path):
         """
-        Determines the file extesion of the given path. Returns 'txt' if there is none.
+        Determines the file extension of the given path. Returns 'txt' if there is none.
 
         Arguments:
             path (str): File path
