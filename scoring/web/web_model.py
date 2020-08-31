@@ -1,12 +1,12 @@
 import db
-from data_model import *
+from model import Model
 from .model import User
 import utils
 import json
 import re
 import bcrypt
 
-class WebModel(DataModel):
+class WebModel(Model):
 
     def load_db(self):
         """

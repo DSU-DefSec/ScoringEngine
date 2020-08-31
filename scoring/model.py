@@ -3,7 +3,10 @@ import json
 import db
 from engine.model import *
 
-class DataModel(object):
+class Model(object):
+    """
+    The common data model for the scoring engine and web interface.
+    """
 
     def reset_db(self):
         """
@@ -51,9 +54,6 @@ class DataModel(object):
         settings['jitter'] = int(settings['polling_jitter'])
         settings['timeout'] = int(settings['polling_timeout'])
         settings['running'] = int(settings['running'])
-        settings['pcr_approval_window'] = int(settings['pcr_approval_window'])
-        settings['pcr_service_window'] = int(settings['pcr_service_interval'])
-        settings['pcr_service_jitter'] = int(settings['pcr_service_jitter'])
         settings['revert_penalty'] = int(settings['revert_penalty'])
 
         self.settings = settings
@@ -63,12 +63,12 @@ class DataModel(object):
         Load teams from the database.
 
         Returns:
-            Dict(int->Team): A mapping of team database IDs to Teams
+            Dict(int->Team): A mapping of team IDs to Teams
         """
         teams = {}
         rows = db.getall('team')
-        for team_id, name, team_num in rows:
-            team = Team(team_id, name, team_num)
+        for team_id, name in rows:
+            team = Team(team_id, name)
             teams[team_id] = team
         return teams
 
@@ -81,8 +81,8 @@ class DataModel(object):
         """
         domains = []
         domain_rows = db.getall('domain')
-        for domain_id, fqdn in domain_rows:
-            domain = Domain(domain_id, fqdn)
+        for fqdn, in domain_rows:
+            domain = Domain(fqdn)
             domains.append(domain)
         return domains
     
@@ -91,7 +91,7 @@ class DataModel(object):
         Load credentials from the database.
         
         Arguments:
-            teams (Dict(int->Team)): Mapping of team database IDs to Teams to associate credentials with
+            teams (Dict(int->Team)): Mapping of team IDs to Teams to associate credentials with
             domains (List(Domain)): List of domains to associate credentials with
 
         Returns:
@@ -99,9 +99,9 @@ class DataModel(object):
         """
         creds = []
         cred_rows = db.getall('credential')
-        for cred_id, username, password, team_id, service_id, domain_id, is_default in cred_rows:
+        for cred_id, username, password, team_id, check_id, domain_name, is_default in cred_rows:
             team = next(filter(lambda t: t.id == team_id, teams))
-            domain_lst = list(filter(lambda d: d.id == domain_id, domains))
+            domain_lst = list(filter(lambda d: d.fqdn == domain_name, domains))
             if len(domain_lst) == 0:
                 domain = None
             else:
@@ -113,15 +113,16 @@ class DataModel(object):
     
     def load_check_ios(self, credentials):
         """
-        Load check input-output pairs from the database. Poll inputs will
-        be left in the following format:
-        List(input_class_str, Dict(attr->value)).
+        Load CheckIOs from the database. Poll inputs will be left in the 
+        following format:
+
+        List(input_class_str, Dict(attr->value))
 
         Arguments:
             credentials (List(Credential)): List of credentials to associate input-output pairs with
 
         Returns:
-            Dict(int->List(CheckIO)): Mapping of check IDs to a list of check input-output pairs
+            Dict(int->List(CheckIO)): Mapping of check IDs to a list of CheckIOs
         """
         check_ios = {}
    
@@ -155,16 +156,14 @@ class DataModel(object):
         Load checks from the database.
 
         Arguments:
-            check_ios (Dict(int->List(CheckIO))): Mapping of check IDs to a list of check input-output pairs to associate checks with 
+            check_ios (Dict(int->List(CheckIO))): Mapping of check IDs to a list of CheckIOs to associate checks with 
 
         Returns:
-            List(Check,int): A list of checks and the ID of their associated services
+            List(Check,int): A list of checks and the ID of their associated systems
         """
         checks = []
         check_rows = db.getall('service_check')
-        for check_id, name, system, port, check_string, \
-            poller_string in check_rows:
-
+        for check_id, name, system, port, check_string, poller_string in check_rows:
             # Build check
             ios = check_ios[check_id]
             check_function = load_module(check_string)
@@ -189,7 +188,7 @@ class DataModel(object):
                 check to associate a system with
 
         Returns:
-            List(Service): A list of systems
+            List(System): A list of systems
         """
         systems = []
         system_rows = db.getall('system')
@@ -209,6 +208,11 @@ class DataModel(object):
         return systems
 
     def load_vapps(self):
+        """ Load vApps from the database.
+
+        Returns:
+            Dict(str->Vapp): Mapping of vApp base names to vApps
+        """
         vapps = {}
         vapp_rows = db.getall('vapp')
         for base_name, subnet, netmask in vapp_rows:

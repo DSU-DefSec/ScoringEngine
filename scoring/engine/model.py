@@ -5,6 +5,7 @@ import db
 from threading import Thread
 from enum import IntEnum
 import datetime
+from .polling.poller import PollResult
 
 class Team(object):
     """
@@ -13,14 +14,10 @@ class Team(object):
     Attributes:
         id (int): ID of the team in the database
         name (str): Name of the team
-        subnet (IP): Subnet of the team
-        netmask (IP): Netmask of the subnet
-        vapp (str): Name of team vApp
     """
-    def __init__(self, id, name, team_num):
-        self.id = int(id)
+    def __init__(self, id, name):
+        self.id = id
         self.name = name
-        self.team_num = team_num
 
     def __str__(self):
         return self.name
@@ -31,12 +28,10 @@ class Domain(object):
     An Active Directory domain.
 
     Attributes:
-        id (int): ID of the domain in the database
         domain (str): First part of the FQDN
         fqdn (str): The fully qualified domain name of the domain
     """
-    def __init__(self, id, fqdn):
-        self.id = int(id)
+    def __init__(self, fqdn):
         self.domain = fqdn.split('.')[0]
         self.fqdn = fqdn
 
@@ -54,29 +49,31 @@ class Credential(object):
         password (str): The password used to log in
         team (Team): The team this credential applies to
         domain (Domain): The domain this credential applies to
-        check_io (CheckIO): The input-output pair this credential is for
         is_default (bool): Does the credential still have the default password?
+        check_io (CheckIO): The input-output pair this credential is for
     """
 
     def __init__(self, id, username, password, team, domain, is_default):
-        self.id = int(id)
+        self.id = id
         self.username = username
         self.password = password
         self.team = team
         self.domain = domain
         self.is_default = is_default
+        # check_io is set later
 
     def __str__(self):
-        return "%s\\%s:%s:%s" % (self.domain, self.team.name, self.username, self.password)
+        return "{}\\{}:{}:{}".format(self.domain, self.team.name, self.username, self.password)
 
 class Vapp(object):
     """
     A vApp.
 
     Attributes:
-        base_name (str): The base name for the vApp
+        base_name (str): The base name for the vApp to which 'Team X_' is prepended for the actual vApp name
         subnet (str): A format string for the subnet of the vApp
         netmask (str): The netmask for the vApp's subnet
+        systems (List(System)): List of Systems in the vApp
     """
     def __init__(self, base_name, subnet, netmask):
         self.base_name = base_name
@@ -103,7 +100,7 @@ class System(object):
 
     def check(self, check_round, teams):
         """
-        Conduct all checks on this service for every given team in parallel.
+        Conduct all checks on this service for every team in parallel.
         
         Arguments:
             check_round (int): The check round
@@ -114,14 +111,14 @@ class System(object):
                             args=(check_round, teams))
             thread.start()
 
-    def get_ip(self, team_num):
+    def get_ip(self, team_id):
         """
         Calculate an IP from the given subnet and this system's host number.
 
         Arguments:
-            team_num (int): The team number to calculate an IP for
+            team_id (int): The team id to calculate an IP for
         """
-        subnet = self.vapp.subnet.format(team_num)
+        subnet = self.vapp.subnet.format(team_id)
         octets = subnet.split('.')
         octets[3] = str(self.host)
         ip = '.'.join(octets)
@@ -138,14 +135,14 @@ class Check(object):
     Attributes:
         id (int): The ID of the check in the database
         name (str): The display name of the check
+        port (int): The port of the service tested by the check
         check_function ((PollResult, List or Dict) -> bool): The function used to check the output of the poller
         check_ios (List(CheckIO)): All of the possible input-output pairs which can be used with this check
         poller (Poller): The poller used to run this check against the service
-        service (Service): The service this check is for
     """
 
     def __init__(self, id, name, port, check_function, check_ios, poller):
-        self.id = int(id)
+        self.id = id
         self.name = name
         self.port = port
         self.check_function = check_function
@@ -178,18 +175,16 @@ class Check(object):
             poll_input (PollInput): The input to the poller
             expected (List or Dict): The expected output from the poller
         """
-        max_tries = 1 # TODO make this configurable
-        tries = 0
-        while tries < max_tries: 
-            tries += 1
-            poll_result = self.poller.poll_timed(poll_input)
-            if poll_result.exception is None or str(poll_result.exception) == 'None':
-                break
+        try:
+            poll_result = self.poller.poll(poll_input)
+        except Exception as e:
+            poll_result = PollResult(e)
 
         try:
             result = self.check_function(poll_result, expected)
         except:
             result = False
+
         team_id = poll_input.team.id
         self.store_result(check_round, check_io_id, team_id, poll_input,
                           poll_result, result)
@@ -213,6 +208,7 @@ class Check(object):
         cmd = ("INSERT INTO result (check_id, check_io_id, team_id, "
 	       "check_round, time, poll_input, poll_result, result) "
                "VALUES (%s, %s, %s, %s, NOW(), %s, %s, %s)")
+
         poll_input = json.dumps(poll_input, default=poll_input.serialize)
         try:
             poll_result = json.dumps(poll_result, default=poll_result.serialize)
@@ -221,6 +217,7 @@ class Check(object):
             print(poll_result.__class__.__name__)
             print(poll_result.__dict__)
             return
+
         db.execute(cmd, (self.id, check_io_id, team_id, check_round,
                          poll_input, poll_result, result))
 
@@ -238,7 +235,7 @@ class CheckIO(object):
     """
     
     def __init__(self, id, poll_input, expected, credentials):
-        self.id = int(id)
+        self.id = id
         self.poll_input = poll_input
         self.expected = expected
         self.credentials = credentials
@@ -250,43 +247,20 @@ class CheckIO(object):
         Arguments:
             teams (List(Team)): The teams to generate inputs for
         """
+        poll_inputs = []
         if len(self.credentials) == 0:
-            return self.get_poll_inputs_no_creds(teams)
-        else:
-            return self.get_poll_inputs_creds(teams)
-
-    def get_poll_inputs_no_creds(self, teams):
-        """
-        Generate team-specific poll inputs from this input-output pair
-        which don't use credentials.
-
-        Arguments:
-            teams (List(Team)): The teams to generate inputs for
-        """
-        poll_inputs = []
-        for team in teams:
-            poll_input = self.make_poll_input(team)
-            poll_inputs.append(poll_input)
-        return poll_inputs
-
-    def get_poll_inputs_creds(self, teams):
-        """
-        Generate team-specific poll inputs from this input-output pair
-        which use credentials.
-
-        Arguments:
-            teams (List(Team)): The teams to generate inputs for
-        """
-        poll_inputs = []
-        credential = random.choice(self.credentials)
-        creds = [cred for cred in self.credentials 
-                 if cred.username == credential.username]
-        for c in creds:
-            team = c.team
-            if team in teams:
+            for team in teams:
                 poll_input = self.make_poll_input(team)
-                poll_input.credentials = c
                 poll_inputs.append(poll_input)
+        else:
+            username = random.choice(self.credentials).username
+            creds = filter(lambda c: c.username == username, self.credentials)
+            for c in creds:
+                team = c.team
+                if team in teams:
+                    poll_input = self.make_poll_input(team)
+                    poll_input.credentials = c
+                    poll_inputs.append(poll_input)
         return poll_inputs
 
     def make_poll_input(self, team):
@@ -298,7 +272,7 @@ class CheckIO(object):
             team (Team): The team to generate an input for
         """
         poll_input = copy.copy(self.poll_input)
-        server = self.check.system.get_ip(team.team_num)
+        server = self.check.system.get_ip(team.id)
         poll_input.server = server
         poll_input.port = self.check.port
         poll_input.team = team
@@ -337,8 +311,6 @@ class Result(object):
 class PCRStatus(IntEnum):
     COMPLETE = 0
     PENDING = 1
-    APPROVAL = 2
-    DENIED = 3
 
 class PasswordChangeRequest(object):
     """
@@ -350,24 +322,22 @@ class PasswordChangeRequest(object):
         status (PCRStatus): The status of the request
         creds (List(str,str)): List of tuples (username, new_password)
         check_id (int): ID of the service to change passwords for
-        domain_id (int): ID of the domain to change passwords for
+        domain (str): FQDN of the domain to change passwords for
         submitted (datetime): Submission time for the request
-        completed (datetime): Completition time for the request
+        completed (datetime): Completion time for the request
         id (int): ID of the request
     """
-    def __init__(self, team_id, status, creds, id=None, check_id=None, domain_id=None, submitted=None, completed=None, team_comment='', admin_comment=''):
-        self.id = id
+    def __init__(self, team_id, status, creds, id=None, check_id=None, domain=None, submitted=None, completed=None):
         self.team_id = team_id
+        self.status = status
+        self.creds = creds
+        self.id = id
         self.check_id = check_id
-        self.domain_id = domain_id
+        self.domain = domain
         if submitted is None:
             submitted = datetime.datetime.now()
         self.submitted = submitted
         self.completed = completed
-        self.status = status
-        self.creds = creds
-        self.team_comment = team_comment
-        self.admin_comment = admin_comment
         
         if id is None:
             self.save()
@@ -383,17 +353,17 @@ class PasswordChangeRequest(object):
             PasswordChangeRequest: The password change request with the given ID
         """
         pcr_data = db.get('pcr', ['*'], where='id=%s', args=[pcr_id])[0]
-        id, team_id, check_id, domain_id, submitted, completed, status, creds, team_comment, admin_comment = pcr_data
+        id, team_id, check_id, domain, submitted, completed, status, creds = pcr_data
         creds = json.loads(creds)
-        pcr = PasswordChangeRequest(team_id, status, creds, id, check_id, domain_id, submitted, completed, team_comment, admin_comment)
+        pcr = PasswordChangeRequest(team_id, status, creds, id, check_id, domain, submitted, completed)
         return pcr
 
     def save(self):
         """
         Save this new password change request to the database.
         """
-        columns = ['team_id', 'check_id', 'domain_id', 'submitted', 'completed', 'status', 'creds']
-        data = [self.team_id, self.check_id, self.domain_id, self.submitted, self.completed, int(self.status), json.dumps(self.creds)]
+        columns = ['team_id', 'check_id', 'domain', 'submitted', 'completed', 'status', 'creds']
+        data = [self.team_id, self.check_id, self.domain, self.submitted, self.completed, int(self.status), json.dumps(self.creds)]
         self.id = db.insert('pcr', columns, data)
 
     def delete(self):
@@ -401,35 +371,6 @@ class PasswordChangeRequest(object):
         Delete this password change request from the database. The object should not be used after this method is called.
         """
         db.delete('pcr', [self.id], 'id=%s')
-
-    def conflicts(self, window):
-        """
-        Is there an account conflict for requests submitted in the window of time before this request.
-
-        Arguments:
-            window (int): Window for flagging conflicting requests in minutes
-
-        Returns:
-            bool: Does this request conflict with an earlier one?
-        """
-        # Load list of possible conflicting password change requests
-        where = 'id != %s AND team_id = %s AND status != %s '
-        if self.check_id is None:
-            where += 'AND check_id is %s AND domain_id = %s'
-        else:
-            where += 'AND check_id = %s AND domain_id is %s'
-
-        pcr_ids = db.get('pcr', ['id'], where=where, args=[self.id, self.team_id, int(PCRStatus.DENIED), self.check_id, self.domain_id])
-        pcrs = [PasswordChangeRequest.load(pcr_id) for pcr_id in pcr_ids]
-        # Check list for conflicts
-        window = datetime.timedelta(minutes=window)
-        users = [cred[0] for cred in self.creds]
-        for pcr in pcrs:
-            if pcr.submitted + window >= self.submitted:
-                for cred in pcr.creds:
-                    if cred[0] in users:
-                        return True
-        return False
 
     def set_status(self, new_status):
         """
@@ -441,33 +382,13 @@ class PasswordChangeRequest(object):
         self.status = new_status
         db.modify('pcr', 'status=%s', (int(self.status), self.id), where='id=%s')
 
-    def set_team_comment(self, team_comment):
-        """
-        Set the team comment for this request and save it to the database.
-
-        Arguments:
-            team_comment (str): New team comment
-        """
-        self.team_comment = team_comment
-        db.modify('pcr', 'team_comment=%s', (team_comment, self.id), where='id=%s')
-
-    def set_admin_comment(self, admin_comment):
-        """
-        Set the admin comment for this request and save it to the database.
-
-        Arguments:
-            admin_comment (str): New admin comment
-        """
-        self.admin_comment = admin_comment
-        db.modify('pcr', 'admin_comment=%s', (admin_comment, self.id), where='id=%s')
-
     def service_request(self):
         """
         Service this request, updating account credentials in the database, and updating the current status of the request
         """
         for cred in self.creds:
             username, password = cred
-            db.set_credential_password(username, password, self.team_id, self.check_id, self.domain_id)
+            db.set_credential_password(username, password, self.team_id, self.check_id, self.domain)
         self.completed = datetime.datetime.now()
         db.modify('pcr', 'completed=%s', (self.completed, self.id), where='id=%s')
         self.set_status(PCRStatus.COMPLETE)
