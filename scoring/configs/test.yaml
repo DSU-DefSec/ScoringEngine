@@ -1,0 +1,170 @@
+settings:
+    running: 1
+    revert_penalty: 350
+    webserver_ip: 10.20.0.5
+    polling:
+        interval: 30
+        jitter: 0
+        timeout: 20
+
+web_admins:
+    admin: mysql3306
+
+teams:
+    Team1:
+        team_num: 1
+        user:
+            username: team1
+            password: MemberPreview
+
+vapps:
+    Test:
+        subnet: "10.10.{}.0"
+        netmask: 255.255.255.0
+        systems:
+            LIN1:
+                host: 10
+                checks:
+                    LIN1-ldap:
+                        type: ldap
+                        port: 389
+                        checker: match_ldap_output
+                        ios:
+                            lin1-ldap:
+                                input:
+                                    base: ou=accounts,dc=TEST,dc=LOCAL
+                                    filter: (uid=dave)
+                                    attributes: [uid]
+                                output:
+                                    uid: [dave]
+                    LIN1-dns:
+                        type: dns
+                        port: 53
+                        checker: any_match
+                        ios:
+                            dns-lin1:
+                                input:
+                                    record_type: A
+                                    query: lin1.test.local
+                                output:
+                                    answer: [10]
+                            dns-lin2:
+                                input:
+                                    record_type: A
+                                    query: lin2.test.local
+                                output:
+                                    answer: [20]
+                            dns-lin3:
+                                input:
+                                    record_type: A
+                                    query: lin3.test.local
+                                output:
+                                    answer: [30]
+                    LIN1-imap:
+                        type: imap
+                        port: 143
+                        checker: authenticated
+                        ios:
+                            lin1-imap:
+                                input:
+                                    starttls: True
+                                output:
+                    LIN1-pop:
+                        type: pop
+                        port: 110
+                        checker: authenticated
+                        ios:
+                            lin1-pop:
+                                input:
+                                    starttls: True
+                                output:
+            LIN2:
+                host: 20
+                checks:
+                    LIN2-smb:
+                        type: smb
+                        port: 445
+                        checker: hash_match
+                        ios:
+                            lin2-smb:
+                                input:
+                                    hostname: Share
+                                    sharename: data
+                                    path: test.txt
+                                output:
+                                    hash: 5edc99dc09302b2acfe09bef8397b88eb9dacb44
+                    LIN2-http:
+                        type: http
+                        port: 80
+                        checker: diff_match
+                        ios:
+                            lin2-http:
+                                input:
+                                    proto: http
+                                    path: "wordpress/index.php/2020/08/28/hello-world/"
+                                    host: "test.local"
+                                output:
+                                    tolerance: 0.05
+                                    file: test.html
+                    LIN2-MySQL:
+                        type: mysql
+                        port: 3306
+                        checker: match_sql_output
+                        ios:
+                            lin2-mysql:
+                                input:
+                                    db: wordpress
+                                    query: SELECT comment_author FROM wp_comments WHERE comment_id=1
+                                output:
+                                    output: A WordPress Commenter
+
+            LIN3:
+                host: 30
+                checks:
+                    LIN3-ftp:
+                        type: ftp
+                        port: 21
+                        checker: hash_match
+                        ios:
+                            lin3-ftp:
+                                input:
+                                    filepath: ftp.txt
+                                output:
+                                    hash: ac4229d8a12b8c164248ac221209bda45b6ecc00 
+                    LIN3-ssh:
+                        type: ssh
+                        port: 22
+                        checker: output_check
+                        ios:
+                            lin3-ssh:
+                                input:
+                                    task: "getent passwd | head -n 1 | cut -d ':' -f 1"
+                                output: 
+                                    output: root
+credentials:
+    default_password: Password1!
+    local:
+        wordpress:
+            ios: ['lin2-mysql']
+        bob:
+            ios: ['lin1-imap', 'lin1-pop', 'lin2-smb', 'lin3-ssh', 'lin3-ftp']
+        charlie:
+            ios: ['lin1-imap', 'lin1-pop', 'lin2-smb', 'lin3-ssh', 'lin3-ftp']
+        alice:
+            ios: ['lin1-imap', 'lin1-pop', 'lin2-smb', 'lin3-ssh', 'lin3-ftp']
+        dave:
+            ios: ['lin1-imap', 'lin1-pop', 'lin2-smb', 'lin3-ssh', 'lin3-ftp']
+        eve:
+            ios: ['lin1-imap', 'lin1-pop', 'lin2-smb', 'lin3-ssh', 'lin3-ftp']
+    domain:
+        TEST.LOCAL:
+            eve:
+                ios: ['lin1-ldap']
+            dave:
+                ios: ['lin1-ldap']
+            bob:
+                ios: ['lin1-ldap']
+            charlie:
+                ios: ['lin1-ldap']
+            alice:
+                ios: ['lin1-ldap']
