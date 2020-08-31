@@ -1,28 +1,29 @@
+import yaml
 import pymysql
 
 def load_creds():
-    with open('db.creds', 'r') as f:
-        creds = f.read().split('\n')[:-1]
+    """
+    Load database credentials from a file.
+    """
+    with open('db.yaml', 'r') as f:
+        creds = yaml.load(f)
     return creds
-
-host, user, password = load_creds()
-
 
 def connect():
     """
-    Connect to the MySQL database with the globally defined
-    credentials and host.
+    Connect to the MySQL database.
 
     Returns:
         Connection: A connection to the database
     """
-    connection = pymysql.connect(host=host, 
-            user=user, password=password)
+    creds = load_creds()
+    connection = pymysql.connect(host=creds['host'], 
+            user=creds['user'], password=creds['password'])
     return connection
 
 def get(table, columns, where=None, orderby=None, args=None):
     """
-    Execute a SELECT statement on the database and return the matching columns.
+    Execute a SELECT statement on the database and return the matching data.
 
     Arguments:
         table (str): Table to SELECT data from
@@ -136,7 +137,7 @@ def insert(table, columns, args):
 
 def modify(table, set, args, where=None):
     """
-    Modify the given columns in the given table matching the given criteria.
+    Modify the given data in the given table matching the given criteria.
 
     Arguments:
         table (str): The table to modify
@@ -163,7 +164,7 @@ def delete(table, args, where=None):
         cmd += ' WHERE %s' % where
     execute(cmd, args)
 
-def set_credential_password(username, password, team_id, check_id=None, domain_id=None):
+def set_credential_password(username, password, team_id, check_id=None, domain=None):
     """
     Set the password for the credentials matching the given criteria.
 
@@ -171,11 +172,11 @@ def set_credential_password(username, password, team_id, check_id=None, domain_i
         username (str): The username of the credentials
         password (str): The password to change to
         team_id (str): The ID of the team of the credentials
-        check_id (str): Optional, the ID of the check of the credentials. check_id and domain_id cannot both be None
-        domain_id (str): Optional, the ID of the domain of the credentials. check_id and domain_id cannot both be None
+        check_id (str): Optional, the ID of the check of the credentials. check_id and domain cannot both be None
+        domain (str): Optional, the fqdn of the domain of the credentials. check_id and domain cannot both be None
     """
-    if check_id is None and domain_id is None:
-        raise Exception('check_id and domain_id cannot both be None.')
+    if check_id is None and domain is None:
+        raise Exception('check_id and domain cannot both be None.')
     cmd = 'UPDATE credential SET password=%s, is_default=0 WHERE team_id=%s'
     args = [password, team_id]
     if username.lower() != 'all':
@@ -185,6 +186,6 @@ def set_credential_password(username, password, team_id, check_id=None, domain_i
         cmd += ' AND check_id=%s'
         args.append(check_id)
     else:
-        cmd += ' AND domain_id=%s'
-        args.append(domain_id)
+        cmd += ' AND domain=%s'
+        args.append(domain)
     execute(cmd, args)
