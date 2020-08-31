@@ -1,12 +1,8 @@
-#!/usr/bin/python3
-from engine.engine_model import EngineModel
-from engine.file_manager import FileManager
-from engine.pcr_servicer import PCRServicer
+from .engine_model import EngineModel
 from threading import Thread
 import db
 import time, datetime
 import random
-import sys
 
 class ScoringEngine(object):
 
@@ -55,22 +51,3 @@ class ScoringEngine(object):
                 'SELECT team_id,AVG(is_default) FROM credential GROUP BY team_id')
         db.execute(cmd)
 
-
-if __name__ == '__main__':
-    if len(sys.argv) > 2:
-        print("Usage: ./engine [team_number]")
-    if len(sys.argv) == 1:
-        engine = ScoringEngine()
-    if len(sys.argv) == 2:
-        team_num = int(sys.argv[1]) - 1
-        engine = ScoringEngine(team_num)
-
-    pcr_servicer = PCRServicer(engine.em)
-    pcr_servicer.start()
-
-    file_manager = FileManager()
-    file_manager_thread = Thread(target=file_manager.manage_files)
-    file_manager_thread.start()
-
-    db.modify('settings', set='value=%s', where='skey=%s', args=(True, 'running'))
-    engine.start()
