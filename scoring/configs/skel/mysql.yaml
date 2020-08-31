@@ -1,0 +1,12 @@
+                    name-MySQL:
+                        type: mysql
+                        port: 3306
+                        checker: match_sql_output
+                        ios:
+                            name-mysql:
+                                input:
+                                    db: dbname
+                                    query: query here
+                                output: 
+                                    output: output here
+
