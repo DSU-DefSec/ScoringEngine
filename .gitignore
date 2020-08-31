@@ -16,6 +16,4 @@ scoring/web/static/imgs/*.png
 docs/_build/*
 docs/_static/*
 docs/_templates/*
-scoring/ialab.token
 scoring/pyvcloud.log
-scoring/db.creds
