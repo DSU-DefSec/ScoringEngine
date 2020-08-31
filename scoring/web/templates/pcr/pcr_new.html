@@ -1,15 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<script>
-    function modalTrigger(conflict) {
-        if ({{ conflict|int }}) {
-            $('#conflictModal').modal('show');
-        }
-    }
-    document.body.onload = modalTrigger;
-</script>
-
 <div class="col-sm-6 offset-sm-3">
     <h2 class="text-center">Bulk Password Change</h2>
     
@@ -19,7 +10,7 @@
     </div>
     {% endif %}
 
-    <form method="post" action="{{ url_for('new_pcr') }}">
+    <form method="post" action="{{ url_for('pcr.new_pcr') }}">
         {{ form.csrf_token }}
         {% if current_user.is_admin %}
         <div class="form-group">
@@ -51,10 +42,10 @@
         </div>
         <div class="form-group" id="domain-form">
             {{ form.domain.label }}
-            {% if form.errors[form.domain.id] %}
+            {% if form.errors[form.domain.fqdn] %}
             <div class="alert alert-danger">
                 <ul>
-                    {% for error in form.errors[form.domain.id] %}
+                    {% for error in form.errors[form.domain.fqdn] %}
                         <li><strong>{{ error }}</strong></li>
                     {% endfor %}
                 </ul>
@@ -112,24 +103,4 @@
     credtype_change();
 </script>
 
-<div class="modal fade" id="conflictModal" tabindex="-1" role="dialog" aria-labelledby="conflictModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="conflictModalLabel">Password Change Request Conflict</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>One or more of the accounts you have tried to change the password for in this request has had a request submitted to change their password in the past <u>{{ window }}</u> minutes.
-        <p>Your request has been submitted, but it will require admin approval. Please go to the <a href="/pcr_details?id={{pcr_id}}">details page of this request</a> to provide justification for changing the passwords on these accounts again so soon (a reference to an Incident Response report is ideal).
-        <p>Alternatively, go to the <a href="/pcr">overview page</a> to delete this request and resubmit without the conflicting user accounts.
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}

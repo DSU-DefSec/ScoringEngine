@@ -23,6 +23,9 @@ table.table {
         <th>Total SLAs</th>
     </thead>
     <tbody>
+	{% if current_user.is_admin %}
+
+	{% else %}
         {% set ts = totals[current_user.team.id] %}
         {% for cid,total in ts.items() %}
         <tr>
@@ -34,6 +37,7 @@ table.table {
             <td>Total</td>
             <td>{{ ts.values()|sum }}</td>
         </tr>
+	{% endif %}
     </tbody>
 </table>
 

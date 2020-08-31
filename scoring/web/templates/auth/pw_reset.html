@@ -20,7 +20,7 @@
     </div>
     {% endif %}
 
-    <form method="POST" action="{{ url_for('pw_reset') }}">
+    <form method="POST" action="{{ url_for('auth.pw_reset') }}">
         {{ form.csrf_token }}
         {% if current_user.is_admin %}
         <div class="form-group">

@@ -14,27 +14,27 @@
 </head>
 <body>
 <nav class="navbar nav navbar-expand-sm navbar-dark bg-dark">
-<a class="navbar-brand" href="{{ url_for('status') }}">Scoring Engine</a>
+<a class="navbar-brand" href="{{ url_for('status.status') }}">Scoring Engine</a>
 
 <ul class="navbar-nav mr-auto">
     <li class="nav-item {% block status %}{% endblock %}">
-        <a class="nav-link" href="{{ url_for('status') }}">Status</a>
+        <a class="nav-link" href="{{ url_for('status.status') }}">Status</a>
     </li>
     {% if current_user.is_authenticated %}
     <li class="d-inline-block nav-item {% block pcr %}{% endblock %}">
-        <a class="nav-link" href="{{ url_for('pcr') }}">Password Change Requests</a>
+        <a class="nav-link" href="{{ url_for('pcr.pcr') }}">Password Change Requests</a>
     </li>
     <li class="d-inline-block nav-item {% block systems %}{% endblock %}">
-        <a class="nav-link" href="{{ url_for('systems') }}">System Resets</a>
+        <a class="nav-link" href="{{ url_for('vcloud.systems') }}">System Resets</a>
     </li>
     <li class="d-inline-block nav-item {% block revert_log %}{% endblock %}">
-        <a class="nav-link" href="{{ url_for('revert_log') }}">Revert Log</a>
+        <a class="nav-link" href="{{ url_for('vcloud.revert_log') }}">Revert Log</a>
     </li>
     <li class="d-inline-block nav-item dropdown {% block sla %}{% endblock %}">
         <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">SLA</a>
         <div class="dropdown-menu">
-            <a class="dropdown-item" href="{{ url_for('sla_log') }}">SLA Log</a>
-            <a class="dropdown-item" href="{{ url_for('sla_totals') }}">SLA Totals</a>
+            <a class="dropdown-item" href="{{ url_for('sla.sla_log') }}">SLA Log</a>
+            <a class="dropdown-item" href="{{ url_for('sla.sla_totals') }}">SLA Totals</a>
         </div>
     </li>
     {% endif %}
@@ -42,8 +42,8 @@
     <li class="d-inline-block nav-item dropdown {% block reporting %}{% endblock %}">
         <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Reports</a>
         <div class="dropdown-menu">
-            <a class="dropdown-item" href="{{ url_for('score') }}">Scores</a>
-            <a class="dropdown-item" href="{{ url_for('default') }}">Default Creds</a>
+            <a class="dropdown-item" href="{{ url_for('reporting.score') }}">Scores</a>
+            <a class="dropdown-item" href="{{ url_for('reporting.default') }}">Default Creds</a>
         </div>
     </li>
     {% endif %}
@@ -51,14 +51,14 @@
 <ul class="navbar-nav navbar-right">
     {% if current_user.is_authenticated %}
         <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('pw_reset') }}">Reset Password</a>
+            <a class="nav-link" href="{{ url_for('auth.pw_reset') }}">Reset Password</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+            <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
         </li>
     {% else %}
         <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+            <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
         </li>
     {% endif %}
 </ul>
