@@ -17,29 +17,30 @@ class FileManager(object):
         running = int(db.get('settings', ['value'], where='skey=%s', args=['running'])[0][0])
         while running:
             self.deduplicate_files()
-            self.push_files()
+#            self.push_files()
             time.sleep(5)
             running = int(db.get('settings', ['value'], where='skey=%s', args=['running'])[0][0])
 
     def get_files(self):
         paths = []
         for dir_part, dirs, files in os.walk(CHECK_FILES_PATH):
-            for file in files:
-                if file[0] != '.':
-                    path = os.path.join(dir_part, file)
-                    if not os.path.islink(path):
-                        paths.append(path)
+            if dir_part != EXPECTED_FILES_PATH:
+                for file in files:
+                    if file[0] != '.':
+                        path = os.path.join(dir_part, file)
+                        if not os.path.islink(path):
+                            paths.append(path)
         return paths
 
     def update_hashes(self, paths):
         for path in paths:
             if path not in self.hashes: 
-                f = open(path, 'rb')
                 m = hashlib.sha1()
-                m.update(f.read())
-                f.close()
+                with open(path, 'rb') as f:
+                    m.update(f.read())
                 hash = m.hexdigest()
                 self.hashes[path] = hash
+
                 if hash not in self.master_files:
                     self.master_files[hash] = path
                 
@@ -58,11 +59,3 @@ class FileManager(object):
                 rel_path = self.relative_path(master, file)
                 os.remove(file)
                 os.symlink(rel_path, file)
-    
-    def push_files(self):
-        webserver_ip = db.get('settings', ['value'], where='skey=%s', args=['webserver_ip'])[0][0]
-        remote = 'rsync://%s/checkfiles' % webserver_ip
-        local_files = os.listdir(CHECK_FILES_PATH)
-        for local_file in local_files:
-            local_file = '%s/%s' % (CHECK_FILES_PATH, local_file)
-            subprocess.call(['rsync', '-rl', local_file, remote])
