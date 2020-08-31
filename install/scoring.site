@@ -4,6 +4,6 @@ server {
 
     location / {
         include uwsgi_params;
-        uwsgi_pass unix:/opt/scoring/scoring/etc/uwsgi.sock;
+        uwsgi_pass unix:INSTALL_DIR/etc/uwsgi.sock;
     }
 }

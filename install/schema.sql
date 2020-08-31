@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS `scoring`;
+CREATE DATABASE `scoring`;
 USE `scoring`;
 SET foreign_key_checks = 0;
 

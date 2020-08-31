@@ -5,7 +5,7 @@ def load_creds():
     """
     Load database credentials from a file.
     """
-    with open('db.yaml', 'r') as f:
+    with open('etc/db.yaml', 'r') as f:
         creds = yaml.load(f)
     return creds
 

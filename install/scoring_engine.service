@@ -3,9 +3,9 @@ Description=Scoring Engine service
 After=network.target
 
 [Service]
-WorkingDirectory=/opt/scoring/scoring/
-ExecStart=/usr/bin/python3 -u /opt/scoring/scoring/engine_manager.py start
-ExecStop=/usr/bin/python3 -u /opt/scoring/scoring/engine_manager.py stop
+WorkingDirectory=INSTALL_DIR/
+ExecStart=/usr/bin/python3 -u INSTALL_DIR/engine_manager.py start
+ExecStop=/usr/bin/python3 -u INSTALL_DIR/engine_manager.py stop
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=scoring

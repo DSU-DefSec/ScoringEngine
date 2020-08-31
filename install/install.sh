@@ -11,13 +11,15 @@ err="\033[1;31m{!]\e[m"
 
 # Root check
 if ! [[ $EUID -eq 0 ]]; then
-   echo -e "${err} Install script must be ran as sudo (sudo ./install.sh)"
+   echo -e "${err} Install script must be run with sudo (sudo ./install.sh)"
    exit 1
 fi
 
 if ! [ -z ${1+x} ]; then
     echo "Usage: ./install.sh"
 fi
+
+INSTALL_DIR=$(dirname $PWD)
 
 # Update package list and set list to check if package needs updating
 echo -e "$plus Updating package list..."
@@ -49,32 +51,51 @@ echo -e "\n$plus Installing dependencies..."
     install_package libldap2-dev
     install_package freerdp2-x11
     install_package smbclient
-    pip3 install -U dnspython paramiko pymysql pymssql pyldap requests timeout-decorator
+    pip3 install -U dnspython paramiko pymysql pymssql pyldap requests timeout-decorator bs4
     echo -e "$plus Common files installed"
 
 echo -e "$plus Installing database (mysql-server)..."
     install_package mysql-server
+echo -e "$plus Configuring database..."
+    mysql -u root < schema.sql
+    while true; do
+        read -s -p "New password for database user 'scoring': " mysqlpass
+	echo
+        read -s -p "Confirm password for database user 'scoring': " mysqlpassconf
+	echo
+        if [[ $mysqlpass == $mysqlpassconf ]]; then
+            break
+        else
+    	echo "Passwords did not match. Please try again."
+        fi
+    done
+    mysql -u root -e "CREATE USER scoring@'localhost' IDENTIFIED BY '$mysqlpass'"
+    mysql -u root -e "GRANT ALL PRIVILEGES ON scoring.* to scoring@'localhost'"
+    sed -i "s/PASSWORD_HERE/$mysqlpass/" $INSTALL_DIR/etc/db.yaml
 
 echo -e "$plus Installing web software..."
     install_package python3-tk
     install_package nginx
     pip3 install Flask flask-login flask-wtf bcrypt uwsgi
+    sed -i "s.INSTALL_DIR.$INSTALL_DIR.g" $INSTALL_DIR/etc/uwsgi.ini
 
 echo -e "$plus Configuring nginx..."
-    cp install/scoring.site /etc/nginx/sites-available/
+    cp scoring.site /etc/nginx/sites-available/
+    sed -i "s.INSTALL_DIR.$INSTALL_DIR.g" /etc/nginx/sites-available/scoring.site
     rm /etc/nginx/sites-enabled/scoring.site
     ln -s /etc/nginx/sites-available/scoring.site /etc/nginx/sites-enabled/
     if [ -f /etc/nginx/sites-enabled/default ]; then rm /etc/nginx/sites-enabled/default; fi 
 
 echo -e "$plus Creating services..."
-    cp install/scoring_web.service /etc/systemd/system/
-    sudo cp install/scoring_engine.service /etc/systemd/system/
-    chown -R :www-data /opt/scoring/scoring/
-    chmod -R g+w /opt/scoring/scoring/
-    cp install/rsyncd.service /etc/systemd/system/
+    cp scoring_web.service /etc/systemd/system/
+    sed -i "s.INSTALL_DIR.$INSTALL_DIR.g" /etc/systemd/system/scoring_web.service
+    cp scoring_engine.service /etc/systemd/system/
+    sed -i "s.INSTALL_DIR.$INSTALL_DIR.g" /etc/systemd/system/scoring_engine.service
+    chown -R :www-data $INSTALL_DIR/
+    chmod -R g+w $INSTALL_DIR
 
 echo -e "$plus Configuring logging to /var/log/scoring.log..."
-    cp install/scoring.syslog.conf /etc/rsyslog.d/
+    cp scoring.syslog.conf /etc/rsyslog.d/
     if ! (grep -q "score" /etc/passwd); then
         echo -e "$plus Creating score user..."
         useradd -s /bin/bash score && echo -e "$plus Created user." || echo -e "$err Failed to create user!"
@@ -87,6 +108,7 @@ systemctl restart rsyslog
 systemctl restart nginx
 
 echo -e "\n$plus ScoringEngine set up! To start, run:"
-echo -e "\t systemctl start nginx scoring_engine scoring_web\n"
+echo -e "\t ./load_config.py config_file"
+echo -e "\t systemctl start scoring_engine scoring_web\n"
 echo -e "$plus To interact or view the engine, navigate to:"
 echo -e "\t http://127.0.0.1\n"

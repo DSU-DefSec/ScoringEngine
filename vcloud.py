@@ -4,7 +4,7 @@ import urllib3
 urllib3.disable_warnings()
 
 url = 'https://142.93.9.12/'
-with open('vcloud.token', 'r') as f:
+with open('etc/vcloud.token', 'r') as f:
     token = f.read().strip()
 
 def power_on(vapp, vm):

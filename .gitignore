@@ -9,11 +9,11 @@ dist/
 build/
 *.egg-info/
 
-scoring/checkfiles/*
-!scoring/checkfiles/.gitkeep
-!scoring/checkfiles/expected/.gitkeep
-scoring/web/static/imgs/*.png
+checkfiles/*
+!checkfiles/.gitkeep
+!checkfiles/expected/.gitkeep
+web/static/imgs/*.png
 docs/_build/*
 docs/_static/*
 docs/_templates/*
-scoring/pyvcloud.log
+pyvcloud.log
