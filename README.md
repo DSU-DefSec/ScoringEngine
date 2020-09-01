@@ -8,9 +8,7 @@ This is the [CCDC](http://nationalccdc.org) Scoring Engine used for the DSU Defe
 
 Download a demo Scoring Engine VM and Test VM [here](https://drive.google.com/drive/folders/14993t1caA-poFq6SQS95CNCJokF4ll4b?usp=sharing).
 
-### Installation
-
-## Installation and Setup
+### Installation Setup
 1. Clone the repo: `git clone https://github.com/DSU-DefSec/ScoringEngine.git`.
 
 2. Enter the install directory `cd install/`.
