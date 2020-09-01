@@ -2,6 +2,27 @@
 
 This is the [CCDC](http://nationalccdc.org) Scoring Engine used for the DSU Defensive Security Club's Mock Competitions.
 
+## Getting Started
+
+### Demos
+
+Download a demo Scoring Engine VM and Test VM [here](https://drive.google.com/drive/folders/14993t1caA-poFq6SQS95CNCJokF4ll4b?usp=sharing).
+
+### Installation
+
+## Installation and Setup
+1. Clone the repo: `git clone https://github.com/DSU-DefSec/ScoringEngine.git`.
+
+2. Enter the install directory `cd install/`.
+
+3. Install dependencies and set up the services: `./install.sh`.
+
+4. If using the IALab API (DSU only), update `etc/vcloud.token` with the appropriate token value.
+
+5. Write the configuration file, and load it into the database (see below).
+
+6. When you want to begin scoring, start the services with `systemctl start scoring_engine scoring_web`.
+
 ## Information
 
 #### Logical Architecture
@@ -16,58 +37,31 @@ This project is composed of a few important parts.
 
 ```
 ├── docs # Documentation
-├── install # Various files for ./install.sh to use
-├── install.sh # __Install script__. Installs dependencies and installs services.
+├── install # Various files for installing the ScoringEngine
 ├── LICENSE
 ├── README.md
-└── scoring # Main folder. Contains everything needed for scoring.
-    ├── checkfiles # Contains temporary files created in checks
-        └── ...
-    ├── configs # Contains example configurations. Write yours in here.
-        └── ...
-    ├── data_model.py # class that lays out "DataModel" object. Stores all data and manages db
-    ├── db.creds
-    ├── db.py # Contains functions for MySQL database access
-    ├── db_writer.py # Contains specialized functions for writing scoring data to database
-    ├── engine
-        ├── polling # Contains poller files, which interact with system services
-        ├── checker # Contains check files. Checks take poll results and return true or false
-        └── ...
-    ├── etc # Contains files needed to run scoring engine services (pid and conf files)
-        └── ...
-    ├── load_config.py # Loads a given config, deletes database beforehand
-    ├── schema.sql # Contains layout of MySQL database backend
-    ├── service.py # Starts password change request servicer
-    ├── start_engine.py # Defines ScoringEngine class and starts scoring engine
-    ├── stop_engine.py # Stops scoring engine (sets db value "running" to False)
-    ├── ialab.py # Orchestrates ialab integration (DSU specific)
-    ├── utils.py # Loads a given module by string.
-    ├── validate.py # Validater utils file. Validates inputs
-    ├── web # Contains flask files to create and run web server
-        └── ...
-    └── wsgi.py # Runs wsgi web server (flask)
+├── checkfiles # Contains temporary files created in checks
+    └── ...
+├── configs # Contains example configurations. Write yours in here.
+    └── ...
+├── model.py # class that lays out "Model" object. Stores all data and manages db
+├── db.py # Contains functions for MySQL database access
+├── db_writer.py # Contains specialized functions for writing scoring data to database
+├── engine
+    ├── polling # Contains poller files, which interact with system services
+    ├── checker # Contains check files. Checks take poll results and return true or false
+    └── ...
+├── etc # Contains files needed to run scoring engine services (pid and conf files)
+    └── ...
+├── load_config.py # Loads a given config, deletes database beforehand
+├── engine_manager.py # Starts and stop the ScoringEngine
+├── vcloud.py # Orchestrates ialab integration (DSU specific)
+├── utils.py # Loads a given module by string.
+├── web # Contains flask files to create and run web server
+    └── ...
+└── wsgi.py # Runs wsgi web server (flask)
 ├── scripts # Contains various scripts not needed for scoring engine
-└── setup.py
 ```
-
-## Installation and Setup
-
-> Note: `./` refers to `/opt/scoring` in these instructions.
-
-1. Copy (the entirety of) the `ScoringEngine` folder and rename it `scoring` in `/opt/` (`sudo mv ~/Downloads/ScoringEngine /opt/scoring`). Change the owner of these files to `www-data` (`chown -R www-data:www-data /opt/scoring/*`)
-
-2. The scoring engine is written in python3 and uses Flask for the web interface. In order to install dependencies and set up the services, run `./install.sh`.
-
-3. Create table `scoring` in database (`CREATE TABLE scoring;`). Set up the database with schema with `mysql -u root -p < ./scoring/schema.sql`.
-     
-4. Input your MySQL credentials (username and password separated by newline) in `./scoring/db.creds`.
-
-5. Write the configuration file, and load it into the database (see below).
-
-6. When you want to begin scoring, start the services with `systemctl start scoring_engine scoring_web`.
-
-## Checks and Polls
-
 
 ## Configuration
 
@@ -87,7 +81,6 @@ settings:
         jitter: 30
         timeout: 20
     pcr:
-        approval_window: 0
         service_interval: 0
         service_jitter: 0
 
@@ -122,8 +115,6 @@ vapps:
                                 output:
                                     objectGUID: [mKE1LEJ7jESXEyETKW8Zww==]
 
-
-
 credentials:
     default_password: Password1!
     local:
@@ -140,4 +131,3 @@ credentials:
                 ios: ['dc01-ldap']
            
 ```
-
