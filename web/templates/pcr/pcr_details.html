@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h3 class="text-center">Password Change Request Details</h3>
+
+<div class="col-8 offset-2">
+    <div>
+        <span><strong>Status:</strong></span>
+        {% if pcr.status == 0 %}
+        <span class="text-success"><strong>Complete</strong></span>
+        {% elif pcr.status == 1 %}
+        <span class="text-primary"><strong>Pending</strong></span>
+        {% endif %}
+    </div>
+    <div>
+        <span><strong>Submission Time:</strong></span>
+        <span>{{ pcr.submitted }}</span>
+    </div>
+    <div>
+    <div>
+        <span><strong>Completion Time:</strong></span>
+        <span>
+        {% if pcr.completed is none %}
+        -
+        {% else %}
+        {{ pcr.completed }}
+        {% endif %}
+        </span>
+    </div>
+    <span><strong>Service/Domain:</strong></span>
+    {% if pcr.check_id is none %}
+    <span>{{ pcr.domain }}</span>
+    {% else %}
+    <span>
+    {% set c=checks[pcr.check_id] %}
+    {{ c.name }}
+    </span>
+    {% endif %}
+    </div>
+</div>
+
+<div class="col-8 offset-2 mt-2">
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <th class="col-4">Username</th>
+        <th class="col-4">New Password</th>
+    </thead>
+    <tbody>
+        {% for cred in pcr.creds %}
+        <tr>
+            <td>{{ cred[0] }}</td>
+            <td>{{ cred[1] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+{% endblock %}

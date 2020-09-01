@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Scoring Engine</title>
+<link rel="stylesheet" href="/static/css/bootstrap-4.0.0.min.css">
+<link rel="stylesheet" href="/static/css/fontawesome-5.0.13.css">
+<link rel="stylesheet" href="/static/css/style.css">
+<script src="/static/js/jquery-3.2.1.slim.min.js"></script>
+<script src="/static/js/popper-1.12.9.min.js"></script>
+<script src="/static/js/bootstrap-4.0.0.min.js"></script>
+<script src="/static/js/scripts.js"></script>
+{% block head %}
+{% endblock%}
+</head>
+<body>
+<nav class="navbar nav navbar-expand-sm navbar-dark bg-dark">
+<a class="navbar-brand" href="{{ url_for('status.status') }}">Scoring Engine</a>
+
+<ul class="navbar-nav mr-auto">
+    <li class="nav-item {% block status %}{% endblock %}">
+        <a class="nav-link" href="{{ url_for('status.status') }}">Status</a>
+    </li>
+    {% if current_user.is_authenticated %}
+    <li class="d-inline-block nav-item {% block pcr %}{% endblock %}">
+        <a class="nav-link" href="{{ url_for('pcr.pcr') }}">Password Change Requests</a>
+    </li>
+    <li class="d-inline-block nav-item {% block systems %}{% endblock %}">
+        <a class="nav-link" href="{{ url_for('vcloud.systems') }}">System Resets</a>
+    </li>
+    <li class="d-inline-block nav-item {% block revert_log %}{% endblock %}">
+        <a class="nav-link" href="{{ url_for('vcloud.revert_log') }}">Revert Log</a>
+    </li>
+    <li class="d-inline-block nav-item dropdown {% block sla %}{% endblock %}">
+        <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">SLA</a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="{{ url_for('sla.sla_log') }}">SLA Log</a>
+            <a class="dropdown-item" href="{{ url_for('sla.sla_totals') }}">SLA Totals</a>
+        </div>
+    </li>
+    {% endif %}
+    {% if current_user.is_authenticated and current_user.name == 'admin' %}
+    <li class="d-inline-block nav-item dropdown {% block reporting %}{% endblock %}">
+        <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Reports</a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="{{ url_for('reporting.score') }}">Scores</a>
+            <a class="dropdown-item" href="{{ url_for('reporting.default') }}">Default Creds</a>
+        </div>
+    </li>
+    {% endif %}
+</ul>
+<ul class="navbar-nav navbar-right">
+    {% if current_user.is_authenticated %}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('auth.pw_reset') }}">Reset Password</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+        </li>
+    {% else %}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+        </li>
+    {% endif %}
+</ul>
+</nav>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class=flashes>
+            {% for message in messages %}
+                <div class=" alert alert-info">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<div class="container">
+{% block content %}
+{% endblock %}
+</div>
+
+{% block after %}
+{% endblock %}
+
+</body>
+</html>

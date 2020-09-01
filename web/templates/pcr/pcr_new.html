@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="col-sm-6 offset-sm-3">
+    <h2 class="text-center">Bulk Password Change</h2>
+    
+    {% if success %}
+    <div class="alert alert-success">
+        <strong>Success!</strong>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('pcr.new_pcr') }}">
+        {{ form.csrf_token }}
+        {% if current_user.is_admin %}
+        <div class="form-group">
+            {{ form.team.label }}
+            {% if form.errors[form.team.id] %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in form.errors[form.team.id] %}
+                        <li><strong>{{ error }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {{ form.team(class_="form-control") }}
+        </div>
+        {% endif %}
+        <div class="form-group">
+            {{ form.ctype.label }}
+            {% if form.errors[form.ctype.id] %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in form.errors[form.ctype.id] %}
+                        <li><strong>{{ error }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {{ form.ctype(class_="form-control", onchange="credtype_change()") }}
+        </div>
+        <div class="form-group" id="domain-form">
+            {{ form.domain.label }}
+            {% if form.errors[form.domain.fqdn] %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in form.errors[form.domain.fqdn] %}
+                        <li><strong>{{ error }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {{ form.domain(class_="form-control") }}
+        </div>
+        <div class="form-group" id="check-form" hidden="">
+            {{ form.check.label }}
+            {% if form.errors[form.check.id] %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in form.errors[form.check.id] %}
+                        <li><strong>{{ error }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {{ form.check(class_="form-control", disabled="") }}
+        </div>
+        <div class="form-group">
+            {{ form.pwchange.label }}
+            {% if form.errors[form.pwchange.id] %}
+            <div class="alert alert-danger">
+                <ul>
+                    {% for error in form.errors[form.pwchange.id] %}
+                        <li><strong>{{ error }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            {{ form.pwchange(rows=15, placeholder="user:password", class_="form-control") }}
+        </div>
+        <input type="submit" class="btn btn-primary" value="Submit"/>
+    </form>
+</div>
+
+<script type="text/javascript">
+    function credtype_change() {
+        var toHide = document.getElementById('check-form');
+        var toShow = document.getElementById('domain-form');
+
+        var type = document.getElementById('ctype').value;
+        if (type == 'Local') {
+            var tmp = toHide;
+            toHide = toShow;
+            toShow = tmp;
+        }
+        toHide.hidden = true;
+        toShow.hidden = false;
+
+        toHide.getElementsByTagName('select')[0].disabled = true;
+        toShow.getElementsByTagName('select')[0].disabled = false;
+    }
+    credtype_change();
+</script>
+
+{% endblock %}

@@ -5,10 +5,10 @@ After=network.target
 [Service]
 User=www-data
 Group=www-data
-WorkingDirectory=/opt/scoring/scoring/
-ExecStart=/usr/local/bin/uwsgi --ini /opt/scoring/scoring/etc/uwsgi.ini
-ExecStop=/usr/local/bin/uwsgi --stop /opt/scoring/scoring/etc/uwsgi.pid
-ExecReload=/usr/local/bin/uwsgi --reload /opt/scoring/scoring/etc/uwsgi.pid
+WorkingDirectory=INSTALL_DIR
+ExecStart=/usr/local/bin/uwsgi --ini INSTALL_DIR/etc/uwsgi.ini
+ExecStop=/usr/local/bin/uwsgi --stop INSTALL_DIR/etc/uwsgi.pid
+ExecReload=/usr/local/bin/uwsgi --reload INSTALL_DIR/etc/uwsgi.pid
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=scoring
